@@ -1,94 +1,38 @@
 # Skill Tracker
 
-A personal, offline-first skill progression tracker built on top of the
+A personal, offline-first skill progression tracker built on top of data collected and organized from
 [roadmap.sh](https://roadmap.sh) roadmaps.
 
+Progress is stored locally in the browser — no accounts, no sync, no server.
 
-### Canonical skills & the "Tracked in" relationship
+## Features
 
-Many skills appear in several roadmaps (e.g. "Closures" is in JavaScript,
-Frontend, and Full-Stack). The build script:
-
-1. **Normalizes by label** to collapse duplicates to a single canonical id.
-2. **Assigns a home roadmap**, preferring `language`/`framework`/`tech`/`foundation` roadmaps over
-   `role` roadmaps. A skill's home is where it is *tracked* — its resources
-   are sourced only from the home's markdown, so role roadmaps don't
-   duplicate resource lists.
-3. **Marks each row as `primary` or a reference.** In a role roadmap, rows
-   that live elsewhere appear with a small *"Tracked in: React"* link instead
-   of a curated resource list. Progress still syncs because the id is
-   canonical.
-4. **Merges `sources`** so each skill records every roadmap it appears in
-   (shown as `×N` badges and an "Appears in: …" footer).
-
-### Prerequisites
-
-During the graph walk in `buildPrereqs` (`scripts/build-roadmaps.mjs`), for
-every skill node we walk incoming edges **backward**, passing transparently
-through layout nodes (`section`, `vertical`, `horizontal`, labels, …) to find
-the real upstream *skill* node. Those upstream labels are then resolved to
-canonical ids and unioned across every roadmap that references the skill.
-
-The result is a `prerequisites: string[]` on every `Skill` — ~300 real
-topic-to-topic edges across the full dataset. This powers the "Builds on:"
-UI and forms the seed for a future skill-tree graph view.
-
-### Generated shape
-
-```ts
-interface Skill {
-  id: string;                // canonical; stable across roadmaps
-  label: string;
-  resources: Resource[];     // populated only from the home roadmap
-  sources: string[];         // every roadmap id that references this skill
-  prerequisites: string[];   // canonical ids this skill builds on
-  primary: boolean;          // true only in the home roadmap's view
-  homeRoadmapId: string;
-}
-
-interface Roadmap {
-  id: string;
-  label: string;
-  color: string;
-  kind: "role" | "foundation" | "language" | "framework" | "tech";
-  sections: { id: string; label: string; items: Skill[] }[];
-}
-```
+- Track skills across multiple roadmaps (Role, Foundation, Language, Framework, Tech)
+- Cross-roadmap skill linking (e.g., "Closures" appears in JavaScript, Frontend, and Full-Stack)
+- Light/dark theme with persistent preference
+- Offline-capable with localStorage persistence
 
 ## Progress persistence
 
-State is a single `Record<skillId, "learning" | "done" | "skipped">` kept in
-`localStorage` under a versioned key (`app/lib/storage.ts`). The
-`useProgress` hook in `app/hooks/useProgress.ts` loads on mount and writes
-through on every status change, so the app is fully offline-capable.
+Progress is stored in `localStorage` as a map of skill IDs to status
+(`"learning" | "done" | "skipped"`). The app works offline — no backend required.
 
 ## Project structure
 
 ```
 app/
-  components/          UI: Sidebar, MainContent, SectionBlock, TopicRow, …
-  data/
-    index.ts           Typed exports + canonical lookups (SKILL_HOME_BY_ID, …)
-    roadmaps.generated.json   (gitignored — generated at build)
-  hooks/
-    useProgress.ts     localStorage-backed progress hook
-    useTheme.ts        Theme state management (dark/light mode)
-  lib/
-    progress.ts        roadmap / section / global stat calculators
-    storage.ts         localStorage wrapper + status cycle
-    theme.ts           Theme utilities (get/set/apply/toggle)
-  routes/home.tsx      App shell, wires Sidebar + MainContent
-scripts/
-  build-roadmaps.mjs   Flattens roadmaps-source -> generated JSON
-roadmaps-source/       git submodule (roadmap.sh content)
+  components/          React components (Sidebar, MainContent, etc.)
+  data/              Roadmap data and type definitions
+  hooks/             useProgress, useTheme
+  lib/               Utilities (progress, storage, theme)
+  routes/            Page routes
 ```
 
 ## Getting started
 
 ### Prerequisites
 
-- **Node.js 22+** (required by Vite 8 / Rolldown which use `node:util`'s
-  `styleText` export). Use `nvm use 22` or install Node 22+.
+- **Node.js 22+**
 
 ### Install & run
 
@@ -99,7 +43,7 @@ npm run dev
 
 Open http://localhost:5173.
 
-`npm run build` regenerates the data bundle and produces a production build
+`npm run build` produces a production build
 in `build/`.
 
 ### Scripts
@@ -107,25 +51,30 @@ in `build/`.
 | Command             | Purpose                                              |
 | ------------------- | ---------------------------------------------------- |
 | `npm run dev`       | React Router dev server with HMR                     |
-| `npm run build`     | `build:data` + production build                      |
+| `npm run build`     | Production build                      |
 | `npm run start`     | Serve the production build                           |
 | `npm run typecheck` | React Router type generation + `tsc`                 |
 
 ## UI & Theming
 
-The app features a minimal, modern design with two themes:
+- **Dark mode** (default): Dark backgrounds with **purple accents**
+- **Light mode**: Light backgrounds with **red accents**
 
-- **Dark mode** (default): Dark backgrounds (`#0f0f0f`) with **purple accents** (`#a855f7`)
-- **Light mode**: Light backgrounds (`#fafafa`) with **red accents** (`#dc2626`)
-
-Theme preference is persisted in `localStorage` and applied before the React app renders to prevent flash of unstyled content (FOUC). The theme toggle is located next to the search bar in the main content header.
+Theme preference is persisted in `localStorage`. Toggle is next to the search bar.
 
 ## Tech stack
 
-- **React Router 7** (framework mode, SSR-capable)
-- **React 19** + **TypeScript**
-- **Tailwind CSS 4** via `@tailwindcss/vite`
-- **FontAwesome** for icons
-- **Vite 8** / **Rolldown** for bundling
-- **localStorage** for progress persistence and theme (no backend)
+- React Router 7 + React 19 + TypeScript
+- Tailwind CSS 4
+- FontAwesome icons
+- Vite 8
 
+-----
+
+AI tools are useful, but leaning on them too heavily creates a real risk: being deskilled quietly without realizing it and side effects go undocumented. This tracker exists to confront these concerns and build genuine foundational knowledge so I'm not dependent on tools I don't fully understand.
+
+The approach is intentionally recursive. AI helped scaffold this project first. My aim is to understand the concepts deeply enough to go back and rebuild it myself.
+
+Progress is measured in comprehension, not just completion. If you find this useful, feel free to clone it or use it for your own pursuits.
+
+@author Mitul Patel
