@@ -1,33 +1,8 @@
 # Skill Tracker
 
 A personal, offline-first skill progression tracker built on top of the
-[roadmap.sh](https://roadmap.sh) roadmaps. It turns every roadmap into
-a flat, trackable checklist of skills, links them together via prerequisites,
-and persists your progress locally in the browser — no accounts, no sync, no
-server.
+[roadmap.sh](https://roadmap.sh) roadmaps.
 
-
-## How the data is organized
-
-Source data comes from two places:
-
-1. **`roadmaps-source` git submodule** (a clone of
-   [github.com/kamranahmedse/developer-roadmap](https://github.com/kamranahmedse/developer-roadmap)).
-   Each roadmap ships as a `{slug}.json` node/edge graph plus a `content/`
-   directory of `{slug}@{nodeId}.md` markdown files.
-2. **`custom-roadmaps/*.json`** — hand-authored roadmaps for frameworks
-   roadmap.sh doesn't cover yet (Svelte, Nuxt, NestJS, …). The authoring
-   format is a flat `sections: [{ label, items: [{ label, prereqs, resources }] }]`
-   structure where prereqs are written as plain labels and resolve to
-   canonical skill ids during dedup (so `"prereqs": ["TypeScript"]` links to
-   the TypeScript roadmap's canonical skill automatically).
-
-At build time, `scripts/build-roadmaps.mjs` flattens all of this into a single
-`app/data/roadmaps.generated.json` payload consumed by the app:
-
-```
-Roadmap -> Section -> Skill
-```
 
 ### Canonical skills & the "Tracked in" relationship
 
@@ -114,11 +89,6 @@ roadmaps-source/       git submodule (roadmap.sh content)
 
 - **Node.js 22+** (required by Vite 8 / Rolldown which use `node:util`'s
   `styleText` export). Use `nvm use 22` or install Node 22+.
-- Initialize the roadmap submodule on first clone:
-
-  ```bash
-  git submodule update --init
-  ```
 
 ### Install & run
 
