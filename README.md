@@ -124,7 +124,6 @@ roadmaps-source/       git submodule (roadmap.sh content)
 
 ```bash
 npm install
-npm run build:data   # flatten roadmap.sh source into app/data/roadmaps.generated.json
 npm run dev
 ```
 
@@ -137,7 +136,6 @@ in `build/`.
 
 | Command             | Purpose                                              |
 | ------------------- | ---------------------------------------------------- |
-| `npm run build:data`| Regenerate `app/data/roadmaps.generated.json`        |
 | `npm run dev`       | React Router dev server with HMR                     |
 | `npm run build`     | `build:data` + production build                      |
 | `npm run start`     | Serve the production build                           |
