@@ -1,12 +1,18 @@
 {
   "name": "skill-tracker",
+  "author": "Mitul Patel",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "docker:dev": "docker compose up dev",
+    "docker:build": "docker build -t skill-tracker .",
+    "docker:run": "docker run -p 3000:3000 skill-tracker",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.0",
