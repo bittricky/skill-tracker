@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Dark theme — purple accent */
+  --color-brand-bg: #0f0f0f;
+  --color-brand-surface: #1a1a1a;
+  --color-brand-surface-2: #262626;
+  --color-brand-sidebar: #1a1a1a;
+  --color-brand-sidebar-2: #0f0f0f;
+  --color-brand-primary: #a855f7; /* purple accent */
+  --color-brand-primary-soft: #a855f720;
+  --color-brand-secondary: #7c3aed;
+  --color-brand-secondary-soft: #7c3aed20;
+  --color-brand-ink: #f5f5f5;
+  --color-brand-muted: #737373;
+  --color-brand-dim: #525252;
+  --color-brand-yellow: #fb923c;
+  --color-brand-green: #4ade80;
+  --color-brand-coral: #f87171;
+
+  /* Light theme — red accent */
+  --color-light-bg: #fafafa;
+  --color-light-surface: #ffffff;
+  --color-light-sidebar: #ffffff;
+  --color-light-primary: #dc2626; /* red accent */
+  --color-light-secondary: #ef4444;
+  --color-light-ink: #0f0f0f;
+  --color-light-muted: #525252;
+  --color-light-hover: #e5e5e5;
+}
+
+html,
+body {
+  background-color: var(--color-brand-bg);
+  color: var(--color-brand-ink);
+  color-scheme: light;
+}
+
+/* Dark theme is the default sci-fi aesthetic */
+html,
+body {
+  color-scheme: dark;
+}
+
+/* Light theme override with red accent */
+[data-theme="light"] {
+  --color-brand-bg: var(--color-light-bg);
+  --color-brand-surface: var(--color-light-surface);
+  --color-brand-sidebar: var(--color-light-sidebar);
+  --color-brand-primary: var(--color-light-primary);
+  --color-brand-secondary: var(--color-light-secondary);
+  --color-brand-ink: var(--color-light-ink);
+  --color-brand-muted: var(--color-light-muted);
+  --color-brand-surface-2: var(--color-light-hover);
+}
+
+[data-theme="light"] html,
+[data-theme="light"] body {
+  color-scheme: light;
+}
+
+/* Card shadow with subtle glow */
+.card-shadow {
+  box-shadow:
+    0 0 0 1px rgba(168, 85, 247, 0.05),
+    0 4px 24px -4px rgba(0, 0, 0, 0.4);
+}
+
+.card-shadow:hover {
+  box-shadow:
+    0 0 0 1px rgba(168, 85, 247, 0.1),
+    0 4px 32px -4px rgba(168, 85, 247, 0.1);
+}
+
+/* Glow utilities */
+.glow-primary {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+[data-theme="light"] .card-shadow {
+  box-shadow:
+    0 0 0 1px rgba(220, 38, 38, 0.05),
+    0 4px 24px -4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .card-shadow:hover {
+  box-shadow:
+    0 0 0 1px rgba(220, 38, 38, 0.1),
+    0 4px 32px -4px rgba(220, 38, 38, 0.1);
+}
+
+[data-theme="light"] .glow-primary {
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+}
+
+/* Glass effect for overlays */
+.glass {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Custom scrollbar */
+.scroll-soft::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-soft::-webkit-scrollbar-track {
+  background: rgba(168, 85, 247, 0.05);
+  border-radius: 3px;
+}
+.scroll-soft::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.25);
+  border-radius: 3px;
+}
+.scroll-soft::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.4);
+}
+
+[data-theme="light"] .scroll-soft::-webkit-scrollbar-track {
+  background: rgba(220, 38, 38, 0.05);
+}
+[data-theme="light"] .scroll-soft::-webkit-scrollbar-thumb {
+  background: rgba(220, 38, 38, 0.25);
+}
+[data-theme="light"] .scroll-soft::-webkit-scrollbar-thumb:hover {
+  background: rgba(220, 38, 38, 0.4);
+}
