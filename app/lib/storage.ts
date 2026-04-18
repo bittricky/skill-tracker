@@ -25,7 +25,12 @@ export function saveProgress(data: ProgressMap): void {
   }
 }
 
-export const STATUS_CYCLE: Status[] = ["untouched", "learning", "done", "skipped"];
+export const STATUS_CYCLE: Status[] = [
+  "untouched",
+  "learning",
+  "done",
+  "skipped",
+];
 
 export interface StatusConfig {
   label: string;
@@ -36,8 +41,32 @@ export interface StatusConfig {
 }
 
 export const STATUS: Record<Status, StatusConfig> = {
-  untouched: { label: "Not started", color: "#9ca3af", bg: "transparent", ring: "#e5e7eb", filled: false },
-  learning:  { label: "In progress", color: "#d97706", bg: "#fffbeb",     ring: "#f59e0b", filled: false },
-  done:      { label: "Done",        color: "#15803d", bg: "#f0fdf4",     ring: "#22c55e", filled: true  },
-  skipped:   { label: "Skipped",     color: "#d1d5db", bg: "transparent", ring: "#e5e7eb", filled: false },
+  untouched: {
+    label: "Not started",
+    color: "#fbbf24",
+    bg: "transparent",
+    ring: "#f59e0b",
+    filled: false,
+  },
+  learning: {
+    label: "In progress",
+    color: "#a855f7",
+    bg: "#a855f710",
+    ring: "#a855f7",
+    filled: false,
+  },
+  done: {
+    label: "Done",
+    color: "#4ade80",
+    bg: "#4ade8010",
+    ring: "#4ade80",
+    filled: true,
+  },
+  skipped: {
+    label: "Skipped",
+    color: "#f87171",
+    bg: "#f8717110",
+    ring: "#ef4444",
+    filled: false,
+  },
 };

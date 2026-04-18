@@ -14,6 +14,7 @@ const KIND_HEADER: Record<RoadmapKind, string> = {
   foundation: "Foundations",
   language: "Languages",
   framework: "Frameworks",
+  tech: "Technologies",
 };
 
 export function Sidebar({ progress, activeId, setActiveId }: SidebarProps) {
@@ -47,9 +48,6 @@ export function Sidebar({ progress, activeId, setActiveId }: SidebarProps) {
         <div className="flex flex-col leading-tight">
           <span className="text-[15px] font-bold tracking-tight text-brand-ink">
             Skill Tracker
-          </span>
-          <span className="text-[10px] font-medium text-brand-muted tracking-wide">
-            Learning OS v2.0
           </span>
         </div>
       </div>

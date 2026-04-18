@@ -1,3 +1,15 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faFileLines,
+  faPlay,
+  faGraduationCap,
+  faMicrophone,
+  faBook,
+  faCodeBranch,
+  faLink,
+  faStar,
+  faArrowUpRightFromSquare,
+} from "@fortawesome/free-solid-svg-icons";
 import type { Resource } from "~/data";
 
 interface ResourceLinksProps {
@@ -12,15 +24,15 @@ interface ResourceLinksProps {
   primary?: boolean;
 }
 
-const KIND_ICON: Record<string, string> = {
-  article: "📄",
-  video: "▶",
-  course: "🎓",
-  podcast: "🎙",
-  book: "📘",
-  opensource: "⌥",
-  website: "🔗",
-  official: "★",
+const KIND_ICON = {
+  article: faFileLines,
+  video: faPlay,
+  course: faGraduationCap,
+  podcast: faMicrophone,
+  book: faBook,
+  opensource: faCodeBranch,
+  website: faLink,
+  official: faStar,
 };
 
 export function ResourceLinks({
@@ -43,10 +55,14 @@ export function ResourceLinks({
       n: "YouTube",
       u: `https://www.youtube.com/results?search_query=${encodeURIComponent(label + " tutorial")}`,
     },
-    { n: "DevDocs", u: `https://devdocs.io/#q=${encodeURIComponent(label)}` },
+    { n: "DevDocs", u: `https://devdocs.io/` },
     {
       n: "Udemy",
       u: `https://www.udemy.com/courses/search/?q=${encodeURIComponent(label)}`,
+    },
+    {
+      n: "freeCodeCamp",
+      u: `https://www.freecodecamp.org/`,
     },
   ];
 
@@ -66,8 +82,14 @@ export function ResourceLinks({
                 rel="noreferrer"
                 className="flex items-center gap-1.5 py-0.5 text-xs text-brand-primary hover:text-brand-secondary hover:underline"
               >
-                <span className="w-4 text-center text-[11px] opacity-60">
-                  {KIND_ICON[r.kind] ?? "↗"}
+                <span className="w-4 text-center opacity-60">
+                  <FontAwesomeIcon
+                    icon={
+                      KIND_ICON[r.kind as keyof typeof KIND_ICON] ??
+                      faArrowUpRightFromSquare
+                    }
+                    className="text-[11px]"
+                  />
                 </span>
                 <span className="truncate">{r.label}</span>
               </a>
@@ -89,7 +111,11 @@ export function ResourceLinks({
             rel="noreferrer"
             className="text-[11px] text-brand-primary border border-brand-primary/20 rounded-lg px-2 py-0.5 bg-brand-primary/5 hover:bg-brand-primary/15 hover:border-brand-primary/40"
           >
-            {r.n} ↗
+            {r.n}{" "}
+            <FontAwesomeIcon
+              icon={faArrowUpRightFromSquare}
+              className="text-[9px]"
+            />
           </a>
         ))}
       </div>
