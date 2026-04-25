@@ -7,8 +7,8 @@ Progress is stored locally in the browser — no accounts, no sync, no server.
 
 ## Features
 
-- Track skills across multiple roadmaps (Role, Foundation, Language, Framework, Tech)
-- Cross-roadmap skill linking (e.g., "Closures" appears in JavaScript, Frontend, and Full-Stack)
+- Track skills across multiple **disciplines** (Role, Foundation, Language, Framework, Tech)
+- Cross-discipline skill linking (e.g., "Closures" appears in JavaScript, Frontend, etc.)
 - Light/dark theme with persistent preference
 - Offline-capable with localStorage persistence
 
@@ -21,11 +21,17 @@ Progress is stored in `localStorage` as a map of skill IDs to status
 
 ```
 app/
-  components/          React components (Sidebar, MainContent, etc.)
-  data/              Roadmap data and type definitions
+  components/        React components (Sidebar, MainContent, etc.)
+  data/              Discipline data and type definitions
+                       - disciplines.generated.json  (generated)
+                       - disciplines.upstream.json   (config: pinned commit + includes)
+                       - remap.log.json              (last sync's prereq remap log)
   hooks/             useProgress, useTheme
   lib/               Utilities (progress, storage, theme)
   routes/            Page routes
+scripts/
+  sync-disciplines.mjs   Pull upstream + transform + write disciplines.generated.json
+  transform/             Pure helpers (parse upstream, linking fixes, prereq remap)
 ```
 
 ## Getting started
@@ -54,6 +60,7 @@ in `build/`.
 | `npm run build`     | Production build                      |
 | `npm run start`     | Serve the production build                           |
 | `npm run typecheck` | React Router type generation + `tsc`                 |
+| `npm run sync:disciplines` | Refresh `app/data/disciplines.generated.json` from pinned upstream |
 
 ## UI & Theming
 
@@ -68,6 +75,14 @@ Theme preference is persisted in `localStorage`. Toggle is next to the search ba
 - Tailwind CSS 4
 - FontAwesome icons
 - Vite 8
+
+## Data source
+
+Discipline content is derived from
+[`kamranahmedse/developer-roadmap`](https://github.com/kamranahmedse/developer-roadmap)
+(CC BY-SA 4.0). The upstream commit is pinned in
+`app/data/disciplines.upstream.json` and refreshed via `npm run sync:disciplines`.
+See `NOTICE.md` for attribution and licensing.
 
 -----
 

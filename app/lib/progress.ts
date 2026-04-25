@@ -1,4 +1,4 @@
-import type { Roadmap, Section } from "~/data";
+import type { Discipline, Section } from "~/data";
 import type { ProgressMap, Status } from "./storage";
 
 export interface Stats {
@@ -31,9 +31,12 @@ export function sectionStats(section: Section, progress: ProgressMap): Stats {
   return s;
 }
 
-export function roadmapStats(rm: Roadmap, progress: ProgressMap): Stats {
+export function disciplineStats(
+  discipline: Discipline,
+  progress: ProgressMap,
+): Stats {
   const s = empty();
-  for (const sec of rm.sections) {
+  for (const sec of discipline.sections) {
     for (const item of sec.items) {
       s.total++;
       const st = progress[item.id];
@@ -47,13 +50,16 @@ export function roadmapStats(rm: Roadmap, progress: ProgressMap): Stats {
   return s;
 }
 
-export function globalStats(roadmaps: Roadmap[], progress: ProgressMap): Stats {
+export function globalStats(
+  disciplines: Discipline[],
+  progress: ProgressMap,
+): Stats {
   const seen = new Set<string>();
   const s = empty();
-  for (const rm of roadmaps) {
-    for (const sec of rm.sections) {
+  for (const d of disciplines) {
+    for (const sec of d.sections) {
       for (const item of sec.items) {
-        if (seen.has(item.id)) continue; // dedupe across roadmaps
+        if (seen.has(item.id)) continue; // dedupe across disciplines
         seen.add(item.id);
         s.total++;
         const st = progress[item.id];

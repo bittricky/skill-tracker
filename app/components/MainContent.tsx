@@ -16,8 +16,8 @@ import {
   faMoon,
 } from "@fortawesome/free-solid-svg-icons";
 import type { Theme } from "~/lib/theme";
-import type { Roadmap } from "~/data";
-import { roadmapStats } from "~/lib/progress";
+import type { Discipline } from "~/data";
+import { disciplineStats } from "~/lib/progress";
 import { STATUS, type ProgressMap, type Status } from "~/lib/storage";
 import { SectionBlock } from "./SectionBlock";
 import { StatusButton } from "./StatusButton";
@@ -26,19 +26,19 @@ type Filter = "all" | "todo" | "active" | "done" | "skipped";
 
 export interface MainContentHandle {
   /**
-   * Reveal a skill inside the currently active roadmap: clears search/filter,
+   * Reveal a skill inside the currently active discipline: clears search/filter,
    * expands its section, and smooth-scrolls to it (retrying until the DOM
    * node actually exists since React may not have painted yet).
-   * Returns true if the skill is present in the current roadmap.
+   * Returns true if the skill is present in the current discipline.
    */
   revealSkill: (skillId: string) => boolean;
 }
 
 interface MainContentProps {
-  rm: Roadmap;
+  discipline: Discipline;
   progress: ProgressMap;
   onCycle: (id: string, forceTo?: Status) => void;
-  onNavigate?: (roadmapId: string, skillId?: string) => void;
+  onNavigate?: (disciplineId: string, skillId?: string) => void;
   /** Ref used by `Home` to drive post-navigation scroll. */
   revealRef?: React.Ref<MainContentHandle>;
   theme: Theme;
@@ -53,8 +53,8 @@ const FILTERS: [Filter, string][] = [
   ["skipped", "Skipped"],
 ];
 
-function hasSkill(rm: Roadmap, skillId: string): boolean {
-  for (const sec of rm.sections) {
+function hasSkill(discipline: Discipline, skillId: string): boolean {
+  for (const sec of discipline.sections) {
     for (const item of sec.items) if (item.id === skillId) return true;
   }
   return false;
@@ -72,7 +72,7 @@ function scrollToSkillDom(skillId: string, attempts = 6): void {
 }
 
 export function MainContent({
-  rm,
+  discipline,
   progress,
   onCycle,
   onNavigate,
@@ -91,14 +91,14 @@ export function MainContent({
   );
   const mainRef = useRef<HTMLDivElement>(null);
 
-  // Reset UI state when roadmap changes
+  // Reset UI state when discipline changes
   useEffect(() => {
     if (mainRef.current) mainRef.current.scrollTop = 0;
     setOpenIds(new Set());
     setFilter("all");
     setSearch("");
     setCollapsedSectionIds(new Set());
-  }, [rm.id]);
+  }, [discipline.id]);
 
   const toggleSection = useCallback((id: string) => {
     setCollapsedSectionIds((prev) => {
@@ -111,7 +111,7 @@ export function MainContent({
 
   const revealSkill = useCallback(
     (skillId: string): boolean => {
-      if (!hasSkill(rm, skillId)) return false;
+      if (!hasSkill(discipline, skillId)) return false;
       // Clear anything that could hide the row, then scroll (retry).
       setFilter("all");
       setSearch("");
@@ -119,16 +119,16 @@ export function MainContent({
       scrollToSkillDom(skillId);
       return true;
     },
-    [rm],
+    [discipline],
   );
 
   useImperativeHandle(revealRef, () => ({ revealSkill }), [revealSkill]);
 
-  const stats = roadmapStats(rm, progress);
+  const stats = disciplineStats(discipline, progress);
 
   const filteredSections = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return rm.sections
+    return discipline.sections
       .map((sec) => ({
         ...sec,
         items: sec.items.filter((item) => {
@@ -150,11 +150,11 @@ export function MainContent({
         }),
       }))
       .filter((s) => s.items.length > 0);
-  }, [rm, progress, filter, search]);
+  }, [discipline, progress, filter, search]);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden gap-4 min-w-0">
-      {/* Page header (roadmap title + stat pills + search) */}
+      {/* Page header (discipline title + stat pills + search) */}
       <header className="flex items-center gap-4 shrink-0 pl-1 pr-1">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div
@@ -165,15 +165,15 @@ export function MainContent({
             }}
           >
             <span className="text-brand-primary font-bold text-[15px]">
-              {rm.label.charAt(0)}
+              {discipline.label.charAt(0)}
             </span>
           </div>
           <div className="flex flex-col leading-tight min-w-0">
             <h1 className="text-[22px] font-bold tracking-tight truncate text-brand-ink">
-              {rm.label}
+              {discipline.label}
             </h1>
             <span className="text-[11.5px] text-brand-muted font-medium">
-              {rm.sections.length} sections · {stats.total} topics
+              {discipline.sections.length} sections · {stats.total} topics
             </span>
           </div>
         </div>
@@ -320,10 +320,10 @@ export function MainContent({
                   section={sec}
                   progress={progress}
                   onCycle={onCycle}
-                  color={rm.color}
+                  color={discipline.color}
                   openIds={openIds}
                   setOpenIds={setOpenIds}
-                  currentRoadmapId={rm.id}
+                  currentDisciplineId={discipline.id}
                   onNavigate={onNavigate}
                   isOpen={!collapsedSectionIds.has(sec.id)}
                   onToggle={toggleSection}

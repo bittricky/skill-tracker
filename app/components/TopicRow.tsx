@@ -1,6 +1,6 @@
 import {
-  ROADMAP_BY_ID,
-  SKILL_HOME_BY_ID,
+  DISCIPLINE_BY_ID,
+  SKILL_HOME_DISCIPLINE_BY_ID,
   SKILL_LABEL_BY_ID,
   type Skill,
 } from "~/data";
@@ -14,9 +14,9 @@ interface TopicRowProps {
   onCycle: (id: string, forceTo?: Status) => void;
   openIds: Set<string>;
   setOpenIds: React.Dispatch<React.SetStateAction<Set<string>>>;
-  currentRoadmapId: string;
-  onNavigate?: (roadmapId: string, skillId?: string) => void;
-  /** Scroll within the current roadmap. Returns false if skill isn't here. */
+  currentDisciplineId: string;
+  onNavigate?: (disciplineId: string, skillId?: string) => void;
+  /** Scroll within the current discipline. Returns false if skill isn't here. */
   onRevealSkill?: (skillId: string) => boolean;
 }
 
@@ -28,7 +28,7 @@ export function TopicRow({
   onCycle,
   openIds,
   setOpenIds,
-  currentRoadmapId,
+  currentDisciplineId,
   onNavigate,
   onRevealSkill,
 }: TopicRowProps) {
@@ -59,9 +59,9 @@ export function TopicRow({
     .map((id) => ({ id, label: SKILL_LABEL_BY_ID[id] }))
     .filter((p): p is { id: string; label: string } => Boolean(p.label));
   const isReference = item.primary === false;
-  const homeRm =
-    isReference && item.homeRoadmapId !== currentRoadmapId
-      ? ROADMAP_BY_ID[item.homeRoadmapId]
+  const homeDiscipline =
+    isReference && item.homeDisciplineId !== currentDisciplineId
+      ? DISCIPLINE_BY_ID[item.homeDisciplineId]
       : null;
 
   return (
@@ -96,11 +96,11 @@ export function TopicRow({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Try to reveal within the current roadmap first; if the
-                      // prereq lives elsewhere, jump to its canonical home.
+                      // Try to reveal within the current discipline first; if
+                      // the prereq lives elsewhere, jump to its canonical home.
                       const revealed = onRevealSkill?.(p.id);
                       if (!revealed) {
-                        const homeId = SKILL_HOME_BY_ID[p.id];
+                        const homeId = SKILL_HOME_DISCIPLINE_BY_ID[p.id];
                         if (homeId) onNavigate?.(homeId, p.id);
                       }
                     }}
@@ -118,18 +118,18 @@ export function TopicRow({
               )}
             </div>
           )}
-          {homeRm && (
+          {homeDiscipline && (
             <div className="mt-0.5 text-[11px] text-brand-muted leading-snug">
               Tracked in:{" "}
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onNavigate?.(homeRm.id, item.id);
+                  onNavigate?.(homeDiscipline.id, item.id);
                 }}
                 className="text-brand-primary hover:underline bg-transparent border-none p-0 cursor-pointer font-medium"
               >
-                {homeRm.label}
+                {homeDiscipline.label}
               </button>
             </div>
           )}

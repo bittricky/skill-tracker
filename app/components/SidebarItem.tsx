@@ -1,21 +1,21 @@
-import type { Roadmap } from "~/data";
-import { roadmapStats } from "~/lib/progress";
+import type { Discipline } from "~/data";
+import { disciplineStats } from "~/lib/progress";
 import type { ProgressMap } from "~/lib/storage";
 
 interface SidebarItemProps {
-  rm: Roadmap;
+  discipline: Discipline;
   progress: ProgressMap;
   isActive: boolean;
   onClick: () => void;
 }
 
 export function SidebarItem({
-  rm,
+  discipline,
   progress,
   isActive,
   onClick,
 }: SidebarItemProps) {
-  const s = roadmapStats(rm, progress);
+  const s = disciplineStats(discipline, progress);
   return (
     <button
       type="button"
@@ -31,7 +31,9 @@ export function SidebarItem({
           <div
             className="w-2 h-2 rounded-full shrink-0"
             style={{
-              background: isActive ? "var(--color-brand-primary)" : rm.color,
+              background: isActive
+                ? "var(--color-brand-primary)"
+                : discipline.color,
               boxShadow: isActive
                 ? "0 0 8px var(--color-brand-primary)"
                 : "none",
@@ -44,7 +46,7 @@ export function SidebarItem({
                 : "font-medium text-brand-muted group-hover:text-brand-ink"
             }`}
           >
-            {rm.label}
+            {discipline.label}
           </span>
           {s.pct === 100 && (
             <span
@@ -84,7 +86,7 @@ export function SidebarItem({
                 width: `${s.pct}%`,
                 background: isActive
                   ? "linear-gradient(90deg, #00d4ff, #a855f7)"
-                  : rm.color,
+                  : discipline.color,
                 boxShadow: isActive ? "0 0 6px rgba(0, 212, 255, 0.5)" : "none",
               }}
             />

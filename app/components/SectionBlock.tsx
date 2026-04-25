@@ -10,12 +10,12 @@ interface SectionBlockProps {
   color: string;
   openIds: Set<string>;
   setOpenIds: React.Dispatch<React.SetStateAction<Set<string>>>;
-  currentRoadmapId: string;
-  onNavigate?: (roadmapId: string, skillId?: string) => void;
+  currentDisciplineId: string;
+  onNavigate?: (disciplineId: string, skillId?: string) => void;
   /** Controlled open state (parent owns so reveal-skill can force-expand). */
   isOpen: boolean;
   onToggle: (sectionId: string) => void;
-  /** Attempt an in-roadmap scroll to a skill id; returns false if absent. */
+  /** Attempt an in-discipline scroll to a skill id; returns false if absent. */
   onRevealSkill?: (skillId: string) => boolean;
 }
 
@@ -26,7 +26,7 @@ export function SectionBlock({
   color,
   openIds,
   setOpenIds,
-  currentRoadmapId,
+  currentDisciplineId,
   onNavigate,
   isOpen,
   onToggle,
@@ -117,7 +117,7 @@ export function SectionBlock({
               onCycle={onCycle}
               openIds={openIds}
               setOpenIds={setOpenIds}
-              currentRoadmapId={currentRoadmapId}
+              currentDisciplineId={currentDisciplineId}
               onNavigate={onNavigate}
               onRevealSkill={onRevealSkill}
             />

@@ -18,8 +18,8 @@ interface ResourceLinksProps {
   sources?: string[];
   /**
    * When false, this skill is only *referenced* here (not home). Hide the
-   * curated "Resources" block so role roadmaps don't duplicate resource lists
-   * already shown in the skill's home roadmap.
+   * curated "Resources" block so role disciplines don't duplicate resource
+   * lists already shown in the skill's home discipline.
    */
   primary?: boolean;
 }

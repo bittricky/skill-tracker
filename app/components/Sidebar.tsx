@@ -1,4 +1,4 @@
-import { ROADMAPS, KIND_ORDER, type RoadmapKind } from "~/data";
+import { DISCIPLINES, KIND_ORDER, type DisciplineKind } from "~/data";
 import { globalStats } from "~/lib/progress";
 import type { ProgressMap } from "~/lib/storage";
 import { SidebarItem } from "./SidebarItem";
@@ -9,7 +9,7 @@ interface SidebarProps {
   setActiveId: (id: string) => void;
 }
 
-const KIND_HEADER: Record<RoadmapKind, string> = {
+const KIND_HEADER: Record<DisciplineKind, string> = {
   role: "Roles",
   foundation: "Foundations",
   language: "Languages",
@@ -18,11 +18,11 @@ const KIND_HEADER: Record<RoadmapKind, string> = {
 };
 
 export function Sidebar({ progress, activeId, setActiveId }: SidebarProps) {
-  const gs = globalStats(ROADMAPS, progress);
+  const gs = globalStats(DISCIPLINES, progress);
   const byKind = KIND_ORDER.map((k) => ({
     kind: k,
-    roadmaps: ROADMAPS.filter((r) => r.kind === k),
-  })).filter((g) => g.roadmaps.length > 0);
+    disciplines: DISCIPLINES.filter((d) => d.kind === k),
+  })).filter((g) => g.disciplines.length > 0);
 
   return (
     <aside className="w-64 shrink-0 flex flex-col overflow-hidden rounded-2xl card-shadow bg-brand-surface">
@@ -95,13 +95,13 @@ export function Sidebar({ progress, activeId, setActiveId }: SidebarProps) {
               {KIND_HEADER[group.kind]}
             </div>
             <div className="flex flex-col gap-0.5">
-              {group.roadmaps.map((rm) => (
+              {group.disciplines.map((d) => (
                 <SidebarItem
-                  key={rm.id}
-                  rm={rm}
+                  key={d.id}
+                  discipline={d}
                   progress={progress}
-                  isActive={activeId === rm.id}
-                  onClick={() => setActiveId(rm.id)}
+                  isActive={activeId === d.id}
+                  onClick={() => setActiveId(d.id)}
                 />
               ))}
             </div>
