@@ -9,6 +9,7 @@ import {
 import { STATUS, STATUS_CYCLE, type Status } from "~/lib/storage";
 import { StatusButton } from "./StatusButton";
 import { ResourceLinks } from "./ResourceLinks";
+import { Tooltip } from "./ui/Tooltip";
 
 interface TopicRowProps {
   item: Skill;
@@ -163,9 +164,14 @@ export function TopicRow({
           </button>
         )}
         {item.sources && item.sources.length > 1 && (
-          <span className="text-[9.5px] text-brand-dim bg-brand-surface-2 rounded-md px-1.5 py-0.5 shrink-0 mt-0.5 font-medium border border-brand-primary/10">
-            ×{item.sources.length}
-          </span>
+          <Tooltip
+            label={`Appears in ${item.sources.length} disciplines`}
+            className="shrink-0 mt-0.5"
+          >
+            <span className="text-[9.5px] text-brand-dim bg-brand-surface-2 rounded-md px-1.5 py-0.5 font-medium border border-brand-primary/10">
+              ×{item.sources.length}
+            </span>
+          </Tooltip>
         )}
         <svg
           width="12"
