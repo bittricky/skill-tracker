@@ -21,6 +21,8 @@
   --color-brand-yellow: #fb923c;
   --color-brand-green: #4ade80;
   --color-brand-coral: #f87171;
+  --color-brand-line: rgba(255, 255, 255, 0.14);
+  --color-brand-line-soft: rgba(255, 255, 255, 0.08);
 
   /* Light theme — red accent */
   --color-light-bg: #fafafa;
@@ -56,6 +58,8 @@ body {
   --color-brand-ink: var(--color-light-ink);
   --color-brand-muted: var(--color-light-muted);
   --color-brand-surface-2: var(--color-light-hover);
+  --color-brand-line: rgba(15, 15, 15, 0.18);
+  --color-brand-line-soft: rgba(15, 15, 15, 0.08);
 }
 
 [data-theme="light"] html,
@@ -63,42 +67,14 @@ body {
   color-scheme: light;
 }
 
-/* Card shadow with subtle glow */
+/* Flat surface utility (no glow, no shadow) */
 .card-shadow {
-  box-shadow:
-    0 0 0 1px rgba(168, 85, 247, 0.05),
-    0 4px 24px -4px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
 }
 
-.card-shadow:hover {
-  box-shadow:
-    0 0 0 1px rgba(168, 85, 247, 0.1),
-    0 4px 32px -4px rgba(168, 85, 247, 0.1);
-}
-
-/* Glow utilities */
-.glow-primary {
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
-}
-
-.glow-purple {
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
-}
-
-[data-theme="light"] .card-shadow {
-  box-shadow:
-    0 0 0 1px rgba(220, 38, 38, 0.05),
-    0 4px 24px -4px rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="light"] .card-shadow:hover {
-  box-shadow:
-    0 0 0 1px rgba(220, 38, 38, 0.1),
-    0 4px 32px -4px rgba(220, 38, 38, 0.1);
-}
-
-[data-theme="light"] .glow-primary {
-  box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+.surface-card {
+  background: var(--color-brand-surface);
+  border: 1px solid var(--color-brand-line-soft);
 }
 
 /* Glass effect for overlays */

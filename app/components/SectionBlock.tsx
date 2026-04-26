@@ -1,12 +1,14 @@
 import type { Section } from "~/data";
 import { sectionStats } from "~/lib/progress";
-import type { ProgressMap, Status } from "~/lib/storage";
+import type { AppliedMap, ProgressMap, Status } from "~/lib/storage";
 import { TopicRow } from "./TopicRow";
 
 interface SectionBlockProps {
   section: Section;
   progress: ProgressMap;
+  applied?: AppliedMap;
   onCycle: (id: string, forceTo?: Status) => void;
+  onToggleApplied?: (id: string) => void;
   color: string;
   openIds: Set<string>;
   setOpenIds: React.Dispatch<React.SetStateAction<Set<string>>>;
@@ -22,7 +24,9 @@ interface SectionBlockProps {
 export function SectionBlock({
   section,
   progress,
+  applied,
   onCycle,
+  onToggleApplied,
   color,
   openIds,
   setOpenIds,
@@ -114,7 +118,9 @@ export function SectionBlock({
               key={item.id}
               item={item}
               status={progress[item.id] ?? "untouched"}
+              applied={!!applied?.[item.id]}
               onCycle={onCycle}
+              onToggleApplied={onToggleApplied}
               openIds={openIds}
               setOpenIds={setOpenIds}
               currentDisciplineId={currentDisciplineId}

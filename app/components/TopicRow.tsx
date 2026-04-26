@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStamp, faCheck } from "@fortawesome/free-solid-svg-icons";
 import {
   DISCIPLINE_BY_ID,
   SKILL_HOME_DISCIPLINE_BY_ID,
@@ -11,7 +13,9 @@ import { ResourceLinks } from "./ResourceLinks";
 interface TopicRowProps {
   item: Skill;
   status: Status;
+  applied?: boolean;
   onCycle: (id: string, forceTo?: Status) => void;
+  onToggleApplied?: (id: string) => void;
   openIds: Set<string>;
   setOpenIds: React.Dispatch<React.SetStateAction<Set<string>>>;
   currentDisciplineId: string;
@@ -25,7 +29,9 @@ const MAX_PREREQS = 4;
 export function TopicRow({
   item,
   status,
+  applied,
   onCycle,
+  onToggleApplied,
   openIds,
   setOpenIds,
   currentDisciplineId,
@@ -134,8 +140,30 @@ export function TopicRow({
             </div>
           )}
         </div>
+        {onToggleApplied && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleApplied(item.id);
+            }}
+            title={applied ? "Marked as applied" : "Mark as applied"}
+            aria-label={applied ? "Marked as applied" : "Mark as applied"}
+            className={`shrink-0 mt-0.5 inline-flex items-center gap-1 rounded-md text-[10.5px] px-2 py-0.5 transition-colors ${
+              applied
+                ? "bg-brand-green/15 text-brand-green"
+                : "text-brand-dim hover:text-brand-ink"
+            }`}
+          >
+            <FontAwesomeIcon
+              icon={applied ? faCheck : faStamp}
+              className="text-[10px]"
+            />
+            <span>{applied ? "Applied" : "Apply"}</span>
+          </button>
+        )}
         {item.sources && item.sources.length > 1 && (
-          <span className="text-[9.5px] text-brand-dim bg-brand-surface-2 rounded-md px-1.5 py-[2px] shrink-0 mt-0.5 font-medium border border-brand-primary/10">
+          <span className="text-[9.5px] text-brand-dim bg-brand-surface-2 rounded-md px-1.5 py-0.5 shrink-0 mt-0.5 font-medium border border-brand-primary/10">
             ×{item.sources.length}
           </span>
         )}

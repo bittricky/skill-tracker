@@ -1,28 +1,82 @@
 /** Minimal localStorage wrapper with SSR guards. */
-const KEY = "skill-tracker:v1";
+const V1_KEY = "skill-tracker:v1";
+const V2_KEY = "skill-tracker:v2";
 
 export type Status = "untouched" | "learning" | "done" | "skipped";
 export type ProgressMap = Record<string, Exclude<Status, "untouched">>;
+export type AppliedMap = Record<string, boolean>;
 
-export function loadProgress(): ProgressMap {
-  if (typeof window === "undefined") return {};
+export interface StorageData {
+  progress: ProgressMap;
+  applied: AppliedMap;
+}
+
+function safeRead(key: string): unknown | null {
+  if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? (parsed as ProgressMap) : {};
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    return JSON.parse(raw);
   } catch {
-    return {};
+    return null;
   }
 }
 
-export function saveProgress(data: ProgressMap): void {
+function safeWrite(key: string, value: unknown): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(data));
+    window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
     /* ignore quota errors */
   }
+}
+
+export function loadStorage(): StorageData {
+  if (typeof window === "undefined") {
+    return { progress: {}, applied: {} };
+  }
+  const v2 = safeRead(V2_KEY);
+  if (v2 && typeof v2 === "object") {
+    const obj = v2 as Partial<StorageData>;
+    return {
+      progress: (obj.progress ?? {}) as ProgressMap,
+      applied: (obj.applied ?? {}) as AppliedMap,
+    };
+  }
+  // Migrate from v1 (progress only) once.
+  const v1 = safeRead(V1_KEY);
+  if (v1 && typeof v1 === "object") {
+    const migrated: StorageData = {
+      progress: v1 as ProgressMap,
+      applied: {},
+    };
+    safeWrite(V2_KEY, migrated);
+    return migrated;
+  }
+  return { progress: {}, applied: {} };
+}
+
+export function saveStorage(data: StorageData): void {
+  safeWrite(V2_KEY, data);
+}
+
+// Back-compat helpers (still used by hooks/tests)
+export function loadProgress(): ProgressMap {
+  return loadStorage().progress;
+}
+
+export function saveProgress(data: ProgressMap): void {
+  const current = loadStorage();
+  saveStorage({ progress: data, applied: current.applied });
+}
+
+export function loadApplied(): AppliedMap {
+  return loadStorage().applied;
+}
+
+export function saveApplied(data: AppliedMap): void {
+  const current = loadStorage();
+  saveStorage({ progress: current.progress, applied: data });
 }
 
 export const STATUS_CYCLE: Status[] = [
