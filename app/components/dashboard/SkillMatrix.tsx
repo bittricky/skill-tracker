@@ -40,9 +40,6 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
   return (
     <div className="w-full">
       <div className="flex items-baseline justify-between mb-4 flex-wrap gap-3">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dim">
-          Skill Matrix
-        </div>
         <div className="flex gap-1 bg-brand-surface rounded-lg p-1">
           {FILTERS.map((f) => {
             const isActive = filter === f.value;
