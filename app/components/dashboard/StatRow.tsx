@@ -4,17 +4,22 @@ import {
   faCheck,
   faStamp,
   faCircleDot,
+  faCode,
 } from "@fortawesome/free-solid-svg-icons";
 
 interface StatRowProps {
   done: number;
   applied: number;
   learning: number;
+  projects?: number;
 }
 
-export function StatRow({ done, applied, learning }: StatRowProps) {
+export function StatRow({ done, applied, learning, projects }: StatRowProps) {
+  const showProjects = typeof projects === "number";
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div
+      className={`grid gap-4 ${showProjects ? "grid-cols-2 md:grid-cols-4" : "grid-cols-3"}`}
+    >
       <StatCard
         icon={faCheck}
         label="Completed"
@@ -33,6 +38,14 @@ export function StatRow({ done, applied, learning }: StatRowProps) {
         value={learning}
         accent="var(--color-brand-yellow)"
       />
+      {showProjects && (
+        <StatCard
+          icon={faCode}
+          label="Projects Done"
+          value={projects}
+          accent="var(--color-brand-coral)"
+        />
+      )}
     </div>
   );
 }

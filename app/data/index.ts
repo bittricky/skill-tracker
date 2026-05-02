@@ -1,4 +1,5 @@
 import generated from "./disciplines.generated.json";
+import projectsGenerated from "./projects.generated.json";
 
 export type ResourceKind =
   | "article"
@@ -67,7 +68,33 @@ interface GeneratedPayload {
   disciplines: Discipline[];
 }
 
-const payload = generated as unknown as GeneratedPayload;
+/** LocalStorage key for a user-authored discipline catalogue override. */
+export const CUSTOM_DISCIPLINES_KEY = "skill-tracker:custom-disciplines";
+
+/**
+ * Read a custom discipline payload from localStorage (client only). Users
+ * can import their own catalogue via the Settings modal to repurpose the
+ * tracker for any skill-based domain. Returns null on SSR, missing data,
+ * or malformed JSON.
+ */
+function loadCustomPayload(): GeneratedPayload | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(CUSTOM_DISCIPLINES_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as GeneratedPayload;
+    if (!parsed || !Array.isArray(parsed.disciplines)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+const customPayload = loadCustomPayload();
+const payload = customPayload ?? (generated as unknown as GeneratedPayload);
+
+/** True when the loaded payload came from a user-imported catalogue. */
+export const IS_CUSTOM_CATALOGUE: boolean = customPayload !== null;
 
 export const DISCIPLINES: Discipline[] = payload.disciplines;
 export const GENERATED_AT: string = payload.generatedAt;
@@ -78,14 +105,16 @@ export const DISCIPLINE_BY_ID: Record<string, Discipline> = Object.fromEntries(
   DISCIPLINES.map((d) => [d.id, d]),
 );
 
-export const KIND_META: Record<DisciplineKind, { label: string; color: string }> =
-  {
-    role: { label: "Role", color: "#34d399" },
-    foundation: { label: "Foundation", color: "#f97316" },
-    language: { label: "Language", color: "#a78bfa" },
-    framework: { label: "Framework", color: "#38bdf8" },
-    tech: { label: "Tech", color: "#22d3ee" },
-  };
+export const KIND_META: Record<
+  DisciplineKind,
+  { label: string; color: string }
+> = {
+  role: { label: "Role", color: "#34d399" },
+  foundation: { label: "Foundation", color: "#f97316" },
+  language: { label: "Language", color: "#a78bfa" },
+  framework: { label: "Framework", color: "#38bdf8" },
+  tech: { label: "Tech", color: "#22d3ee" },
+};
 
 export const KIND_ORDER: DisciplineKind[] = [
   "role",
@@ -111,5 +140,46 @@ for (const d of DISCIPLINES) {
         SKILL_HOME_DISCIPLINE_BY_ID[item.id] = item.homeDisciplineId;
       }
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Projects (roadmap.sh project catalogue, synced via `npm run sync:projects`).
+// ---------------------------------------------------------------------------
+
+export type ProjectDifficulty = "beginner" | "intermediate" | "advanced";
+
+export interface Project {
+  /** roadmap.sh project slug (stable identifier). */
+  id: string;
+  title: string;
+  description: string;
+  difficulty: ProjectDifficulty;
+  /** Free-form tag from upstream ("CLI", "Frontend Project", …) or null. */
+  nature: string | null;
+  /** Subset of our known discipline ids this project is listed under. */
+  roadmapIds: string[];
+  skills: string[];
+  /** Canonical URL on roadmap.sh. */
+  url: string;
+}
+
+interface ProjectsPayload {
+  generatedAt: string | null;
+  upstreamRepo?: string;
+  upstreamBranch?: string;
+  projects: Project[];
+}
+
+const projectsPayload = projectsGenerated as unknown as ProjectsPayload;
+
+export const PROJECTS: Project[] = projectsPayload.projects;
+export const PROJECTS_GENERATED_AT: string | null = projectsPayload.generatedAt;
+
+/** disciplineId -> projects that list it in `roadmapIds`. */
+export const PROJECTS_BY_DISCIPLINE: Record<string, Project[]> = {};
+for (const p of PROJECTS) {
+  for (const rid of p.roadmapIds) {
+    (PROJECTS_BY_DISCIPLINE[rid] ??= []).push(p);
   }
 }

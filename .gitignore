@@ -56,7 +56,12 @@ typings/
 
 # gatsby files
 .cache/
-public
+public/*
+!public/favicon.ico
+!public/manifest.webmanifest
+!public/sw.js
+!public/icon.svg
+!public/icon-maskable.svg
 
 # Mac files
 .DS_Store

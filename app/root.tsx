@@ -21,6 +21,9 @@ export const links: Route.LinksFunction = () => [
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
+  { rel: "manifest", href: "/manifest.webmanifest" },
+  { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
+  { rel: "apple-touch-icon", href: "/icon.svg" },
 ];
 
 const themeInitScript = `
@@ -34,12 +37,48 @@ const themeInitScript = `
   })();
 `;
 
+// Register the service worker after the page loads so it doesn't block
+// hydration or initial rendering. Production-only by default to avoid
+// stale caches confusing `react-router dev` HMR.
+const swRegisterScript = `
+  (function() {
+    if (!("serviceWorker" in navigator)) return;
+    if (location.hostname === "localhost" && location.port && location.port !== "") {
+      // Dev server: skip registration, and unregister any existing SW so
+      // HMR isn't served from a stale cache.
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(r) { r.unregister(); });
+      });
+      return;
+    }
+    window.addEventListener("load", function() {
+      navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(function() {});
+    });
+  })();
+`;
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-theme="dark">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="theme-color"
+          content="#0f0f0f"
+          media="(prefers-color-scheme: dark)"
+        />
+        <meta
+          name="theme-color"
+          content="#f5f5f5"
+          media="(prefers-color-scheme: light)"
+        />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="Skill Tracker" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <Meta />
         <Links />
@@ -48,6 +87,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <script dangerouslySetInnerHTML={{ __html: swRegisterScript }} />
       </body>
     </html>
   );

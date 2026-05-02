@@ -1,0 +1,1067 @@
+{
+  "generatedAt": "2026-05-02T15:53:10.598Z",
+  "upstreamRepo": "nilbuild/developer-roadmap",
+  "upstreamBranch": "master",
+  "projects": [
+    {
+      "id": "stories-feature",
+      "title": "24hr Story Feature'  ",
+      "description": "Create a client-side instagram stories feature clone.'  ",
+      "difficulty": "advanced'  ",
+      "nature": "Frameworks'  ",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "JavaScript'  ",
+        "Storage'  ",
+        "Timeouts'  "
+      ],
+      "url": "https://roadmap.sh/projects/stories-feature"
+    },
+    {
+      "id": "accordion",
+      "title": "Accordion'  ",
+      "description": "Create an accordion component using HTML, CSS, and JavaScript.'  ",
+      "difficulty": "beginner'  ",
+      "nature": "JavaScript'  ",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML'  ",
+        "CSS'  ",
+        "JavaScript'  ",
+        "DOM Manipulation'  "
+      ],
+      "url": "https://roadmap.sh/projects/accordion"
+    },
+    {
+      "id": "age-calculator",
+      "title": "Age Calculator",
+      "description": "Create an age calculator using HTML, CSS, and JavaScript.",
+      "difficulty": "beginner",
+      "nature": "Frontend",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "DOM Manipulation",
+        "Package Management"
+      ],
+      "url": "https://roadmap.sh/projects/age-calculator"
+    },
+    {
+      "id": "automated-backups",
+      "title": "Automated DB Backups",
+      "description": "Setup a scheduled workflow to backup a Database every 12 hours",
+      "difficulty": "intermediate",
+      "nature": "Backups",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "bash",
+        "devops"
+      ],
+      "url": "https://roadmap.sh/projects/automated-backups"
+    },
+    {
+      "id": "basic-dns",
+      "title": "Basic DNS Setup",
+      "description": "Purchase a custom domain and set up basic DNS records.",
+      "difficulty": "beginner",
+      "nature": "DNS",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "devops",
+        "dns"
+      ],
+      "url": "https://roadmap.sh/projects/basic-dns"
+    },
+    {
+      "id": "basic-dockerfile",
+      "title": "Basic Dockerfile",
+      "description": "Build a basic Dockerfile to create a Docker image.",
+      "difficulty": "beginner",
+      "nature": "Docker",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "docker",
+        "dockerfile",
+        "linux",
+        "devops"
+      ],
+      "url": "https://roadmap.sh/projects/basic-dockerfile"
+    },
+    {
+      "id": "basic-html-website",
+      "title": "Basic HTML Website",
+      "description": "Create simple HTML only website with multiple pages.",
+      "difficulty": "beginner",
+      "nature": "HTML",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "Layouts",
+        "semantic HTML"
+      ],
+      "url": "https://roadmap.sh/projects/basic-html-website"
+    },
+    {
+      "id": "bastion-host",
+      "title": "Bastion Host",
+      "description": "Setup a bastion host for managing access to private infrastructure.",
+      "difficulty": "intermediate",
+      "nature": "Networking",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "devops",
+        "security",
+        "linux"
+      ],
+      "url": "https://roadmap.sh/projects/bastion-host"
+    },
+    {
+      "id": "blogging-platform-api",
+      "title": "Blogging Platform API",
+      "description": "Build a RESTful API for a personal blogging platform",
+      "difficulty": "beginner",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "CRUD",
+        "RESTful API",
+        "Database"
+      ],
+      "url": "https://roadmap.sh/projects/blogging-platform-api"
+    },
+    {
+      "id": "blue-green-deployment",
+      "title": "Blue-Green Deployment",
+      "description": "Setup a blue-green deployment strategy for your application.",
+      "difficulty": "advanced",
+      "nature": "DevOps",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "bash",
+        "devops",
+        "monitoring"
+      ],
+      "url": "https://roadmap.sh/projects/blue-green-deployment"
+    },
+    {
+      "id": "broadcast-server",
+      "title": "Broadcast Server",
+      "description": "Build a server that can broadcast messages to connected clients.",
+      "difficulty": "intermediate",
+      "nature": "CLI",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Networking",
+        "Websockets",
+        "HTTP"
+      ],
+      "url": "https://roadmap.sh/projects/broadcast-server"
+    },
+    {
+      "id": "caching-server",
+      "title": "Caching Proxy",
+      "description": "Build a caching server that caches responses from other servers.",
+      "difficulty": "intermediate",
+      "nature": "CLI",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Text Processing",
+        "Markdown libraries",
+        "File Uploads"
+      ],
+      "url": "https://roadmap.sh/projects/caching-server"
+    },
+    {
+      "id": "changelog-component",
+      "title": "Changelog Component",
+      "description": "Create a changelog component for a website using HTML and CSS.",
+      "difficulty": "beginner",
+      "nature": "CSS",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "Layouts",
+        "CSS",
+        "Flexbox"
+      ],
+      "url": "https://roadmap.sh/projects/changelog-component"
+    },
+    {
+      "id": "configuration-management",
+      "title": "Configuration Management",
+      "description": "Write an Ansible playbook to configure a Linux server.",
+      "difficulty": "intermediate",
+      "nature": "Ansible",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "ansible",
+        "linux",
+        "devops"
+      ],
+      "url": "https://roadmap.sh/projects/configuration-management"
+    },
+    {
+      "id": "custom-dropdown",
+      "title": "Custom Dropdown",
+      "description": "Create a custom dropdown using HTML, CSS, and JavaScript.",
+      "difficulty": "intermediate",
+      "nature": "JavaScript",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "DOM Manipulation"
+      ],
+      "url": "https://roadmap.sh/projects/custom-dropdown"
+    },
+    {
+      "id": "database-backup-utility",
+      "title": "Database Backup Utility",
+      "description": "Build a database backup utility that can backup and restore any DB",
+      "difficulty": "advanced",
+      "nature": "CLI",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Databases",
+        "CLI"
+      ],
+      "url": "https://roadmap.sh/projects/database-backup-utility"
+    },
+    {
+      "id": "dockerized-service-deployment",
+      "title": "Dockerized Service",
+      "description": "Use GitHub Actions to Deploy a Dockerized Node.js Service",
+      "difficulty": "intermediate",
+      "nature": "Docker",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "nodejs",
+        "docker",
+        "devops"
+      ],
+      "url": "https://roadmap.sh/projects/dockerized-service-deployment"
+    },
+    {
+      "id": "dummy-systemd-service",
+      "title": "Dummy Systemd Service",
+      "description": "Create a long-running systemd service that logs to a file.",
+      "difficulty": "beginner",
+      "nature": "Systemd",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "Linux",
+        "DevOps",
+        "Systemd"
+      ],
+      "url": "https://roadmap.sh/projects/dummy-systemd-service"
+    },
+    {
+      "id": "ecommerce-api",
+      "title": "E-Commerce API",
+      "description": "E-Commerce platform with cart and payment gateway integration.",
+      "difficulty": "intermediate",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Database",
+        "Payment Gateway",
+        "Inventory Management"
+      ],
+      "url": "https://roadmap.sh/projects/ecommerce-api"
+    },
+    {
+      "id": "ec2-instance",
+      "title": "EC2 Instance",
+      "description": "Create an EC2 instance on AWS and connect to it using SSH.",
+      "difficulty": "beginner",
+      "nature": "AWS",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "aws",
+        "ec2",
+        "linux",
+        "devops"
+      ],
+      "url": "https://roadmap.sh/projects/ec2-instance"
+    },
+    {
+      "id": "expense-tracker",
+      "title": "Expense Tracker",
+      "description": "Build a simple expense tracker to manage your finances.",
+      "difficulty": "beginner",
+      "nature": "CLI",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "CLI",
+        "Filesystem",
+        "Logic Building"
+      ],
+      "url": "https://roadmap.sh/projects/expense-tracker"
+    },
+    {
+      "id": "expense-tracker-api",
+      "title": "Expense Tracker API",
+      "description": "Build an API for an expense tracker application.",
+      "difficulty": "beginner",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Data modeling",
+        "User Authentication"
+      ],
+      "url": "https://roadmap.sh/projects/expense-tracker-api"
+    },
+    {
+      "id": "file-integrity-checker",
+      "title": "File Integrity Checker",
+      "description": "Verify the integrity of application log files to detect tampering.",
+      "difficulty": "intermediate",
+      "nature": "Security",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "Bash",
+        "Python",
+        "Linux",
+        "Cyber Security"
+      ],
+      "url": "https://roadmap.sh/projects/file-integrity-checker"
+    },
+    {
+      "id": "flash-cards",
+      "title": "Flash Cards",
+      "description": "Create a flash card app using JavaScript frameworks.",
+      "difficulty": "beginner",
+      "nature": "Frontend",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "JavaScript Frameworks"
+      ],
+      "url": "https://roadmap.sh/projects/flash-cards"
+    },
+    {
+      "id": "github-actions-deployment-workflow",
+      "title": "GitHub Pages Deployment",
+      "description": "Write a simple GitHub Actions workflow to deploy a static website to GitHub Pages.",
+      "difficulty": "beginner",
+      "nature": "CI / CD",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "github actions",
+        "ci/cd"
+      ],
+      "url": "https://roadmap.sh/projects/github-actions-deployment-workflow"
+    },
+    {
+      "id": "github-user-activity",
+      "title": "GitHub User Activity",
+      "description": "Use GitHub API to fetch user activity and display it in the terminal.",
+      "difficulty": "beginner",
+      "nature": "CLI",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "CLI",
+        "API Consumption"
+      ],
+      "url": "https://roadmap.sh/projects/github-user-activity"
+    },
+    {
+      "id": "iac-digitalocean",
+      "title": "IaC on DigitalOcean",
+      "description": "Write Terraform code to create a Droplet on DigitalOcean",
+      "difficulty": "intermediate",
+      "nature": "Terraform",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "terraform",
+        "linux",
+        "devops"
+      ],
+      "url": "https://roadmap.sh/projects/iac-digitalocean"
+    },
+    {
+      "id": "image-processing-service",
+      "title": "Image Processing Service",
+      "description": "Build a service that allows users to upload and process images.",
+      "difficulty": "intermediate",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Image Processing",
+        "Database",
+        "Queues"
+      ],
+      "url": "https://roadmap.sh/projects/image-processing-service"
+    },
+    {
+      "id": "log-archive-tool",
+      "title": "Log Archive Tool",
+      "description": "Build a tool to archive logs from the CLI with the date and time.",
+      "difficulty": "beginner",
+      "nature": "CLI",
+      "roadmapIds": [
+        "devops",
+        "linux"
+      ],
+      "skills": [
+        "linux",
+        "bash",
+        "shell scripting"
+      ],
+      "url": "https://roadmap.sh/projects/log-archive-tool"
+    },
+    {
+      "id": "markdown-note-taking-app",
+      "title": "Markdown Note-taking App",
+      "description": "Build a note-taking app that uses markdown for formatting.",
+      "difficulty": "intermediate",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Text Processing",
+        "Markdown libraries",
+        "File Uploads"
+      ],
+      "url": "https://roadmap.sh/projects/markdown-note-taking-app"
+    },
+    {
+      "id": "movie-reservation-system",
+      "title": "Movie Reservation System",
+      "description": "Build a system that allows users to reserve movie tickets.",
+      "difficulty": "advanced",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Database",
+        "Scheduling",
+        "Authentication"
+      ],
+      "url": "https://roadmap.sh/projects/movie-reservation-system"
+    },
+    {
+      "id": "multi-container-service",
+      "title": "Multi-Container Application",
+      "description": "Use Docker Compose to run a multi-container application",
+      "difficulty": "intermediate",
+      "nature": "Docker Compose",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "nodejs",
+        "docker",
+        "devops"
+      ],
+      "url": "https://roadmap.sh/projects/multi-container-service"
+    },
+    {
+      "id": "multiservice-docker",
+      "title": "Multi-Service Application",
+      "description": "Setup a multi-service optimized docker implementation",
+      "difficulty": "advanced",
+      "nature": "Docker",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "docker",
+        "docker-compose"
+      ],
+      "url": "https://roadmap.sh/projects/multiservice-docker"
+    },
+    {
+      "id": "nginx-log-analyser",
+      "title": "Nginx Log Analyser",
+      "description": "Write a simple tool to analyze logs from the command line.",
+      "difficulty": "beginner",
+      "nature": "CLI",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "linux",
+        "bash",
+        "shell scripting"
+      ],
+      "url": "https://roadmap.sh/projects/nginx-log-analyser"
+    },
+    {
+      "id": "nodejs-service-deployment",
+      "title": "Node.js Service Deployment",
+      "description": "Use GitHub Actions to Deploy a Node.js Service to a remote server",
+      "difficulty": "intermediate",
+      "nature": "CI/CD",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "nodejs",
+        "docker",
+        "devops"
+      ],
+      "url": "https://roadmap.sh/projects/nodejs-service-deployment"
+    },
+    {
+      "id": "number-guessing-game",
+      "title": "Number Guessing Game",
+      "description": "Build a simple number guessing game to test your luck.",
+      "difficulty": "beginner",
+      "nature": "CLI",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "CLI",
+        "Logic Building"
+      ],
+      "url": "https://roadmap.sh/projects/number-guessing-game"
+    },
+    {
+      "id": "personal-blog",
+      "title": "Personal Blog",
+      "description": "Build a personal blog to write and publish articles on various topics.",
+      "difficulty": "beginner",
+      "nature": "Web App",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Basic Authentication",
+        "Markdown",
+        "Filesystem",
+        "Libraries"
+      ],
+      "url": "https://roadmap.sh/projects/personal-blog"
+    },
+    {
+      "id": "portfolio-website",
+      "title": "Personal Portfolio",
+      "description": "Convert the previous simple HTML website into a personal portfolio.",
+      "difficulty": "beginner",
+      "nature": "CSS",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "CSS",
+        "Responsive Design",
+        "Box Model",
+        "Typography",
+        "Flexbox"
+      ],
+      "url": "https://roadmap.sh/projects/portfolio-website"
+    },
+    {
+      "id": "pomodoro-timer",
+      "title": "Pomodoro Timer",
+      "description": "Create a pomodoro tracker application for productivity",
+      "difficulty": "intermediate",
+      "nature": "Frameworks",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "Frameworks"
+      ],
+      "url": "https://roadmap.sh/projects/pomodoro-timer"
+    },
+    {
+      "id": "monitoring",
+      "title": "Prometheus and Grafana",
+      "description": "Setup monitoring using Prometheus and visualize metrics in Grafana.",
+      "difficulty": "advanced",
+      "nature": "Monitoring",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "bash",
+        "devops",
+        "monitoring"
+      ],
+      "url": "https://roadmap.sh/projects/monitoring"
+    },
+    {
+      "id": "quiz-app",
+      "title": "Quiz App",
+      "description": "Build a browser-based quiz application to test any knowledge",
+      "difficulty": "intermediate",
+      "nature": "Frameworks",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "Frameworks"
+      ],
+      "url": "https://roadmap.sh/projects/quiz-app"
+    },
+    {
+      "id": "realtime-leaderboard-system",
+      "title": "Real-time Leaderboard",
+      "description": "Create a real-time leaderboard system for ranking and scoring.",
+      "difficulty": "advanced",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Database",
+        "Scheduling",
+        "Authentication"
+      ],
+      "url": "https://roadmap.sh/projects/realtime-leaderboard-system"
+    },
+    {
+      "id": "reddit-client",
+      "title": "Reddit Client",
+      "description": "Create a Reddit client with customizable subreddit lanes.",
+      "difficulty": "intermediate",
+      "nature": "API Integration",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "API Integration",
+        "DOM Manipulation",
+        "Asynchronous Programming"
+      ],
+      "url": "https://roadmap.sh/projects/reddit-client"
+    },
+    {
+      "id": "restricted-textarea",
+      "title": "Restricted Textarea'  ",
+      "description": "Create a textarea with live character count and a max character limit.'  ",
+      "difficulty": "beginner'  ",
+      "nature": "JavaScript'  ",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "DOM Manipulation"
+      ],
+      "url": "https://roadmap.sh/projects/restricted-textarea"
+    },
+    {
+      "id": "scalable-ecommerce-platform",
+      "title": "Scalable E-Commerce Platform",
+      "description": "Build an e-commerce platform using microservices architecture.",
+      "difficulty": "advanced",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Microservices",
+        "Database",
+        "Docker",
+        "Authentication"
+      ],
+      "url": "https://roadmap.sh/projects/scalable-ecommerce-platform"
+    },
+    {
+      "id": "server-stats",
+      "title": "Server Performance Stats",
+      "description": "Write a script to analyse basic server performance stats.",
+      "difficulty": "beginner",
+      "nature": "CLI",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "linux",
+        "bash",
+        "shell scripting"
+      ],
+      "url": "https://roadmap.sh/projects/server-stats"
+    },
+    {
+      "id": "service-discovery",
+      "title": "Service Discovery",
+      "description": "Setup service discovery with dummy services and Consul",
+      "difficulty": "advanced",
+      "nature": "DevOps",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "devops",
+        "consul",
+        "api-gateway",
+        "monitoring"
+      ],
+      "url": "https://roadmap.sh/projects/service-discovery"
+    },
+    {
+      "id": "simple-monitoring-dashboard",
+      "title": "Simple Monitoring",
+      "description": "Set up a basic monitoring dashboard using Netdata.",
+      "difficulty": "beginner",
+      "nature": "Monitoring",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "monitoring",
+        "netdata",
+        "linux",
+        "devops"
+      ],
+      "url": "https://roadmap.sh/projects/simple-monitoring-dashboard"
+    },
+    {
+      "id": "single-page-cv",
+      "title": "Single-Page CV",
+      "description": "Create a single-page HTML CV to showcase your career history",
+      "difficulty": "beginner",
+      "nature": "HTML",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "Semantic HTML",
+        "Layout",
+        "SEO"
+      ],
+      "url": "https://roadmap.sh/projects/single-page-cv"
+    },
+    {
+      "id": "ssh-remote-server-setup",
+      "title": "SSH Remote Server Setup",
+      "description": "Setup a basic remote linux server and configure it to allow SSH.",
+      "difficulty": "beginner",
+      "nature": "SSH",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "devops",
+        "linux"
+      ],
+      "url": "https://roadmap.sh/projects/ssh-remote-server-setup"
+    },
+    {
+      "id": "static-site-server",
+      "title": "Static Site Server",
+      "description": "Setup a basic linux server and configure it to serve a static site.",
+      "difficulty": "beginner",
+      "nature": "Nginx",
+      "roadmapIds": [
+        "devops"
+      ],
+      "skills": [
+        "nginx",
+        "SSH",
+        "linux",
+        "devops",
+        "rsync"
+      ],
+      "url": "https://roadmap.sh/projects/static-site-server"
+    },
+    {
+      "id": "task-tracker-js",
+      "title": "Task Tracker",
+      "description": "Create a task tracker with a to-do list using JavaScript.",
+      "difficulty": "intermediate",
+      "nature": "JavaScript",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "DOM Manipulation"
+      ],
+      "url": "https://roadmap.sh/projects/task-tracker-js"
+    },
+    {
+      "id": "task-tracker",
+      "title": "Task Tracker",
+      "description": "Build a CLI app to track your tasks and manage your to-do list.",
+      "difficulty": "beginner",
+      "nature": "CLI",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "CLI",
+        "Filesystem"
+      ],
+      "url": "https://roadmap.sh/projects/task-tracker"
+    },
+    {
+      "id": "temperature-converter",
+      "title": "Temperature Converter",
+      "description": "Build a temperature converter that converts between different units.",
+      "difficulty": "intermediate",
+      "nature": "JavaScript",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "DOM Manipulation"
+      ],
+      "url": "https://roadmap.sh/projects/temperature-converter"
+    },
+    {
+      "id": "tmdb-cli",
+      "title": "TMDB CLI Tool",
+      "description": "Use TMDB API to fetch movie information and display it in the terminal.",
+      "difficulty": "beginner",
+      "nature": "CLI",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "CLI",
+        "API Consumption"
+      ],
+      "url": "https://roadmap.sh/projects/tmdb-cli"
+    },
+    {
+      "id": "todo-list-api",
+      "title": "Todo List API",
+      "description": "Build a RESTful API to allow users to manage their to-do list.",
+      "difficulty": "beginner",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "RESTful API",
+        "Database",
+        "CRUD Operations",
+        "Data Modeling",
+        "Authentication"
+      ],
+      "url": "https://roadmap.sh/projects/todo-list-api"
+    },
+    {
+      "id": "unit-converter",
+      "title": "Unit Converter",
+      "description": "Unit converter to convert between different units of measurement.",
+      "difficulty": "beginner",
+      "nature": "Web App",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "HTML",
+        "Server",
+        "Logic Building"
+      ],
+      "url": "https://roadmap.sh/projects/unit-converter"
+    },
+    {
+      "id": "url-shortening-service",
+      "title": "URL Shortening Service",
+      "description": "Build a URL Shortener API that helps shorten long URLs.",
+      "difficulty": "intermediate",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Database Indexing",
+        "HTTP Redirects"
+      ],
+      "url": "https://roadmap.sh/projects/url-shortening-service"
+    },
+    {
+      "id": "weather-api-wrapper-service",
+      "title": "Weather API",
+      "description": "Build a weather API that fetches and returns weather data.",
+      "difficulty": "beginner",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "3rd Party APIs",
+        "Caching",
+        "Environment Variables"
+      ],
+      "url": "https://roadmap.sh/projects/weather-api-wrapper-service"
+    },
+    {
+      "id": "weather-app",
+      "title": "Weather Web App",
+      "description": "Build a weather app that fetches and displays weather for a given location.",
+      "difficulty": "intermediate",
+      "nature": "API",
+      "roadmapIds": [
+        "frontend"
+      ],
+      "skills": [
+        "Programming Language",
+        "3rd Party APIs",
+        "JavaScript",
+        "HMTL",
+        "CSS"
+      ],
+      "url": "https://roadmap.sh/projects/weather-app"
+    },
+    {
+      "id": "fitness-workout-tracker",
+      "title": "Workout Tracker",
+      "description": "App to let users track their workouts and progress.",
+      "difficulty": "intermediate",
+      "nature": "API",
+      "roadmapIds": [
+        "backend",
+        "nodejs",
+        "python"
+      ],
+      "skills": [
+        "Programming Language",
+        "Date and Time",
+        "Database",
+        "Seeder",
+        "OpenAPI"
+      ],
+      "url": "https://roadmap.sh/projects/fitness-workout-tracker"
+    }
+  ]
+}

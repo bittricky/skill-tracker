@@ -5,6 +5,7 @@ import { useProgress } from "~/hooks/useProgress";
 import { AppShell } from "~/components/AppShell";
 import { SkillMatrix } from "~/components/dashboard/SkillMatrix";
 import { StatRow } from "~/components/dashboard/StatRow";
+import { Loader } from "~/components/ui/Loader";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,7 +18,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Dashboard() {
-  const { progress, applied, loaded } = useProgress();
+  const { progress, applied, projectsDone, loaded } = useProgress();
 
   const stats = useMemo(() => {
     let done = 0;
@@ -36,13 +37,17 @@ export default function Dashboard() {
         }
       }
     }
-    return { done, learning, applied: appliedCount };
-  }, [progress, applied]);
+    // Count of unique projects marked done across all disciplines.
+    const projects = Object.keys(projectsDone).filter(
+      (id) => projectsDone[id],
+    ).length;
+    return { done, learning, applied: appliedCount, projects };
+  }, [progress, applied, projectsDone]);
 
   if (!loaded) {
     return (
       <div className="h-screen flex items-center justify-center bg-brand-bg">
-        <span className="text-[13px] text-brand-muted">Loading…</span>
+        <Loader label="Loading skill tracker" />
       </div>
     );
   }
@@ -60,6 +65,7 @@ export default function Dashboard() {
               done={stats.done}
               applied={stats.applied}
               learning={stats.learning}
+              projects={stats.projects}
             />
           </div>
         </div>

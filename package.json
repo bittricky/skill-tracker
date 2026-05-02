@@ -9,6 +9,7 @@
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "sync:disciplines": "node scripts/sync-disciplines.mjs",
+    "sync:projects": "node scripts/sync-projects.mjs",
     "docker:dev": "docker compose up dev",
     "docker:build": "docker build -t skill-tracker .",
     "docker:run": "docker run -p 3000:3000 skill-tracker",

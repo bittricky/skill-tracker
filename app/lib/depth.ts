@@ -1,5 +1,5 @@
-import type { Discipline } from "~/data";
-import type { AppliedMap, ProgressMap } from "./storage";
+import { PROJECTS_BY_DISCIPLINE, type Discipline } from "~/data";
+import type { AppliedMap, ProgressMap, ProjectsDoneMap } from "./storage";
 
 export type DepthTier = "exploring" | "practicing" | "fluent";
 
@@ -21,6 +21,7 @@ export function calculateDepth(
   discipline: Discipline,
   progress: ProgressMap,
   applied: AppliedMap,
+  projectsDone: ProjectsDoneMap = {},
 ): DepthResult {
   const items: string[] = [];
   for (const sec of discipline.sections) {
@@ -41,8 +42,19 @@ export function calculateDepth(
     if (applied[id]) appliedCount++;
   }
 
+  // Completing a roadmap.sh project contributes to the applied metric for
+  // every discipline it's listed under.
+  const projects = PROJECTS_BY_DISCIPLINE[discipline.id] ?? [];
+  for (const p of projects) {
+    if (projectsDone[p.id]) appliedCount++;
+  }
+
+  // Cap applied at the effective ceiling (skills + projects) so the pct
+  // stays within 0..100 when projects push the count past total skills.
+  const appliedDenom = items.length + projects.length;
   const donePct = Math.round((doneCount / items.length) * 100);
-  const appliedPct = Math.round((appliedCount / items.length) * 100);
+  const appliedPct =
+    appliedDenom > 0 ? Math.round((appliedCount / appliedDenom) * 100) : 0;
 
   if (donePct >= 80 && appliedPct >= 60) {
     return { tier: "fluent", donePct, appliedPct };

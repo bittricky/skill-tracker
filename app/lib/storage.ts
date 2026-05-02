@@ -5,10 +5,13 @@ const V2_KEY = "skill-tracker:v2";
 export type Status = "untouched" | "learning" | "done" | "skipped";
 export type ProgressMap = Record<string, Exclude<Status, "untouched">>;
 export type AppliedMap = Record<string, boolean>;
+/** projectId -> marked-done flag. */
+export type ProjectsDoneMap = Record<string, boolean>;
 
 export interface StorageData {
   progress: ProgressMap;
   applied: AppliedMap;
+  projectsDone: ProjectsDoneMap;
 }
 
 function safeRead(key: string): unknown | null {
@@ -33,7 +36,7 @@ function safeWrite(key: string, value: unknown): void {
 
 export function loadStorage(): StorageData {
   if (typeof window === "undefined") {
-    return { progress: {}, applied: {} };
+    return { progress: {}, applied: {}, projectsDone: {} };
   }
   const v2 = safeRead(V2_KEY);
   if (v2 && typeof v2 === "object") {
@@ -41,6 +44,7 @@ export function loadStorage(): StorageData {
     return {
       progress: (obj.progress ?? {}) as ProgressMap,
       applied: (obj.applied ?? {}) as AppliedMap,
+      projectsDone: (obj.projectsDone ?? {}) as ProjectsDoneMap,
     };
   }
   // Migrate from v1 (progress only) once.
@@ -49,11 +53,12 @@ export function loadStorage(): StorageData {
     const migrated: StorageData = {
       progress: v1 as ProgressMap,
       applied: {},
+      projectsDone: {},
     };
     safeWrite(V2_KEY, migrated);
     return migrated;
   }
-  return { progress: {}, applied: {} };
+  return { progress: {}, applied: {}, projectsDone: {} };
 }
 
 export function saveStorage(data: StorageData): void {
@@ -67,7 +72,7 @@ export function loadProgress(): ProgressMap {
 
 export function saveProgress(data: ProgressMap): void {
   const current = loadStorage();
-  saveStorage({ progress: data, applied: current.applied });
+  saveStorage({ ...current, progress: data });
 }
 
 export function loadApplied(): AppliedMap {
@@ -76,7 +81,16 @@ export function loadApplied(): AppliedMap {
 
 export function saveApplied(data: AppliedMap): void {
   const current = loadStorage();
-  saveStorage({ progress: current.progress, applied: data });
+  saveStorage({ ...current, applied: data });
+}
+
+export function loadProjectsDone(): ProjectsDoneMap {
+  return loadStorage().projectsDone;
+}
+
+export function saveProjectsDone(data: ProjectsDoneMap): void {
+  const current = loadStorage();
+  saveStorage({ ...current, projectsDone: data });
 }
 
 export const STATUS_CYCLE: Status[] = [

@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import type { Route } from "./+types/browser";
-import { DISCIPLINES, DISCIPLINE_BY_ID } from "~/data";
+import { DISCIPLINES, DISCIPLINE_BY_ID, PROJECTS_BY_DISCIPLINE } from "~/data";
 import { useProgress } from "~/hooks/useProgress";
 import { calculateDepth } from "~/lib/depth";
 import { AppShell } from "~/components/AppShell";
-import {
-  MainContent,
-  type MainContentHandle,
-} from "~/components/MainContent";
+import { MainContent, type MainContentHandle } from "~/components/MainContent";
 import { DisciplineDepthStepper } from "~/components/browser/DisciplineDepthStepper";
+import { DisciplineProjects } from "~/components/browser/DisciplineProjects";
+import { Loader } from "~/components/ui/Loader";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -22,7 +21,15 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Browser() {
-  const { progress, applied, loaded, setStatus, setApplied } = useProgress();
+  const {
+    progress,
+    applied,
+    projectsDone,
+    loaded,
+    setStatus,
+    setApplied,
+    toggleProjectDone,
+  } = useProgress();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const mainRef = useRef<MainContentHandle>(null);
@@ -37,10 +44,14 @@ export default function Browser() {
   const depth = useMemo(
     () =>
       activeDiscipline
-        ? calculateDepth(activeDiscipline, progress, applied)
+        ? calculateDepth(activeDiscipline, progress, applied, projectsDone)
         : null,
-    [activeDiscipline, progress, applied],
+    [activeDiscipline, progress, applied, projectsDone],
   );
+
+  const projects = activeDiscipline
+    ? (PROJECTS_BY_DISCIPLINE[activeDiscipline.id] ?? [])
+    : [];
 
   // Drain any pending reveal once the discipline actually swapped.
   useEffect(() => {
@@ -66,7 +77,7 @@ export default function Browser() {
   if (!loaded) {
     return (
       <div className="h-screen flex items-center justify-center bg-brand-bg">
-        <span className="text-[13px] text-brand-muted">Loading…</span>
+        <Loader label="Loading skill tracker" />
       </div>
     );
   }
@@ -84,35 +95,42 @@ export default function Browser() {
 
   return (
     <AppShell progress={progress} activeDisciplineId={activeDiscipline.id}>
-      <MainContent
-        discipline={activeDiscipline}
-        progress={progress}
-        applied={applied}
-        onCycle={setStatus}
-        onToggleApplied={setApplied}
-        onNavigate={handleNavigate}
-        revealRef={mainRef}
-        headerSlot={
-          <header className="flex flex-col gap-8">
-            <div>
-              <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">
-                {activeDiscipline.label}
-              </h1>
-              {activeDiscipline.description && (
-                <p className="text-sm text-brand-muted mt-2 max-w-2xl">
-                  {activeDiscipline.description}
-                </p>
+      <div className="flex flex-col gap-10">
+        <MainContent
+          discipline={activeDiscipline}
+          progress={progress}
+          applied={applied}
+          onCycle={setStatus}
+          onToggleApplied={setApplied}
+          onNavigate={handleNavigate}
+          revealRef={mainRef}
+          headerSlot={
+            <header className="flex flex-col gap-8">
+              <div>
+                <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">
+                  {activeDiscipline.label}
+                </h1>
+                {activeDiscipline.description && (
+                  <p className="text-sm text-brand-muted mt-2 max-w-2xl">
+                    {activeDiscipline.description}
+                  </p>
+                )}
+              </div>
+              {depth && (
+                <DisciplineDepthStepper
+                  tier={depth.tier}
+                  donePct={depth.donePct}
+                />
               )}
-            </div>
-            {depth && (
-              <DisciplineDepthStepper
-                tier={depth.tier}
-                donePct={depth.donePct}
-              />
-            )}
-          </header>
-        }
-      />
+            </header>
+          }
+        />
+        <DisciplineProjects
+          projects={projects}
+          projectsDone={projectsDone}
+          onToggleProjectDone={toggleProjectDone}
+        />
+      </div>
     </AppShell>
   );
 }
