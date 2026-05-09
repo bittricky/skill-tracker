@@ -23,9 +23,12 @@ const SHELL_CACHE = `skill-tracker-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `skill-tracker-runtime-${CACHE_VERSION}`;
 
 // Fallback shell assets we always want in the cache.
+// NOTE: only include static files here. Server-rendered routes like /browser
+// are NOT listed because cache.add() on an SSR route may silently fail in
+// some environments. Those routes are cached lazily on first visit via
+// networkFirstNavigation, which is the correct pattern for SPA shells.
 const PRECACHE_URLS = [
   "/",
-  "/browser",
   "/manifest.webmanifest",
   "/icon.svg",
   "/favicon.ico",
@@ -107,10 +110,10 @@ async function networkFirstNavigation(req) {
     cache.put(req, fresh.clone()).catch(() => {});
     return fresh;
   } catch {
-    const cached =
-      (await cache.match(req)) ??
-      (await cache.match("/")) ??
-      (await cache.match("/browser"));
+    // Try the exact URL first, then fall back to the root shell (/).
+    // Routes like /browser are cached lazily on first visit, so they may
+    // not be present in the shell cache when offline for the first time.
+    const cached = (await cache.match(req)) ?? (await cache.match("/"));
     if (cached) return cached;
     return new Response(
       `<!doctype html><meta charset="utf-8"><title>Offline</title>

@@ -28,6 +28,7 @@ import {
   pullFromGist,
   pushToGist,
   saveGistConfig,
+  swSkipWaiting,
   type GistSyncConfig,
 } from "~/lib/gistSync";
 import { IS_CUSTOM_CATALOGUE } from "~/data";
@@ -117,7 +118,8 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
           message: `Imported ${detail}. Reloading…`,
         });
         // Full reload so the data module re-reads the custom catalogue.
-        setTimeout(() => window.location.reload(), 700);
+        // Skip SW waiting first so the reload is served by the fresh bundle.
+        swSkipWaiting().then(() => window.location.reload());
       } catch (err) {
         flash({
           kind: "error",
@@ -144,14 +146,14 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
       kind: "success",
       message: "Reverted to built-in disciplines. Reloading…",
     });
-    setTimeout(() => window.location.reload(), 600);
+    swSkipWaiting().then(() => window.location.reload());
   }, [flash]);
 
   const handleResetProgress = useCallback(() => {
     resetProgressOnly();
     setConfirmReset("none");
     flash({ kind: "success", message: "Progress cleared. Reloading…" });
-    setTimeout(() => window.location.reload(), 600);
+    swSkipWaiting().then(() => window.location.reload());
   }, [flash]);
 
   const handleResetAll = useCallback(() => {
@@ -161,7 +163,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
       kind: "success",
       message: "Everything cleared. Reloading…",
     });
-    setTimeout(() => window.location.reload(), 600);
+    swSkipWaiting().then(() => window.location.reload());
   }, [flash]);
 
   const handleConnectGist = useCallback(() => {
@@ -224,7 +226,8 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
         kind: "success",
         message: `Pulled ${parts.join(", ") || "config"}. Reloading…`,
       });
-      setTimeout(() => window.location.reload(), 700);
+      await swSkipWaiting();
+      window.location.reload();
     } catch (err) {
       flash({ kind: "error", message: (err as Error).message });
     } finally {

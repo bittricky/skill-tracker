@@ -1,11 +1,4 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import {
-  faCheck,
-  faStamp,
-  faCircleDot,
-  faCode,
-} from "@fortawesome/free-solid-svg-icons";
+import { Pixel } from "~/components/ui/Pixel";
 
 interface StatRowProps {
   done: number;
@@ -16,69 +9,74 @@ interface StatRowProps {
 
 export function StatRow({ done, applied, learning, projects }: StatRowProps) {
   const showProjects = typeof projects === "number";
-  return (
-    <div
-      className={`grid gap-4 ${showProjects ? "grid-cols-2 md:grid-cols-4" : "grid-cols-3"}`}
-    >
-      <StatCard
-        icon={faCheck}
-        label="Completed"
-        value={done}
-        accent="var(--color-brand-green)"
-      />
-      <StatCard
-        icon={faStamp}
-        label="Applied"
-        value={applied}
-        accent="var(--color-brand-primary)"
-      />
-      <StatCard
-        icon={faCircleDot}
-        label="In Progress"
-        value={learning}
-        accent="var(--color-brand-yellow)"
-      />
-      {showProjects && (
-        <StatCard
-          icon={faCode}
-          label="Projects Done"
-          value={projects}
-          accent="var(--color-brand-coral)"
-        />
-      )}
-    </div>
-  );
-}
+  const stats = [
+    {
+      label: "Skills Done",
+      value: String(done),
+      sub: "+14 this week",
+      color: "var(--color-accent-teal)",
+      hero: false,
+    },
+    {
+      label: "Active",
+      value: String(learning),
+      sub: `${applied} applied`,
+      color: "var(--color-accent-mustard)",
+      hero: true,
+    },
+    {
+      label: "Applied",
+      value: String(applied),
+      sub: `in ${projects ?? 0} projects`,
+      color: "var(--color-accent-lavender)",
+      hero: false,
+    },
+    {
+      label: "Total Hours",
+      value: "142",
+      sub: "4.5 / week avg",
+      color: "var(--color-accent-rose)",
+      hero: false,
+    },
+  ];
 
-interface StatCardProps {
-  icon: IconDefinition;
-  label: string;
-  value: number;
-  accent: string;
-}
-
-function StatCard({ icon, label, value, accent }: StatCardProps) {
   return (
-    <div className="surface-card rounded-2xl px-5 py-5 flex items-center gap-4">
-      <div
-        className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
-        style={{ background: `${accent}15` }}
-      >
-        <FontAwesomeIcon
-          icon={icon}
-          className="text-sm"
-          style={{ color: accent }}
-          aria-hidden="true"
-        />
-      </div>
-      <div className="flex flex-col leading-tight min-w-0">
-        <span className="text-[10px] uppercase tracking-[0.16em] text-brand-dim">
-          {label}
-        </span>
-        <span className="text-2xl font-semibold tabular-nums text-brand-ink mt-1">
-          {value}
-        </span>
-      </div>
+    <div className="grid grid-cols-4 gap-2.5">
+      {stats.map((s) => (
+        <div
+          key={s.label}
+          className="rounded-xl overflow-hidden relative"
+          style={{
+            background: "var(--color-surface-panel)",
+            border: "1px solid var(--color-surface-border)",
+            boxShadow: "var(--shadow-raised)",
+            padding: "16px 18px",
+          }}
+        >
+          {s.hero && (
+            <div
+              className="absolute top-0 left-0 right-0 h-[3px]"
+              style={{ background: s.color }}
+            />
+          )}
+          <Pixel color="ink-muted" size={13}>
+            {s.label}
+          </Pixel>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span
+              className="font-display leading-none tracking-[0.02em]"
+              style={{ fontSize: 36, color: s.color, fontWeight: 700 }}
+            >
+              {s.value}
+            </span>
+          </div>
+          <div className="mt-1.5">
+            <Pixel color="ink-dim" size={12}>
+              {s.sub}
+            </Pixel>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

@@ -63,6 +63,34 @@ export function clearGistConfig(): void {
   window.localStorage.removeItem(GIST_SYNC_KEY);
 }
 
+/**
+ * Tell the active service worker to skip waiting, then wait (up to
+ * `timeoutMs`) for the new SW to take control before resolving. This
+ * ensures that a subsequent `window.location.reload()` is served by the
+ * fresh bundle rather than a stale stale-while-revalidate cache hit.
+ *
+ * Safe to call when there's no SW (no-op in that case).
+ */
+export async function swSkipWaiting(timeoutMs = 1500): Promise<void> {
+  if (typeof navigator === "undefined" || !("serviceWorker" in navigator))
+    return;
+  const sw = navigator.serviceWorker;
+  const controller = sw.controller;
+  if (!controller) return;
+  controller.postMessage({ type: "SKIP_WAITING" });
+  await new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, timeoutMs);
+    sw.addEventListener(
+      "controllerchange",
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      { once: true },
+    );
+  });
+}
+
 async function gistFetch(
   path: string,
   token: string,
@@ -83,11 +111,17 @@ async function gistFetch(
 
 function errorFromResponse(res: Response, fallback: string): Error {
   if (res.status === 401)
-    return new Error("GitHub rejected the token (401). Check the PAT and that it has 'gist' scope.");
+    return new Error(
+      "GitHub rejected the token (401). Check the PAT and that it has 'gist' scope.",
+    );
   if (res.status === 403)
-    return new Error("GitHub denied the request (403). Is the 'gist' scope enabled?");
+    return new Error(
+      "GitHub denied the request (403). Is the 'gist' scope enabled?",
+    );
   if (res.status === 404)
-    return new Error("Gist not found (404). It may have been deleted; try pushing to create a new one.");
+    return new Error(
+      "Gist not found (404). It may have been deleted; try pushing to create a new one.",
+    );
   return new Error(`${fallback} (HTTP ${res.status})`);
 }
 
@@ -114,11 +148,19 @@ export async function pushToGist(): Promise<{
   });
 
   const isUpdate = cfg.gistId.length > 0;
-  const res = await gistFetch(isUpdate ? `/gists/${cfg.gistId}` : "/gists", cfg.token, {
-    method: isUpdate ? "PATCH" : "POST",
-    body,
-  });
-  if (!res.ok) throw errorFromResponse(res, isUpdate ? "Gist update failed" : "Gist create failed");
+  const res = await gistFetch(
+    isUpdate ? `/gists/${cfg.gistId}` : "/gists",
+    cfg.token,
+    {
+      method: isUpdate ? "PATCH" : "POST",
+      body,
+    },
+  );
+  if (!res.ok)
+    throw errorFromResponse(
+      res,
+      isUpdate ? "Gist update failed" : "Gist create failed",
+    );
 
   const json = (await res.json()) as { id: string };
   const nextGistId = json.id ?? cfg.gistId;
@@ -138,7 +180,8 @@ export async function pushToGist(): Promise<{
 export async function pullFromGist(): Promise<ImportSummary> {
   const cfg = loadGistConfig();
   if (!cfg || !cfg.token) throw new Error("No gist sync token configured.");
-  if (!cfg.gistId) throw new Error("No gist id yet — push first to create one.");
+  if (!cfg.gistId)
+    throw new Error("No gist id yet — push first to create one.");
 
   const res = await gistFetch(`/gists/${cfg.gistId}`, cfg.token);
   if (!res.ok) throw errorFromResponse(res, "Gist fetch failed");

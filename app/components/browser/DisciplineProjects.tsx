@@ -14,11 +14,26 @@ interface DisciplineProjectsProps {
 
 const DIFFICULTY_META: Record<
   ProjectDifficulty,
-  { label: string; color: string }
+  { label: string; textClass: string; bgClass: string; borderClass: string }
 > = {
-  beginner: { label: "Beginner", color: "var(--color-brand-green)" },
-  intermediate: { label: "Intermediate", color: "var(--color-brand-yellow)" },
-  advanced: { label: "Advanced", color: "var(--color-brand-coral)" },
+  beginner: {
+    label: "Beginner",
+    textClass: "text-brand-green",
+    bgClass: "bg-brand-green/10",
+    borderClass: "border-brand-green/30",
+  },
+  intermediate: {
+    label: "Intermediate",
+    textClass: "text-brand-yellow",
+    bgClass: "bg-brand-yellow/10",
+    borderClass: "border-brand-yellow/30",
+  },
+  advanced: {
+    label: "Advanced",
+    textClass: "text-brand-coral",
+    bgClass: "bg-brand-coral/10",
+    borderClass: "border-brand-coral/30",
+  },
 };
 
 export function DisciplineProjects({
@@ -70,14 +85,9 @@ export function DisciplineProjects({
                   aria-pressed={done}
                   className={`mt-0.5 shrink-0 w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
                     done
-                      ? "bg-brand-green/20 text-brand-green"
-                      : "text-transparent hover:text-brand-ink"
+                      ? "bg-brand-green/20 text-brand-green border-brand-green"
+                      : "text-transparent border-brand-line hover:text-brand-ink"
                   }`}
-                  style={{
-                    borderColor: done
-                      ? "var(--color-brand-green)"
-                      : "var(--color-brand-line)",
-                  }}
                 >
                   <FontAwesomeIcon icon={faCheck} className="text-[10px]" />
                 </button>
@@ -93,11 +103,7 @@ export function DisciplineProjects({
                       {p.title}
                     </h3>
                     <span
-                      className="text-[9.5px] uppercase tracking-wide font-semibold rounded px-1.5 py-0.5"
-                      style={{
-                        color: diff.color,
-                        background: `${diff.color}18`,
-                      }}
+                      className={`text-[9.5px] uppercase tracking-wide font-semibold rounded border px-1.5 py-0.5 ${diff.textClass} ${diff.bgClass} ${diff.borderClass}`}
                     >
                       {diff.label}
                     </span>

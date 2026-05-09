@@ -1,11 +1,18 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { Route } from "./+types/dashboard";
 import { DISCIPLINES } from "~/data";
 import { useProgress } from "~/hooks/useProgress";
-import { AppShell } from "~/components/AppShell";
-import { SkillMatrix } from "~/components/dashboard/SkillMatrix";
-import { StatRow } from "~/components/dashboard/StatRow";
 import { Loader } from "~/components/ui/Loader";
+import {
+  HeaderBar,
+  TabBar,
+  ActiveTracks,
+  StatRow,
+  SkillMatrix,
+  WeeklyActivity,
+  ResourceInventory,
+  FooterHints,
+} from "~/components/dashboard";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,7 +24,10 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+type TabId = "overview" | "matrix" | "sessions" | "resources";
+
 export default function Dashboard() {
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
   const { progress, applied, projectsDone, loaded } = useProgress();
 
   const stats = useMemo(() => {
@@ -37,7 +47,6 @@ export default function Dashboard() {
         }
       }
     }
-    // Count of unique projects marked done across all disciplines.
     const projects = Object.keys(projectsDone).filter(
       (id) => projectsDone[id],
     ).length;
@@ -46,30 +55,44 @@ export default function Dashboard() {
 
   if (!loaded) {
     return (
-      <div className="h-screen flex items-center justify-center bg-brand-bg">
-        <Loader label="Loading skill tracker" />
+      <div
+        className="h-screen flex items-center justify-center"
+        style={{ background: "var(--color-surface-bg)" }}
+      >
+        <Loader />
       </div>
     );
   }
 
   return (
-    <AppShell progress={progress}>
-      <div className="flex flex-col gap-14">
-        <div className="sticky top-6 z-0 bg-brand-bg">
-          <SkillMatrix progress={progress} />
-        </div>
+    <div className="min-h-screen p-5">
+      <div className="max-w-[1280px] mx-auto">
+        <HeaderBar
+          done={stats.done}
+          applied={stats.applied}
+          learning={stats.learning}
+          projects={stats.projects}
+        />
+        <TabBar active={activeTab} onChange={setActiveTab} />
 
-        <div className="sticky bottom-6 z-10">
-          <div className="backdrop-blur-sm rounded-2xl">
-            <StatRow
-              done={stats.done}
-              applied={stats.applied}
-              learning={stats.learning}
-              projects={stats.projects}
-            />
+        <div className="flex flex-col gap-3.5">
+          <ActiveTracks disciplines={DISCIPLINES} progress={progress} />
+          <StatRow
+            done={stats.done}
+            applied={stats.applied}
+            learning={stats.learning}
+            projects={stats.projects}
+          />
+          <SkillMatrix progress={progress} />
+
+          <div className="grid grid-cols-[1.3fr_1fr] gap-3.5">
+            <WeeklyActivity />
+            <ResourceInventory />
           </div>
         </div>
+
+        <FooterHints />
       </div>
-    </AppShell>
+    </div>
   );
 }

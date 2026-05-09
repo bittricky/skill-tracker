@@ -1,127 +1,393 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Cozy Game Menu Design Tokens
+   Per PLAN.md Section 2 — warm matte palette, rounded panels
+   ============================================================ */
+
 @theme {
-  --font-sans:
-    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* Fonts */
+  --font-display: "VT323", "JetBrains Mono", monospace;
+  --font-body: "JetBrains Mono", "ui-monospace", monospace;
 
-  /* Dark theme — purple accent */
-  --color-brand-bg: #0f0f0f;
-  --color-brand-surface: #1a1a1a;
-  --color-brand-surface-2: #262626;
-  --color-brand-sidebar: #1a1a1a;
-  --color-brand-sidebar-2: #0f0f0f;
-  --color-brand-primary: #a855f7; /* purple accent */
-  --color-brand-primary-soft: #a855f720;
-  --color-brand-secondary: #7c3aed;
-  --color-brand-secondary-soft: #7c3aed20;
-  --color-brand-ink: #f5f5f5;
-  --color-brand-muted: #737373;
-  --color-brand-dim: #525252;
-  --color-brand-yellow: #fb923c;
-  --color-brand-green: #4ade80;
-  --color-brand-coral: #f87171;
-  --color-brand-line: rgba(255, 255, 255, 0.14);
-  --color-brand-line-soft: rgba(255, 255, 255, 0.08);
+  /* Surfaces — desaturated navy/slate */
+  --color-surface-bg: #1c2030;
+  --color-surface-bg-deep: #161a28;
+  --color-surface-panel: #252a3d;
+  --color-surface-panel-hi: #2d334a;
+  --color-surface-panel-lo: #1f2333;
+  --color-surface-inset: #181b29;
+  --color-surface-divider: #2f354c;
+  --color-surface-border: #3a4262;
 
-  /* Light theme — red accent */
-  --color-light-bg: #fafafa;
-  --color-light-surface: #ffffff;
-  --color-light-sidebar: #ffffff;
-  --color-light-primary: #dc2626; /* red accent */
-  --color-light-secondary: #ef4444;
-  --color-light-ink: #0f0f0f;
-  --color-light-muted: #525252;
-  --color-light-hover: #e5e5e5;
+  /* Inks — warm off-whites and grays */
+  --color-ink: #e8e4d4;
+  --color-ink-soft: #c9c4b3;
+  --color-ink-muted: #8b8a9b;
+  --color-ink-dim: #5a5d75;
+
+  /* Accents — five warm matte tones */
+  --color-accent-mustard: #e8b04a;
+  --color-accent-mustard-soft: #d49d3d;
+  --color-accent-coral: #e87555;
+  --color-accent-coral-soft: #c45e44;
+  --color-accent-teal: #5cb8a8;
+  --color-accent-teal-soft: #4a9889;
+  --color-accent-lavender: #9b8cd4;
+  --color-accent-rose: #d47a8c;
+
+  /* Tier semantics */
+  --color-tier-exploring: var(--color-accent-coral);
+  --color-tier-practicing: var(--color-accent-mustard);
+  --color-tier-fluent: var(--color-accent-teal);
+
+  /* Status semantics */
+  --color-status-active: var(--color-accent-mustard);
+  --color-status-done: var(--color-accent-teal);
+  --color-status-skipped: var(--color-ink-dim);
+  --color-status-untouched: var(--color-ink-muted);
+
+  /* Shadows */
+  --shadow-inset:
+    inset 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 -1px 0 rgba(45, 51, 74, 0.25);
+  --shadow-raised:
+    0 1px 0 var(--color-surface-panel-hi), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-button-press: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-button-rest: 0 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-keycap: inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================
+   Global Styles
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
 }
 
 html,
 body {
-  background-color: var(--color-brand-bg);
-  color: var(--color-brand-ink);
-  color-scheme: light;
-}
-
-/* Dark theme is the default sci-fi aesthetic */
-html,
-body {
+  background-color: var(--color-surface-bg);
+  color: var(--color-ink);
   color-scheme: dark;
+  font-family: var(--font-body);
 }
 
-/* Light theme override with red accent */
-[data-theme="light"] {
-  --color-brand-bg: var(--color-light-bg);
-  --color-brand-surface: var(--color-light-surface);
-  --color-brand-sidebar: var(--color-light-sidebar);
-  --color-brand-primary: var(--color-light-primary);
-  --color-brand-secondary: var(--color-light-secondary);
-  --color-brand-ink: var(--color-light-ink);
-  --color-brand-muted: var(--color-light-muted);
-  --color-brand-surface-2: var(--color-light-hover);
-  --color-brand-line: rgba(15, 15, 15, 0.18);
-  --color-brand-line-soft: rgba(15, 15, 15, 0.08);
+/* Subtle warm vignette background */
+body {
+  background-image: radial-gradient(
+    ellipse at top,
+    var(--color-surface-panel-lo) 0%,
+    var(--color-surface-bg) 70%
+  );
+  min-height: 100vh;
 }
 
-[data-theme="light"] html,
-[data-theme="light"] body {
-  color-scheme: light;
+/* ============================================================
+   Typography Utilities
+   ============================================================ */
+
+.font-display {
+  font-family: var(--font-display);
 }
 
-/* Flat surface utility (no glow, no shadow) */
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* VT323 letter-spacing */
+.tracking-pixel {
+  letter-spacing: 0.06em;
+}
+
+.tracking-pixel-wide {
+  letter-spacing: 0.08em;
+}
+
+/* Tabular numbers for stats */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Scrollbar Styling
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface-inset);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-dim);
+}
+
+/* ============================================================
+   Surface Utilities
+   ============================================================ */
+
+.surface-inset {
+  background: var(--color-surface-inset);
+  border: 1px solid var(--color-surface-bg-deep);
+  box-shadow: var(--shadow-inset);
+  border-radius: var(--radius-md);
+}
+
+.surface-raised {
+  background: var(--color-surface-panel);
+  border: 1px solid var(--color-surface-border);
+  box-shadow: var(--shadow-raised);
+  border-radius: var(--radius-xl);
+}
+
+/* ============================================================
+   Radius Tokens (Tailwind extension)
+   ============================================================ */
+
+.rounded-sm {
+  border-radius: 3px;
+}
+
+.rounded-md {
+  border-radius: 5px;
+}
+
+.rounded-lg {
+  border-radius: 6px;
+}
+
+.rounded-xl {
+  border-radius: 8px;
+}
+
+/* ============================================================
+   Progress Bar
+   ============================================================ */
+
+.progress-track {
+  background: var(--color-surface-inset);
+  border: 1px solid var(--color-surface-bg-deep);
+  border-radius: 9999px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: linear-gradient(
+    180deg,
+    var(--fill-color, var(--color-accent-mustard)) 0%,
+    color-mix(
+        in srgb,
+        var(--fill-color, var(--color-accent-mustard)) 87%,
+        transparent
+      )
+      100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: width 0.3s ease;
+}
+
+/* ============================================================
+   Tier Tag
+   ============================================================ */
+
+.tier-tag {
+  font-family: var(--font-display);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   Keycap Style
+   ============================================================ */
+
+.keycap {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--color-surface-panel-hi);
+  border: 1px solid var(--color-surface-border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  color: var(--color-ink);
+  box-shadow: var(--shadow-keycap);
+  min-width: 24px;
+  text-align: center;
+}
+
+/* ============================================================
+   Button Styles
+   ============================================================ */
+
+.btn-primary {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--color-accent-mustard);
+  color: var(--color-surface-bg-deep);
+  border: 1px solid var(--color-accent-mustard-soft);
+  border-radius: var(--radius-lg);
+  padding: 10px 18px;
+  cursor: pointer;
+  box-shadow:
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+    0 2px 0 var(--color-accent-mustard-soft);
+  transition: all 0.15s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+    0 3px 0 var(--color-accent-mustard-soft);
+}
+
+.btn-secondary {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--color-surface-panel-lo);
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-lg);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover {
+  background: var(--color-surface-panel-hi);
+  color: var(--color-ink);
+}
+
+.btn-secondary.active {
+  background: var(--color-surface-panel-hi);
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+/* ============================================================
+   Item Slot Hover
+   ============================================================ */
+
+.item-slot {
+  background: var(--color-surface-inset);
+  border: 1px solid var(--color-surface-bg-deep);
+  box-shadow: var(--shadow-inset);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    transform 0.15s,
+    border-color 0.15s;
+}
+
+.item-slot:hover {
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   Tab Button
+   ============================================================ */
+
+.tab-button {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 10px 22px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-weight: 400;
+  transition: all 0.15s;
+}
+
+.tab-button.inactive {
+  background: var(--color-surface-panel-lo);
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-surface-border);
+}
+
+.tab-button.active {
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================
+   Sprite Icon
+   ============================================================ */
+
+.sprite-icon {
+  background: var(--color-surface-inset);
+  border: 1px solid var(--color-surface-bg-deep);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 0 rgba(45, 51, 74, 0.3);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Panel
+   ============================================================ */
+
+.panel {
+  background: var(--color-surface-panel);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-raised);
+}
+
+.panel-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-surface-divider);
+}
+
+/* ============================================================
+   Existing utilities preserved for compatibility
+   ============================================================ */
+
 .card-shadow {
   box-shadow: none;
 }
 
 .surface-card {
-  background: var(--color-brand-surface);
-  border: 1px solid var(--color-brand-line-soft);
+  background: var(--color-surface-panel);
+  border: 1px solid var(--color-surface-border);
 }
 
-/* Glass effect for overlays */
 .glass {
-  background: rgba(26, 26, 26, 0.8);
+  background: rgba(37, 42, 61, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-[data-theme="light"] .glass {
-  background: rgba(255, 255, 255, 0.8);
-}
-
-/* Custom scrollbar */
-.scroll-soft::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.scroll-soft::-webkit-scrollbar-track {
-  background: rgba(168, 85, 247, 0.05);
-  border-radius: 3px;
-}
-.scroll-soft::-webkit-scrollbar-thumb {
-  background: rgba(168, 85, 247, 0.25);
-  border-radius: 3px;
-}
-.scroll-soft::-webkit-scrollbar-thumb:hover {
-  background: rgba(168, 85, 247, 0.4);
-}
-
-[data-theme="light"] .scroll-soft::-webkit-scrollbar-track {
-  background: rgba(220, 38, 38, 0.05);
-}
-[data-theme="light"] .scroll-soft::-webkit-scrollbar-thumb {
-  background: rgba(220, 38, 38, 0.25);
-}
-[data-theme="light"] .scroll-soft::-webkit-scrollbar-thumb:hover {
-  background: rgba(220, 38, 38, 0.4);
-}
-
-/* Dual-ring loader. Outer ring uses the ink color; inner counter-rotates
-   with the brand accent. Theme-aware via CSS variables so it swaps with
-   light/dark automatically. */
+/* Dual-ring loader preserved */
 .loader {
   width: 48px;
   height: 48px;
-  border: 3px dotted var(--color-brand-ink);
+  border: 3px dotted var(--color-ink);
   border-style: solid solid dotted dotted;
   border-radius: 50%;
   display: inline-block;
@@ -138,7 +404,7 @@ body {
   top: 0;
   bottom: 0;
   margin: auto;
-  border: 3px dotted var(--color-brand-primary);
+  border: 3px dotted var(--color-accent-mustard);
   border-style: solid solid dotted;
   width: 24px;
   height: 24px;
@@ -162,4 +428,20 @@ body {
   100% {
     transform: rotate(-360deg);
   }
+}
+
+.scroll-soft::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-soft::-webkit-scrollbar-track {
+  background: rgba(232, 176, 74, 0.05);
+  border-radius: 3px;
+}
+.scroll-soft::-webkit-scrollbar-thumb {
+  background: rgba(232, 176, 74, 0.25);
+  border-radius: 3px;
+}
+.scroll-soft::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 176, 74, 0.4);
 }
