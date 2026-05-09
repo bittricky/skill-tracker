@@ -1,10 +1,10 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowUpRightFromSquare,
-  faCheck,
-} from "@fortawesome/free-solid-svg-icons";
 import type { Project, ProjectDifficulty } from "~/data";
 import type { ProjectsDoneMap } from "~/lib/storage";
+import { Panel, PanelHeader, PanelBody } from "~/components/ui/Panel";
+import { Pixel } from "~/components/ui/Pixel";
+import { Mono } from "~/components/ui/Mono";
+import { ProgressBar } from "~/components/ui/ProgressBar";
+import { cn } from "~/lib/cn";
 
 interface DisciplineProjectsProps {
   projects: Project[];
@@ -14,25 +14,19 @@ interface DisciplineProjectsProps {
 
 const DIFFICULTY_META: Record<
   ProjectDifficulty,
-  { label: string; textClass: string; bgClass: string; borderClass: string }
+  { label: string; color: string }
 > = {
   beginner: {
     label: "Beginner",
-    textClass: "text-brand-green",
-    bgClass: "bg-brand-green/10",
-    borderClass: "border-brand-green/30",
+    color: "var(--color-accent-teal)",
   },
   intermediate: {
     label: "Intermediate",
-    textClass: "text-brand-yellow",
-    bgClass: "bg-brand-yellow/10",
-    borderClass: "border-brand-yellow/30",
+    color: "var(--color-accent-mustard)",
   },
   advanced: {
     label: "Advanced",
-    textClass: "text-brand-coral",
-    bgClass: "bg-brand-coral/10",
-    borderClass: "border-brand-coral/30",
+    color: "var(--color-accent-coral)",
   },
 };
 
@@ -47,95 +41,112 @@ export function DisciplineProjects({
     (acc, p) => acc + (projectsDone[p.id] ? 1 : 0),
     0,
   );
+  const pct = Math.round((doneCount / projects.length) * 100);
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex items-baseline justify-between">
-        <div>
-          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dim mb-1">
-            Projects
-          </div>
-          <h2 className="text-sm text-brand-muted">
-            Hands-on builds to apply what you've learned
-          </h2>
-        </div>
-        <span className="text-[11px] tabular-nums text-brand-dim">
+    <Panel>
+      <PanelHeader
+        title="Projects"
+        subtitle="Hands-on builds to apply what you've learned"
+        accentColor="rose"
+        glyph="▤"
+      >
+        <Mono size={11} color="ink-muted">
           {doneCount} / {projects.length} done
-        </span>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {projects.map((p) => {
-          const done = !!projectsDone[p.id];
-          const diff =
-            DIFFICULTY_META[p.difficulty] ?? DIFFICULTY_META.beginner;
-          return (
-            <article
-              key={p.id}
-              className={`surface-card rounded-xl p-4 flex flex-col gap-2 transition-opacity ${
-                done ? "opacity-70" : ""
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <button
-                  type="button"
-                  onClick={() => onToggleProjectDone(p.id)}
-                  aria-label={
-                    done ? "Mark project as not done" : "Mark project as done"
-                  }
-                  aria-pressed={done}
-                  className={`mt-0.5 shrink-0 w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
-                    done
-                      ? "bg-brand-green/20 text-brand-green border-brand-green"
-                      : "text-transparent border-brand-line hover:text-brand-ink"
-                  }`}
-                >
-                  <FontAwesomeIcon icon={faCheck} className="text-[10px]" />
-                </button>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h3
-                      className={`text-[13.5px] font-semibold leading-tight ${
-                        done
-                          ? "text-brand-muted line-through decoration-brand-muted/40"
-                          : "text-brand-ink"
-                      }`}
-                    >
-                      {p.title}
-                    </h3>
-                    <span
-                      className={`text-[9.5px] uppercase tracking-wide font-semibold rounded border px-1.5 py-0.5 ${diff.textClass} ${diff.bgClass} ${diff.borderClass}`}
-                    >
-                      {diff.label}
-                    </span>
-                    {p.nature && (
-                      <span className="text-[9.5px] uppercase tracking-wide font-medium text-brand-dim bg-brand-surface-2 rounded px-1.5 py-0.5">
-                        {p.nature}
-                      </span>
+        </Mono>
+      </PanelHeader>
+      <PanelBody>
+        <ProgressBar
+          pct={pct}
+          color="var(--color-accent-rose)"
+          height={4}
+          className="mb-3"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {projects.map((p) => {
+            const done = !!projectsDone[p.id];
+            const diff =
+              DIFFICULTY_META[p.difficulty] ?? DIFFICULTY_META.beginner;
+            return (
+              <article
+                key={p.id}
+                className={cn(
+                  "rounded-md p-3 transition-all",
+                  done ? "opacity-60" : "",
+                )}
+                style={{
+                  background: "var(--color-surface-inset)",
+                  border: "1px solid var(--color-surface-bg-deep)",
+                  boxShadow: "var(--shadow-inset)",
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  {/* Checkbox */}
+                  <button
+                    type="button"
+                    onClick={() => onToggleProjectDone(p.id)}
+                    aria-label={
+                      done ? "Mark project as not done" : "Mark project as done"
+                    }
+                    aria-pressed={done}
+                    className={cn(
+                      "mt-0.5 shrink-0 w-5 h-5 rounded flex items-center justify-center border transition-colors",
+                      done
+                        ? "bg-accent-teal/20 text-accent-teal border-accent-teal"
+                        : "text-transparent border-surface-border hover:text-ink",
                     )}
+                  >
+                    {done && <span className="text-xs">✓</span>}
+                  </button>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <Mono
+                        size={13}
+                        color={done ? "ink-muted" : "ink"}
+                        weight={600}
+                        className={done ? "line-through" : ""}
+                      >
+                        {p.title}
+                      </Mono>
+                      <span
+                        className="font-display text-[10px] font-bold tracking-[0.06em] uppercase px-1.5 py-0.5 rounded"
+                        style={{
+                          color: diff.color,
+                          background: `${diff.color}15`,
+                          border: `1px solid ${diff.color}40`,
+                        }}
+                      >
+                        {diff.label}
+                      </span>
+                      {p.nature && (
+                        <span className="font-display text-[10px] tracking-[0.04em] text-ink-dim bg-surface-panel-hi rounded px-1.5 py-0.5">
+                          {p.nature}
+                        </span>
+                      )}
+                    </div>
+                    <Pixel size={12} color="ink-muted" className="line-clamp-2">
+                      {p.description}
+                    </Pixel>
                   </div>
-                  <p className="text-[12px] text-brand-muted leading-snug line-clamp-2">
-                    {p.description}
-                  </p>
+
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    onClick={(e) => e.stopPropagation()}
+                    title="Open on roadmap.sh"
+                    aria-label="Open on roadmap.sh"
+                    className="shrink-0 mt-0.5 inline-flex w-7 h-7 items-center justify-center rounded text-ink-muted hover:text-accent-mustard hover:bg-surface-panel-hi transition-colors"
+                  >
+                    <span className="text-xs">↗</span>
+                  </a>
                 </div>
-                <a
-                  href={p.url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  onClick={(e) => e.stopPropagation()}
-                  title="Open on roadmap.sh"
-                  aria-label="Open on roadmap.sh"
-                  className="shrink-0 mt-0.5 inline-flex w-7 h-7 items-center justify-center rounded-md text-brand-muted hover:text-brand-primary hover:bg-brand-surface-2 transition-colors"
-                >
-                  <FontAwesomeIcon
-                    icon={faArrowUpRightFromSquare}
-                    className="text-[11px]"
-                  />
-                </a>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </section>
+              </article>
+            );
+          })}
+        </div>
+      </PanelBody>
+    </Panel>
   );
 }

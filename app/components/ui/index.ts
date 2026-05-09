@@ -9,3 +9,4 @@ export { TabButton } from "./TabButton";
 export { PrimaryButton } from "./PrimaryButton";
 export { SecondaryButton } from "./SecondaryButton";
 export { Keycap } from "./Keycap";
+export { SettingsButton } from "./SettingsButton";

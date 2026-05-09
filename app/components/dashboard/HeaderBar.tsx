@@ -1,16 +1,26 @@
+import { Link } from "react-router";
 import { SpriteIcon } from "~/components/ui/SpriteIcon";
 import { Pixel } from "~/components/ui/Pixel";
 import { Mono } from "~/components/ui/Mono";
 import { PrimaryButton } from "~/components/ui/PrimaryButton";
+import { SecondaryButton } from "~/components/ui/SecondaryButton";
+import { SettingsButton } from "~/components/ui/SettingsButton";
 
 interface HeaderBarProps {
   done: number;
   applied: number;
   learning: number;
   projects: number;
+  onSettingsClick: () => void;
 }
 
-export function HeaderBar({ done, applied, learning, projects }: HeaderBarProps) {
+export function HeaderBar({
+  done,
+  applied,
+  learning,
+  projects,
+  onSettingsClick,
+}: HeaderBarProps) {
   // Calculate mock level based on done skills (simplified)
   const level = Math.floor(done / 20) + 1;
   const xp = done * 10 + applied * 5;
@@ -30,9 +40,7 @@ export function HeaderBar({ done, applied, learning, projects }: HeaderBarProps)
       <div className="flex items-center gap-3.5">
         <SpriteIcon glyph="◆" color="var(--color-accent-mustard)" size={44} />
         <div>
-          <div
-            className="font-display text-[28px] font-bold text-ink tracking-[0.04em] leading-none"
-          >
+          <div className="font-display text-[28px] font-bold text-ink tracking-[0.04em] leading-none">
             Skill Tracker
           </div>
           <Pixel color="ink-muted" size={13}>
@@ -52,25 +60,49 @@ export function HeaderBar({ done, applied, learning, projects }: HeaderBarProps)
           }}
         >
           <span>
-            <Pixel color="ink-muted" size={11}>LV</Pixel>{" "}
-            <Mono size={16} color="mustard" weight={600}>{level}</Mono>
+            <Pixel color="ink-muted" size={11}>
+              LV
+            </Pixel>{" "}
+            <Mono size={16} color="mustard" weight={600}>
+              {level}
+            </Mono>
           </span>
-          <span className="w-px h-4" style={{ background: "var(--color-surface-divider)" }} />
+          <span
+            className="w-px h-4"
+            style={{ background: "var(--color-surface-divider)" }}
+          />
           <span>
-            <Pixel color="ink-muted" size={11}>XP</Pixel>{" "}
-            <Mono size={13} color="ink">{xp.toLocaleString()}</Mono>{" "}
-            <Mono size={11} color="ink-dim">/ {xpToNext.toLocaleString()}</Mono>
+            <Pixel color="ink-muted" size={11}>
+              XP
+            </Pixel>{" "}
+            <Mono size={13} color="ink">
+              {xp.toLocaleString()}
+            </Mono>{" "}
+            <Mono size={11} color="ink-dim">
+              / {xpToNext.toLocaleString()}
+            </Mono>
           </span>
-          <span className="w-px h-4" style={{ background: "var(--color-surface-divider)" }} />
+          <span
+            className="w-px h-4"
+            style={{ background: "var(--color-surface-divider)" }}
+          />
           <span>
-            <Pixel color="ink-muted" size={11}>STREAK</Pixel>{" "}
-            <Mono size={13} color="coral">{streak}d</Mono>
+            <Pixel color="ink-muted" size={11}>
+              STREAK
+            </Pixel>{" "}
+            <Mono size={13} color="coral">
+              {streak}d
+            </Mono>
           </span>
         </div>
 
-        <PrimaryButton icon="▶">
-          Start Session
-        </PrimaryButton>
+        <Link to="/browser">
+          <SecondaryButton>Browse ▶</SecondaryButton>
+        </Link>
+
+        <SettingsButton onClick={onSettingsClick} />
+
+        <PrimaryButton icon="▶">Start Session</PrimaryButton>
       </div>
     </div>
   );

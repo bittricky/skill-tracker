@@ -79,32 +79,32 @@ export function getDepthLabel(tier: DepthTier): string {
 export function getDepthColor(tier: DepthTier): string {
   switch (tier) {
     case "exploring":
-      return "#fbbf24"; // amber-400
+      return "var(--color-accent-coral)";
     case "practicing":
-      return "#a855f7"; // purple-500
+      return "var(--color-accent-mustard)";
     case "fluent":
-      return "#4ade80"; // green-400
+      return "var(--color-accent-teal)";
   }
 }
 
 export function getDepthBgColor(tier: DepthTier): string {
   switch (tier) {
     case "exploring":
-      return "rgba(251, 191, 36, 0.15)";
+      return "rgba(232, 117, 85, 0.15)";
     case "practicing":
-      return "rgba(168, 85, 247, 0.15)";
+      return "rgba(232, 176, 74, 0.15)";
     case "fluent":
-      return "rgba(74, 222, 128, 0.15)";
+      return "rgba(92, 184, 168, 0.15)";
   }
 }
 
 export function getDepthBorderColor(tier: DepthTier): string {
   switch (tier) {
     case "exploring":
-      return "rgba(251, 191, 36, 0.3)";
+      return "rgba(232, 117, 85, 0.3)";
     case "practicing":
-      return "rgba(168, 85, 247, 0.3)";
+      return "rgba(232, 176, 74, 0.3)";
     case "fluent":
-      return "rgba(74, 222, 128, 0.3)";
+      return "rgba(92, 184, 168, 0.3)";
   }
 }

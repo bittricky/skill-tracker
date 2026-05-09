@@ -3,6 +3,7 @@ import type { Route } from "./+types/dashboard";
 import { DISCIPLINES } from "~/data";
 import { useProgress } from "~/hooks/useProgress";
 import { Loader } from "~/components/ui/Loader";
+import { SettingsModal } from "~/components/SettingsModal";
 import {
   HeaderBar,
   TabBar,
@@ -28,6 +29,7 @@ type TabId = "overview" | "matrix" | "sessions" | "resources";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const { progress, applied, projectsDone, loaded } = useProgress();
 
   const stats = useMemo(() => {
@@ -72,6 +74,12 @@ export default function Dashboard() {
           applied={stats.applied}
           learning={stats.learning}
           projects={stats.projects}
+          onSettingsClick={() => setSettingsOpen(true)}
+        />
+
+        <SettingsModal
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
         />
         <TabBar active={activeTab} onChange={setActiveTab} />
 
