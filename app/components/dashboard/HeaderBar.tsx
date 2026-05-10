@@ -14,7 +14,7 @@ interface HeaderBarProps {
 export function HeaderBar({
   title,
   subtitle,
-  icon = "Home",
+  icon = "Sparkle",
   iconSize = 36,
 }: HeaderBarProps) {
   const { pathname } = useLocation();

@@ -12,7 +12,7 @@ import {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Skill Tracker" },
+    { title: "Dashboard | Skill Tracker" },
     {
       name: "description",
       content: "Track your progress across different disciplines.",
@@ -20,10 +20,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-type TabId = "overview" | "matrix" | "sessions" | "resources";
-
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState<TabId>("overview");
   const { progress, applied, projectsDone, loaded } = useProgress();
 
   const stats = useMemo(() => {

@@ -13,7 +13,7 @@ import type { ProgressMap } from "~/lib/storage";
 import { Panel, PanelHeader } from "~/components/ui/Panel";
 import { Pixel } from "~/components/ui/Pixel";
 import { Mono } from "~/components/ui/Mono";
-import { Icon, ICONS, type IconName } from "~/components/ui/Icon";
+import { Icon, type IconName } from "~/components/ui/Icon";
 import { ProgressBar } from "~/components/ui/ProgressBar";
 import { TierTag } from "~/components/ui/TierTag";
 
@@ -32,21 +32,55 @@ const FILTERS: { value: Filter; label: string }[] = [
 ];
 
 const SPRITES: Record<string, IconName> = {
+  // Roles — unique icons
   frontend: "Briefcase",
   backend: "Server",
   fullstack: "Globe",
   shopify: "Sparkle",
   devops: "SettingsCog",
+  "ai-engineer": "UserPlus",
+  "ai-agents": "Sparkle",
+  "api-design": "Link",
+  "game-developer": "Trophy",
+  "cyber-security": "SettingsCog",
+  blockchain: "Box",
+
+  // Languages — braces { }
   javascript: "Braces",
-  typescript: "FileText",
-  rust: "Terminal",
-  sql: "Database",
-  react: "Braces",
-  remix: "Play",
-  "next-js": "Globe",
-  postgresql: "Database",
+  typescript: "Braces",
+  rust: "Braces",
+  sql: "Braces",
+  python: "Braces",
+  "shell-bash": "Terminal",
+  zsh: "Terminal",
+
+  // Frameworks — blocks (composable building units)
+  react: "Box",
+  nextjs: "Box",
+  vue: "Box",
+  svelte: "Box",
+  nuxt: "Box",
+  "react-native": "Box",
+  nestjs: "Box",
+  nodejs: "Server",
+
+  // Tech — server (infrastructure / runtime services)
+  postgresql: "Server",
   redis: "Server",
-  docker: "Box",
+  docker: "Server",
+  mongodb: "Server",
+  kubernetes: "SettingsCog",
+  graphql: "Database",
+  linux: "Terminal",
+  git: "GitBranch",
+
+  // Foundations — book-open (foundational knowledge / textbook learning)
+  html: "BookOpen",
+  css: "BookOpen",
+  "computer-science": "BookOpen",
+  "datastructures-and-algorithms": "BookOpen",
+  "software-design-architecture": "BookOpen",
+  "system-design": "BookOpen",
 };
 
 const TIER_META = {
@@ -92,7 +126,7 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
         title="Skill Matrix"
         subtitle="Where you're strong, where you're growing"
         accentColor="teal"
-        glyph="Settings2"
+        glyph="CircuitBoard"
       >
         <div
           className="flex gap-1 p-1 rounded-md"

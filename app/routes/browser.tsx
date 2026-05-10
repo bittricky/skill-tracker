@@ -44,21 +44,55 @@ export function meta({}: Route.MetaArgs) {
 }
 
 const SPRITES: Record<string, IconName> = {
+  // Roles — unique icons
   frontend: "Briefcase",
   backend: "Server",
   fullstack: "Globe",
   shopify: "Sparkle",
   devops: "SettingsCog",
+  "ai-engineer": "UserPlus",
+  "ai-agents": "Sparkle",
+  "api-design": "Link",
+  "game-developer": "Trophy",
+  "cyber-security": "SettingsCog",
+  blockchain: "Box",
+
+  // Languages — braces { }
   javascript: "Braces",
-  typescript: "FileText",
-  rust: "Terminal",
-  sql: "Database",
-  react: "Braces",
-  remix: "Play",
-  "next-js": "Globe",
-  postgresql: "Database",
+  typescript: "Braces",
+  rust: "Braces",
+  sql: "Braces",
+  python: "Braces",
+  "shell-bash": "Terminal",
+  zsh: "Terminal",
+
+  // Frameworks — blocks (composable building units)
+  react: "Box",
+  nextjs: "Box",
+  vue: "Box",
+  svelte: "Box",
+  nuxt: "Box",
+  "react-native": "Box",
+  nestjs: "Box",
+  nodejs: "Server",
+
+  // Tech — server (infrastructure / runtime services)
+  postgresql: "Server",
   redis: "Server",
-  docker: "Box",
+  docker: "Server",
+  mongodb: "Server",
+  kubernetes: "SettingsCog",
+  graphql: "Database",
+  linux: "Terminal",
+  git: "GitBranch",
+
+  // Foundations — book-open (foundational knowledge / textbook learning)
+  html: "BookOpen",
+  css: "BookOpen",
+  "computer-science": "BookOpen",
+  "datastructures-and-algorithms": "BookOpen",
+  "software-design-architecture": "BookOpen",
+  "system-design": "BookOpen",
 };
 
 const KIND_FILTERS: {
@@ -67,7 +101,7 @@ const KIND_FILTERS: {
   glyph: IconName;
 }[] = [
   { value: "role", label: "Roles", glyph: "User" },
-  { value: "foundation", label: "Foundations", glyph: "Home" },
+  { value: "foundation", label: "Foundations", glyph: "BookOpen" },
   { value: "language", label: "Languages", glyph: "Braces" },
   { value: "framework", label: "Frameworks", glyph: "Box" },
   { value: "tech", label: "Tech", glyph: "SettingsCog" },

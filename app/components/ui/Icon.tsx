@@ -30,7 +30,9 @@ export type IconName =
   | "Briefcase"
   | "Server"
   | "Upload"
-  | "Unlink";
+  | "Unlink"
+  | "NeuralNetwork"
+  | "CircuitBoard";
 
 // SVG path data extracted from pixelarticons v2.1.0
 const iconPaths: Record<IconName, string[]> = {
@@ -137,6 +139,12 @@ const iconPaths: Record<IconName, string[]> = {
   Unlink: [
     "M4 6h5v2H4zm11 0h5v2h-5zm0 10h5v2h-5zM4 16h5v2H4zm16-8h2v8h-2zM2 8h2v8H2zm9-4h2v16h-2z",
   ],
+  NeuralNetwork: [
+    "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z",
+  ],
+  CircuitBoard: [
+    "M4 2h16v2H4zm0 18h16v2H4zM2 4h2v16H2zm18 0h2v16h-2zM8 6h2v2H8zm8 12h-2v-2h2zM6 8h2v2H6zm12 8h-2v-2h2zM8 10h2v2H8zm8 4h-2v-2h2zm-6-6h6v2h-6zm4 8H8v-2h6zm2-12h2v4h-2zM8 20H6v-4h2z",
+  ],
 };
 
 interface IconProps {
@@ -173,22 +181,28 @@ export function Icon({
 
 // Common icon mappings for easier usage
 export const ICONS = {
-  // Discipline icons
+  // Roles — unique icons
   frontend: "Briefcase",
   backend: "Server",
   fullstack: "Globe",
   shopify: "Sparkle",
   devops: "SettingsCog",
+
+  // Languages — braces { }
   javascript: "Braces",
-  typescript: "FileText",
-  rust: "Terminal",
-  sql: "Database",
-  react: "Braces",
-  remix: "Play",
-  "next-js": "Globe",
-  postgresql: "Database",
+  typescript: "Braces",
+  rust: "Braces",
+  sql: "Braces",
+
+  // Frameworks — blocks (composable building units)
+  react: "Box",
+  remix: "Box",
+  "next-js": "Box",
+
+  // Tech — server (infrastructure / runtime services)
+  postgresql: "Server",
   redis: "Server",
-  docker: "Box",
+  docker: "Server",
 
   // Resource icons
   article: "Article",
@@ -202,12 +216,13 @@ export const ICONS = {
   external: "ExternalLink",
 
   // UI icons
-  settings: "Settings2",
-  gear: "SettingsCog",
+  settings: "SettingsCog",
+  gear: "Settings2",
   search: "Search",
   download: "Download",
   home: "Home",
   user: "User",
+  skill: "CircuitBoard",
 
   // Status icons
   done: "Check",
