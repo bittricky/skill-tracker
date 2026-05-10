@@ -13,7 +13,7 @@ import type { ProgressMap } from "~/lib/storage";
 import { Panel, PanelHeader } from "~/components/ui/Panel";
 import { Pixel } from "~/components/ui/Pixel";
 import { Mono } from "~/components/ui/Mono";
-import { SpriteIcon } from "~/components/ui/SpriteIcon";
+import { Icon, ICONS, type IconName } from "~/components/ui/Icon";
 import { ProgressBar } from "~/components/ui/ProgressBar";
 import { TierTag } from "~/components/ui/TierTag";
 
@@ -31,22 +31,22 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: "tech", label: "Tech" },
 ];
 
-const SPRITES: Record<string, string> = {
-  frontend: "◆",
-  backend: "▣",
-  fullstack: "◈",
-  shopify: "✦",
-  devops: "⚙",
-  javascript: "⌘",
-  typescript: "⌬",
-  rust: "⚙",
-  sql: "▤",
-  react: "⚛",
-  remix: "◐",
-  "next-js": "◇",
-  postgresql: "▤",
-  redis: "◉",
-  docker: "▦",
+const SPRITES: Record<string, IconName> = {
+  frontend: "Briefcase",
+  backend: "Server",
+  fullstack: "Globe",
+  shopify: "Sparkle",
+  devops: "SettingsCog",
+  javascript: "Braces",
+  typescript: "FileText",
+  rust: "Terminal",
+  sql: "Database",
+  react: "Braces",
+  remix: "Play",
+  "next-js": "Globe",
+  postgresql: "Database",
+  redis: "Server",
+  docker: "Box",
 };
 
 const TIER_META = {
@@ -92,7 +92,7 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
         title="Skill Matrix"
         subtitle="Where you're strong, where you're growing"
         accentColor="teal"
-        glyph="▣"
+        glyph="Settings2"
       >
         <div
           className="flex gap-1 p-1 rounded-md"
@@ -134,7 +134,7 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
             const tier = getTier(pct);
             const tierColor = TIER_META[tier].color;
             const isSelected = selected === d.id;
-            const sprite = SPRITES[d.id] || "◆";
+            const sprite = SPRITES[d.id] || "Home";
 
             return (
               <div
@@ -155,7 +155,7 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
                     e.currentTarget.style.background = "transparent";
                 }}
               >
-                <SpriteIcon glyph={sprite} color={tierColor} size={32} />
+                <Icon name={sprite as IconName} color={tierColor} size={24} />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
                     <Mono size={12} color="ink" weight={600}>

@@ -49,7 +49,7 @@ export function DisciplineProjects({
         title="Projects"
         subtitle="Hands-on builds to apply what you've learned"
         accentColor="rose"
-        glyph="▤"
+        glyph="Briefcase"
       >
         <Mono size={11} color="ink-muted">
           {doneCount} / {projects.length} done

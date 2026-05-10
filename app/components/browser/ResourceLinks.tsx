@@ -1,15 +1,4 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faFileLines,
-  faPlay,
-  faGraduationCap,
-  faMicrophone,
-  faBook,
-  faCodeBranch,
-  faLink,
-  faStar,
-  faArrowUpRightFromSquare,
-} from "@fortawesome/free-solid-svg-icons";
+import { Icon, ICONS } from "~/components/ui/Icon";
 import type { Resource } from "~/data";
 
 interface ResourceLinksProps {
@@ -25,15 +14,15 @@ interface ResourceLinksProps {
 }
 
 const KIND_ICON = {
-  article: faFileLines,
-  video: faPlay,
-  course: faGraduationCap,
-  podcast: faMicrophone,
-  book: faBook,
-  opensource: faCodeBranch,
-  website: faLink,
-  official: faStar,
-};
+  article: "article",
+  video: "video",
+  course: "course",
+  podcast: "podcast",
+  book: "book",
+  opensource: "opensource",
+  website: "website",
+  official: "official",
+} as const;
 
 export function ResourceLinks({
   label,
@@ -83,12 +72,12 @@ export function ResourceLinks({
                 className="flex items-center gap-1.5 py-0.5 text-xs text-brand-primary hover:text-brand-secondary hover:underline"
               >
                 <span className="w-4 text-center opacity-60">
-                  <FontAwesomeIcon
-                    icon={
-                      KIND_ICON[r.kind as keyof typeof KIND_ICON] ??
-                      faArrowUpRightFromSquare
+                  <Icon
+                    name={
+                      ICONS[KIND_ICON[r.kind as keyof typeof KIND_ICON]] ??
+                      ICONS.external
                     }
-                    className="text-[11px]"
+                    size={11}
                   />
                 </span>
                 <span className="truncate">{r.label}</span>
@@ -111,11 +100,7 @@ export function ResourceLinks({
             rel="noreferrer"
             className="text-[11px] text-brand-primary border border-brand-primary/20 rounded-lg px-2 py-0.5 bg-brand-primary/5 hover:bg-brand-primary/15 hover:border-brand-primary/40"
           >
-            {r.n}{" "}
-            <FontAwesomeIcon
-              icon={faArrowUpRightFromSquare}
-              className="text-[9px]"
-            />
+            {r.n} <Icon name={ICONS.external} size={9} />
           </a>
         ))}
       </div>

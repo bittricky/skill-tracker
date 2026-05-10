@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Panel, PanelHeader, PanelBody } from "~/components/ui/Panel";
+import { Icon, type IconName } from "~/components/ui/Icon";
 import { Pixel } from "~/components/ui/Pixel";
 import { Mono } from "~/components/ui/Mono";
 import { SecondaryButton, PrimaryButton } from "~/components/ui";
@@ -37,17 +38,16 @@ type Banner =
   | { kind: "error"; message: string }
   | null;
 
-// Glyph icons for cozy aesthetic
-const GLYPHS = {
-  download: "▼",
-  upload: "▲",
-  revert: "↺",
-  cloudUp: "☁↑",
-  cloudDown: "☁↓",
-  unlink: "⊘",
-  trash: "✕",
-  close: "✕",
-  check: "✓",
+const GLYPHS: Record<string, IconName> = {
+  download: "Download",
+  upload: "Upload",
+  revert: "Cancel",
+  cloudUp: "Upload",
+  cloudDown: "Download",
+  unlink: "Unlink",
+  trash: "Cancel",
+  close: "Cancel",
+  check: "Check",
 };
 
 export function SettingsModal({ open, onClose }: SettingsModalProps) {
@@ -237,7 +237,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
 
       {/* Modal */}
       <div
-        className="relative w-full max-w-xl rounded-xl overflow-hidden"
+        className="relative w-full max-w-4xl max-h-[85vh] rounded-xl overflow-hidden flex flex-col"
         style={{
           background: "var(--color-surface-panel)",
           border: "1px solid var(--color-surface-border)",
@@ -307,7 +307,11 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
 
           {/* Config Panel */}
           <Panel>
-            <PanelHeader title="Config" glyph="▼" accentColor="mustard" />
+            <PanelHeader
+              title="Config"
+              glyph="Download"
+              accentColor="mustard"
+            />
             <PanelBody>
               <Pixel size={12} color="ink-muted" className="mb-3">
                 The exported JSON contains your current disciplines, per-skill
@@ -355,7 +359,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
           <Panel>
             <PanelHeader
               title="GitHub Gist Sync"
-              glyph="☁"
+              glyph="Globe"
               accentColor="lavender"
             />
             <PanelBody>
@@ -397,7 +401,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                   </InputGroup>
                   <div>
                     <PrimaryButton onClick={handleConnectGist}>
-                      {GLYPHS.cloudUp} Connect
+                      <Icon name={GLYPHS.cloudUp} size={12} /> Connect
                     </PrimaryButton>
                   </div>
                 </div>
@@ -462,7 +466,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
 
           {/* Reset Panel */}
           <Panel>
-            <PanelHeader title="Reset" glyph="✕" accentColor="coral" />
+            <PanelHeader title="Reset" glyph="Cancel" accentColor="coral" />
             <PanelBody>
               {confirmReset === "none" ? (
                 <div className="flex flex-wrap gap-2">
@@ -521,7 +525,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
 
           {/* Schema Panel */}
           <Panel>
-            <PanelHeader title="Schema" glyph="▤" accentColor="teal" />
+            <PanelHeader title="Schema" glyph="FileText" accentColor="teal" />
             <PanelBody>
               <pre
                 className="text-[10px] leading-relaxed p-3 rounded-md overflow-x-auto"
@@ -534,12 +538,12 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                 }}
               >
                 {`{
-  "version": 1,
-  "disciplines": { … },
-  "progress": { "skill:id": "done" },
-  "applied": { "skill:id": true },
-  "projectsDone": { "project-id": true }
-}`}
+                  "version": 1,
+                  "disciplines": { … },
+                  "progress": { "skill:id": "done" },
+                  "applied": { "skill:id": true },
+                  "projectsDone": { "project-id": true }
+                }`}
               </pre>
             </PanelBody>
           </Panel>
@@ -581,7 +585,7 @@ function InputGroup({
 
 // Cozy action button
 interface ActionButtonProps {
-  glyph: string;
+  glyph: IconName;
   children: React.ReactNode;
   onClick: () => void;
   variant?: "primary" | "ghost" | "danger";
@@ -629,7 +633,7 @@ function ActionButton({
         border: `1px solid ${c.border}`,
       }}
     >
-      <span>{glyph}</span>
+      <Icon name={glyph} size={12} />
       <span>{children}</span>
     </button>
   );

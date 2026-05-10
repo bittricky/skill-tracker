@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { useSearchParams, Link } from "react-router";
+import { useSearchParams } from "react-router";
 import type { Route } from "./+types/browser";
 import {
   DISCIPLINES,
   DISCIPLINE_BY_ID,
   PROJECTS_BY_DISCIPLINE,
+  SKILL_LABEL_BY_ID,
+  SKILL_HOME_DISCIPLINE_BY_ID,
   type Discipline,
   type Skill,
   type DisciplineKind,
@@ -21,16 +23,14 @@ import { Loader } from "~/components/ui/Loader";
 import { Panel, PanelHeader, PanelBody } from "~/components/ui/Panel";
 import { Pixel } from "~/components/ui/Pixel";
 import { Mono } from "~/components/ui/Mono";
-import { SpriteIcon } from "~/components/ui/SpriteIcon";
 import { ProgressBar } from "~/components/ui/ProgressBar";
-import { TierTag } from "~/components/ui/TierTag";
-import { ItemSlot } from "~/components/ui/ItemSlot";
-import { PrimaryButton } from "~/components/ui/PrimaryButton";
 import { SecondaryButton } from "~/components/ui/SecondaryButton";
-import { SettingsButton } from "~/components/ui/SettingsButton";
-import { SettingsModal } from "~/components/SettingsModal";
+import { TierTag } from "~/components/ui/TierTag";
 import { DisciplineDepthStepper } from "~/components/browser/DisciplineDepthStepper";
 import { DisciplineProjects } from "~/components/browser/DisciplineProjects";
+import { SectionBlock } from "~/components/browser/SectionBlock";
+import { Icon, ICONS, type IconName } from "~/components/ui/Icon";
+import { HeaderBar } from "~/components/dashboard/HeaderBar";
 import { cn } from "~/lib/cn";
 
 export function meta({}: Route.MetaArgs) {
@@ -43,30 +43,34 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const SPRITES: Record<string, string> = {
-  frontend: "◆",
-  backend: "▣",
-  fullstack: "◈",
-  shopify: "✦",
-  devops: "⚙",
-  javascript: "⌘",
-  typescript: "⌬",
-  rust: "⚙",
-  sql: "▤",
-  react: "⚛",
-  remix: "◐",
-  "next-js": "◇",
-  postgresql: "▤",
-  redis: "◉",
-  docker: "▦",
+const SPRITES: Record<string, IconName> = {
+  frontend: "Briefcase",
+  backend: "Server",
+  fullstack: "Globe",
+  shopify: "Sparkle",
+  devops: "SettingsCog",
+  javascript: "Braces",
+  typescript: "FileText",
+  rust: "Terminal",
+  sql: "Database",
+  react: "Braces",
+  remix: "Play",
+  "next-js": "Globe",
+  postgresql: "Database",
+  redis: "Server",
+  docker: "Box",
 };
 
-const KIND_FILTERS: { value: DisciplineKind; label: string }[] = [
-  { value: "role", label: "Roles" },
-  { value: "foundation", label: "Foundations" },
-  { value: "language", label: "Languages" },
-  { value: "framework", label: "Frameworks" },
-  { value: "tech", label: "Tech" },
+const KIND_FILTERS: {
+  value: DisciplineKind;
+  label: string;
+  glyph: IconName;
+}[] = [
+  { value: "role", label: "Roles", glyph: "User" },
+  { value: "foundation", label: "Foundations", glyph: "Home" },
+  { value: "language", label: "Languages", glyph: "Braces" },
+  { value: "framework", label: "Frameworks", glyph: "Box" },
+  { value: "tech", label: "Tech", glyph: "SettingsCog" },
 ];
 
 const FILTERS: [Status | "all", string][] = [
@@ -111,7 +115,6 @@ export default function Browser() {
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
     new Set(),
   );
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const requestedId = searchParams.get("discipline") ?? "";
   const activeId = DISCIPLINE_BY_ID[requestedId]
@@ -180,6 +183,27 @@ export default function Browser() {
     });
   }, []);
 
+  const revealSkill = useCallback(
+    (skillId: string): boolean => {
+      if (!activeDiscipline) return false;
+      // Check if skill exists in current discipline
+      const hasSkill = activeDiscipline.sections.some((sec) =>
+        sec.items.some((item) => item.id === skillId),
+      );
+
+      if (hasSkill) {
+        // Clear anything that could hide the row, then scroll
+        setFilter("all");
+        setSearch("");
+        setCollapsedSections(new Set());
+        scrollToSkill(skillId);
+        return true;
+      }
+      return false;
+    },
+    [activeDiscipline],
+  );
+
   const filteredSections = useMemo(() => {
     if (!activeDiscipline) return [];
     const q = search.trim().toLowerCase();
@@ -224,39 +248,12 @@ export default function Browser() {
   return (
     <div className="min-h-screen p-5">
       <div className="max-w-[1280px] mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3.5">
-            <Link to="/">
-              <SpriteIcon
-                glyph="◆"
-                color="var(--color-accent-mustard)"
-                size={44}
-              />
-            </Link>
-            <div>
-              <div className="font-display text-[28px] font-bold text-ink tracking-[0.04em] leading-none">
-                {activeDiscipline.label}
-              </div>
-              <Pixel color="ink-muted" size={13}>
-                {activeDiscipline.description ||
-                  "Explore and master this discipline"}
-              </Pixel>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <Link to="/">
-              <SecondaryButton>← Back</SecondaryButton>
-            </Link>
-            <SettingsButton onClick={() => setSettingsOpen(true)} />
-            <PrimaryButton icon="▶">Start Session</PrimaryButton>
-          </div>
-        </div>
-
-        <SettingsModal
-          open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
+        <HeaderBar
+          title={activeDiscipline.label}
+          subtitle={
+            activeDiscipline.description || "Explore and master this discipline"
+          }
+          iconSize={44}
         />
 
         {/* Two column layout */}
@@ -264,38 +261,54 @@ export default function Browser() {
           {/* Left sidebar - Discipline list */}
           <div className="flex flex-col gap-3">
             <Panel>
-              <PanelHeader title="Disciplines" glyph="▣" accentColor="teal" />
+              <PanelHeader
+                title="Disciplines"
+                glyph="Settings2"
+                accentColor="teal"
+              />
               <PanelBody className="p-2">
-                {/* Kind filter tabs */}
-                <div
-                  className="flex flex-wrap gap-1 mb-3 p-1 rounded-md"
-                  style={{
-                    background: "var(--color-surface-inset)",
-                    border: "1px solid var(--color-surface-bg-deep)",
-                  }}
-                >
-                  {KIND_FILTERS.map((k) => (
-                    <button
-                      key={k.value}
-                      onClick={() => setKindFilter(k.value)}
-                      className="font-display text-xs tracking-[0.04em] px-2 py-1 rounded cursor-pointer transition-all"
-                      style={{
-                        background:
-                          kindFilter === k.value
-                            ? "var(--color-surface-panel-hi)"
-                            : "transparent",
-                        color:
-                          kindFilter === k.value
-                            ? "var(--color-ink)"
-                            : "var(--color-ink-muted)",
-                        fontWeight: kindFilter === k.value ? 700 : 400,
-                      }}
-                    >
-                      {k.label}
-                    </button>
-                  ))}
+                {/* Kind Filter Pills */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {KIND_FILTERS.map((k) => {
+                    const isActive = kindFilter === k.value;
+                    return (
+                      <button
+                        key={k.value}
+                        onClick={() => setKindFilter(k.value)}
+                        className={cn(
+                          "flex items-center gap-1.5 font-display text-xs tracking-[0.04em] px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200 ease-in-out transform hover:scale-105",
+                          isActive ? "shadow-md" : "hover:shadow-sm",
+                        )}
+                        style={{
+                          background: isActive
+                            ? k.color
+                            : "var(--color-surface-inset)",
+                          color: isActive ? "" : "var(--color-ink-muted)",
+                          fontWeight: isActive ? 600 : 400,
+                          border: isActive
+                            ? `1px solid ${k.color}80`
+                            : "1px solid var(--color-surface-border)",
+                          boxShadow: isActive
+                            ? `0 4px 12px ${k.color}30`
+                            : "none",
+                        }}
+                        title={k.description}
+                      >
+                        <Icon
+                          name={k.glyph}
+                          size={16}
+                          className={cn(
+                            "transition-transform duration-200",
+                            isActive && "scale-110",
+                          )}
+                        />
+                        <span className="hidden sm:inline">{k.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="flex flex-col gap-1 max-h-[360px] overflow-y-auto">
+                {/* Discipline List */}
+                <div className="flex flex-col gap-1.5 max-h-[360px] overflow-y-auto pr-1">
                   {DISCIPLINES.filter((d) => d.kind === kindFilter).map((d) => {
                     const isActive = d.id === activeId;
                     const dStats = { done: 0, total: 0 };
@@ -310,40 +323,64 @@ export default function Browser() {
                         ? Math.round((dStats.done / dStats.total) * 100)
                         : 0;
                     const dTier = getTier(dPct);
-                    const dColor =
-                      dTier === "exploring"
-                        ? "coral"
-                        : dTier === "practicing"
-                          ? "mustard"
-                          : "teal";
+                    const kindFilterInfo = KIND_FILTERS.find(
+                      (k) => k.value === kindFilter,
+                    );
+                    const accentColor =
+                      kindFilterInfo?.color || "var(--color-accent-coral)";
 
                     return (
                       <button
                         key={d.id}
                         onClick={() => handleNavigate(d.id)}
                         className={cn(
-                          "flex items-center gap-2 p-2 rounded cursor-pointer transition-all text-left",
-                          isActive && "bg-surface-panel-hi",
+                          "group flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all text-left border",
+                          isActive
+                            ? "bg-surface-panel border-accent-mustard/50 shadow-sm"
+                            : "bg-transparent border-transparent hover:bg-surface-panel/50 hover:border-surface-border",
                         )}
                       >
-                        <SpriteIcon
-                          glyph={SPRITES[d.id] || "◆"}
-                          color={`var(--color-accent-${dColor})`}
-                          size={32}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <Mono
-                            size={12}
-                            color={isActive ? "ink" : "ink-muted"}
-                            weight={isActive ? 600 : 400}
-                          >
-                            {d.label}
-                          </Mono>
-                          <ProgressBar
-                            pct={dPct}
-                            color={`var(--color-accent-${dColor})`}
-                            height={4}
+                        <div
+                          className={cn(
+                            "flex items-center justify-center w-10 h-10 rounded-lg transition-all",
+                            isActive
+                              ? "bg-surface-inset"
+                              : "bg-surface-inset/50 group-hover:bg-surface-inset",
+                          )}
+                        >
+                          <Icon
+                            name={SPRITES[d.id] || "Home"}
+                            size={20}
+                            style={{ color: accentColor }}
                           />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <Mono
+                              size={12}
+                              color={isActive ? "ink" : "ink-muted"}
+                              weight={isActive ? 700 : 500}
+                            >
+                              {d.label}
+                            </Mono>
+                            {isActive && (
+                              <span className="text-accent-mustard text-xs">
+                                ◄
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex-1">
+                              <ProgressBar
+                                pct={dPct}
+                                color={accentColor}
+                                height={4}
+                              />
+                            </div>
+                            <Mono size={10} color="ink-dim">
+                              {dPct}%
+                            </Mono>
+                          </div>
                         </div>
                       </button>
                     );
@@ -356,7 +393,7 @@ export default function Browser() {
               <Panel>
                 <PanelHeader
                   title="Progress"
-                  glyph="◐"
+                  glyph="Play"
                   accentColor="lavender"
                 />
                 <PanelBody>
@@ -442,7 +479,7 @@ export default function Browser() {
                       ? "mustard"
                       : "teal"
                 }
-                glyph="◆"
+                glyph="Home"
               >
                 <TierTag tier={tier} />
               </PanelHeader>
@@ -478,6 +515,9 @@ export default function Browser() {
                         isOpen={!collapsedSections.has(sec.id)}
                         onToggle={() => toggleSection(sec.id)}
                         isLast={secIndex === filteredSections.length - 1}
+                        currentDisciplineId={activeDiscipline.id}
+                        onNavigate={handleNavigate}
+                        onRevealSkill={revealSkill}
                       />
                     ))}
                   </div>
@@ -494,179 +534,6 @@ export default function Browser() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-// Section block component
-interface SectionBlockProps {
-  section: { id: string; label: string; items: Skill[] };
-  progress: ProgressMap;
-  applied: AppliedMap;
-  onCycle: (id: string, forceTo?: Status) => void;
-  onToggleApplied: (id: string, value?: boolean) => void;
-  tierColor: string;
-  isOpen: boolean;
-  onToggle: () => void;
-  isLast: boolean;
-}
-
-function SectionBlock({
-  section,
-  progress,
-  applied,
-  onCycle,
-  onToggleApplied,
-  tierColor,
-  isOpen,
-  onToggle,
-  isLast,
-}: SectionBlockProps) {
-  const doneCount = section.items.filter(
-    (i) => progress[i.id] === "done",
-  ).length;
-  const pct =
-    section.items.length > 0
-      ? Math.round((doneCount / section.items.length) * 100)
-      : 0;
-
-  return (
-    <div
-      className={cn("border-b border-surface-divider", isLast && "border-b-0")}
-    >
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-panel-hi transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          <Mono size={13} color="ink" weight={600}>
-            {section.label}
-          </Mono>
-          <Pixel size={11} color="ink-muted">
-            ({section.items.length})
-          </Pixel>
-        </div>
-        <div className="flex items-center gap-3">
-          <ProgressBar
-            pct={pct}
-            color={tierColor}
-            height={4}
-            className="w-20"
-          />
-          <Mono size={11} color="ink-muted">
-            {isOpen ? "−" : "+"}
-          </Mono>
-        </div>
-      </button>
-
-      {isOpen && (
-        <div className="px-2 pb-2">
-          {section.items.map((item) => (
-            <SkillRow
-              key={item.id}
-              skill={item}
-              status={progress[item.id] ?? "untouched"}
-              isApplied={!!applied[item.id]}
-              onCycle={() => onCycle(item.id)}
-              onToggleApplied={() => onToggleApplied(item.id)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Skill row component
-interface SkillRowProps {
-  skill: Skill;
-  status: Status;
-  isApplied: boolean;
-  onCycle: () => void;
-  onToggleApplied: () => void;
-}
-
-const STATUS_META: Record<
-  Status,
-  { label: string; color: string; bg: string }
-> = {
-  untouched: {
-    label: "TODO",
-    color: "var(--color-ink-muted)",
-    bg: "var(--color-surface-inset)",
-  },
-  learning: {
-    label: "ACTIVE",
-    color: "var(--color-accent-mustard)",
-    bg: "rgba(232, 176, 74, 0.15)",
-  },
-  done: {
-    label: "DONE",
-    color: "var(--color-accent-teal)",
-    bg: "rgba(92, 184, 168, 0.15)",
-  },
-  skipped: {
-    label: "SKIPPED",
-    color: "var(--color-ink-dim)",
-    bg: "var(--color-surface-inset)",
-  },
-};
-
-function SkillRow({
-  skill,
-  status,
-  isApplied,
-  onCycle,
-  onToggleApplied,
-}: SkillRowProps) {
-  const meta = STATUS_META[status];
-
-  return (
-    <div
-      id={`skill-${skill.id}`}
-      className="flex items-center gap-3 p-2 rounded-md hover:bg-surface-panel-hi transition-colors"
-    >
-      {/* Status button */}
-      <button
-        onClick={onCycle}
-        className="px-2 py-1 rounded text-[10px] font-display font-bold tracking-[0.06em] transition-colors"
-        style={{
-          background: meta.bg,
-          color: meta.color,
-          border: `1px solid ${meta.color}40`,
-        }}
-      >
-        {meta.label}
-      </button>
-
-      {/* Skill name */}
-      <div className="flex-1 min-w-0">
-        <Mono
-          size={12}
-          color={status === "done" ? "ink-muted" : "ink"}
-          weight={500}
-          className={status === "done" ? "line-through" : ""}
-        >
-          {skill.label}
-        </Mono>
-      </div>
-
-      {/* Applied button */}
-      <button
-        onClick={onToggleApplied}
-        className={cn(
-          "px-2 py-1 rounded text-[10px] font-display font-bold tracking-[0.06em] transition-colors",
-          isApplied
-            ? "text-accent-teal border-accent-teal"
-            : "text-ink-dim border-surface-border hover:text-ink-muted",
-        )}
-        style={{
-          border: "1px solid",
-          background: isApplied ? "rgba(92, 184, 168, 0.1)" : "transparent",
-        }}
-      >
-        {isApplied ? "✓ APPLIED" : "MARK APPLIED"}
-      </button>
     </div>
   );
 }

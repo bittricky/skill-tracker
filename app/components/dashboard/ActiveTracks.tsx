@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Panel, PanelHeader, PanelBody } from "~/components/ui/Panel";
 import { ItemSlot } from "~/components/ui/ItemSlot";
-import { SpriteIcon } from "~/components/ui/SpriteIcon";
+import { Icon } from "~/components/ui/Icon";
 import { Mono } from "~/components/ui/Mono";
 import { Pixel } from "~/components/ui/Pixel";
 import { ProgressBar } from "~/components/ui/ProgressBar";
@@ -85,17 +85,17 @@ export function ActiveTracks({ disciplines, progress }: ActiveTracksProps) {
         subtitle="What you're working on right now"
         meta={`${activeItems.length} / 3 slots`}
         accentColor="coral"
-        glyph="◆"
+        glyph="Briefcase"
       />
       <PanelBody>
         <div className="grid grid-cols-3 gap-2.5">
           {activeItems.map((item) => (
             <ItemSlot key={item.id} hoverColor={tierColorMap[item.tier]}>
               <div className="flex gap-2.5 mb-3">
-                <SpriteIcon
-                  glyph="✦"
+                <Icon
+                  name="Sparkle"
                   color={tierColorMap[item.tier]}
-                  size={36}
+                  size={24}
                 />
                 <div className="flex-1 min-w-0">
                   <Mono

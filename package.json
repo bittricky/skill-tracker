@@ -17,12 +17,10 @@
     "docker:down": "docker compose down"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.5.0",
-    "@fortawesome/free-solid-svg-icons": "^6.5.0",
-    "@fortawesome/react-fontawesome": "^0.2.0",
     "@react-router/node": "7.14.0",
     "@react-router/serve": "7.14.0",
     "isbot": "^5.1.36",
+    "pixelarticons": "^2.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router": "7.14.0",

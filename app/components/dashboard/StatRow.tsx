@@ -13,7 +13,7 @@ export function StatRow({ done, applied, learning, projects }: StatRowProps) {
     {
       label: "Skills Done",
       value: String(done),
-      sub: "+14 this week",
+      sub: "0 this week",
       color: "var(--color-accent-teal)",
       hero: false,
     },
@@ -33,8 +33,8 @@ export function StatRow({ done, applied, learning, projects }: StatRowProps) {
     },
     {
       label: "Total Hours",
-      value: "142",
-      sub: "4.5 / week avg",
+      value: "0",
+      sub: "0 / week avg",
       color: "var(--color-accent-rose)",
       hero: false,
     },

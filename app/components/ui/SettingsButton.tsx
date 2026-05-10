@@ -1,16 +1,28 @@
-import { SecondaryButton } from "./SecondaryButton";
+import { useState } from "react";
+import { Icon, ICONS } from "./Icon";
+import { SettingsModal } from "./SettingsModal";
 
 interface SettingsButtonProps {
-  onClick: () => void;
+  className?: string;
 }
 
-export function SettingsButton({ onClick }: SettingsButtonProps) {
+/**
+ * Gear icon that opens the Settings modal (export / import / reset).
+ */
+export function SettingsButton({ className = "" }: SettingsButtonProps) {
+  const [open, setOpen] = useState(false);
   return (
-    <SecondaryButton onClick={onClick}>
-      <span className="flex items-center gap-1.5">
-        <span className="text-sm">⚙</span>
-        <span>Settings</span>
-      </span>
-    </SecondaryButton>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        title="Settings"
+        aria-label="Open settings"
+        className={`inline-flex w-9 h-9 items-center justify-center rounded-full text-brand-muted hover:text-brand-ink hover:bg-brand-surface-2 transition-colors ${className}`}
+      >
+        <Icon name={ICONS.settings} size={13} />
+      </button>
+      <SettingsModal open={open} onClose={() => setOpen(false)} />
+    </>
   );
 }

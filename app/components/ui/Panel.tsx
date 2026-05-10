@@ -1,6 +1,7 @@
 import { cn } from "~/lib/cn";
 import { Pixel } from "./Pixel";
 import { Mono } from "./Mono";
+import { Icon, ICONS, type IconName } from "./Icon";
 
 interface PanelProps {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ interface PanelHeaderProps {
   subtitle?: string;
   meta?: string;
   accentColor?: "coral" | "mustard" | "teal" | "lavender" | "rose";
-  glyph?: string;
+  glyph?: IconName;
   children?: React.ReactNode;
 }
 
@@ -37,7 +38,7 @@ export function PanelHeader({
   subtitle,
   meta,
   accentColor = "mustard",
-  glyph = "◆",
+  glyph = "Home",
   children,
 }: PanelHeaderProps) {
   const accentClasses: Record<string, string> = {
@@ -53,13 +54,14 @@ export function PanelHeader({
       className="flex items-center justify-between px-[18px] py-[14px]"
       style={{ borderBottom: "1px solid var(--color-surface-divider)" }}
     >
-      <div>
+      <div className="flex items-center gap-2">
+        <Icon name={glyph} size={16} className={accentClasses[accentColor]} />
         <Pixel
           color={accentColor}
           size={13}
           className={accentClasses[accentColor]}
         >
-          {glyph} {title}
+          {title}
         </Pixel>
         {subtitle && (
           <div className="mt-0.5">

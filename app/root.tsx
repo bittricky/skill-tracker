@@ -21,6 +21,10 @@ export const links: Route.LinksFunction = () => [
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
   },
+  {
+    rel: "stylesheet",
+    href: "https://pixelarticons.com/free/icons.css",
+  },
   { rel: "manifest", href: "/manifest.webmanifest" },
   { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
   { rel: "apple-touch-icon", href: "/icon.svg" },
