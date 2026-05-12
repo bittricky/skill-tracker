@@ -56,6 +56,7 @@ const SPRITES: Record<string, IconName> = {
   "game-developer": "Trophy",
   "cyber-security": "SettingsCog",
   blockchain: "Box",
+  "network-engineer": "Server",
 
   // Languages — braces { }
   javascript: "Braces",
@@ -63,6 +64,11 @@ const SPRITES: Record<string, IconName> = {
   rust: "Braces",
   sql: "Braces",
   python: "Braces",
+  golang: "Braces",
+  kotlin: "Braces",
+  ruby: "Braces",
+  scala: "Braces",
+  cpp: "Braces",
   "shell-bash": "Terminal",
   zsh: "Terminal",
 
@@ -74,6 +80,10 @@ const SPRITES: Record<string, IconName> = {
   nuxt: "Box",
   "react-native": "Box",
   nestjs: "Box",
+  "swift-ui": "Box",
+  flutter: "Box",
+  django: "Box",
+  flask: "Box",
   nodejs: "Server",
 
   // Tech — server (infrastructure / runtime services)
@@ -84,6 +94,7 @@ const SPRITES: Record<string, IconName> = {
   kubernetes: "SettingsCog",
   graphql: "Database",
   linux: "Terminal",
+  elasticsearch: "Database",
   git: "GitBranch",
 
   // Foundations — book-open (foundational knowledge / textbook learning)

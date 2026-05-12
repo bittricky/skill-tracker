@@ -3,6 +3,7 @@ import { Icon, type IconName } from "~/components/ui/Icon";
 import { Pixel } from "~/components/ui/Pixel";
 import { SecondaryButton } from "~/components/ui/SecondaryButton";
 import { SettingsButton } from "~/components/ui/SettingsButton";
+import { ThemeToggleButton } from "~/components/ui/ThemeToggleButton";
 
 interface HeaderBarProps {
   title?: string;
@@ -69,6 +70,7 @@ export function HeaderBar({
             <SecondaryButton>← Back</SecondaryButton>
           </Link>
         )}
+        <ThemeToggleButton />
         <SettingsButton />
       </div>
     </div>
