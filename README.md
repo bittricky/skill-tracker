@@ -1,5 +1,7 @@
 # Skill Tracker
 
+> This is more of a legibility tool than a learning platform.
+
 A personal, offline-first, installable skill progression tracker built on
 top of data collected and organized from [roadmap.sh](https://roadmap.sh)
 roadmaps.
@@ -98,25 +100,25 @@ scripts/
 ### Install & run
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Open http://localhost:5173.
 
-`npm run build` produces a production build
+`pnpm run build` produces a production build
 in `build/`.
 
 ### Scripts
 
 | Command                      | Purpose                                                                    |
 | ---------------------------- | -------------------------------------------------------------------------- |
-| `npm run dev`                | React Router dev server with HMR                                           |
-| `npm run build`              | Production build                                                           |
-| `npm run start`              | Serve the production build                                                 |
-| `npm run typecheck`          | React Router type generation + `tsc`                                       |
-| `npm run sync:disciplines`   | Refresh `app/data/disciplines.generated.json` from pinned upstream         |
-| `npm run sync:projects`      | Refresh `app/data/projects.generated.json` from roadmap.sh project catalog |
+| `pnpm run dev`                | React Router dev server with HMR                                           |
+| `pnpm run build`              | Production build                                                           |
+| `pnpm run start`              | Serve the production build                                                 |
+| `pnpm run typecheck`          | React Router type generation + `tsc`                                       |
+| `pnpm run sync:disciplines`   | Refresh `app/data/disciplines.generated.json` from pinned upstream         |
+| `pnpm run sync:projects`      | Refresh `app/data/projects.generated.json` from roadmap.sh project catalog |
 
 ### Installing as an app (PWA)
 
@@ -124,8 +126,8 @@ The service worker is **only registered from the production build** to
 avoid fighting HMR in dev. To try the install flow:
 
 ```bash
-npm run build
-npm start
+pnpm run build
+pnpm run start
 ```
 
 Then in Chrome / Edge / Android, use the browser's "Install app" action.
