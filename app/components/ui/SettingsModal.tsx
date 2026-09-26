@@ -57,6 +57,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
     "none",
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [includeCatalogue, setIncludeCatalogue] = useState(false);
 
   // Gist sync state
   const [gist, setGist] = useState<GistSyncConfig | null>(null);
@@ -90,7 +91,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
 
   const handleExport = useCallback(() => {
     try {
-      downloadConfig(buildExportConfig());
+      downloadConfig(buildExportConfig({ includeCatalogue }));
       flash({ kind: "success", message: "Config exported." });
     } catch (err) {
       flash({
@@ -98,7 +99,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
         message: `Export failed: ${(err as Error).message}`,
       });
     }
-  }, [flash]);
+  }, [flash, includeCatalogue]);
 
   const handleImportFile = useCallback(
     async (file: File) => {
@@ -314,8 +315,9 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
             />
             <PanelBody>
               <Pixel size={12} color="ink-muted" className="mb-3">
-                The exported JSON contains your current disciplines, per-skill
-                progress, applied flags, and completed projects.
+                The exported JSON contains your per-skill progress, applied
+                flags, and pinned skills. The discipline catalogue is only
+                embedded when it is custom or when you ask for it below.
                 {IS_CUSTOM_CATALOGUE && (
                   <span
                     className="block mt-1"
@@ -325,6 +327,19 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                   </span>
                 )}
               </Pixel>
+              {!IS_CUSTOM_CATALOGUE && (
+                <label className="flex items-center gap-2 mb-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={includeCatalogue}
+                    onChange={(e) => setIncludeCatalogue(e.target.checked)}
+                  />
+                  <Pixel size={12} color="ink-muted">
+                    Include the built-in catalogue (large; only needed to fork
+                    or hand-edit disciplines)
+                  </Pixel>
+                </label>
+              )}
               <div className="flex flex-wrap gap-2">
                 <ActionButton glyph={GLYPHS.download} onClick={handleExport}>
                   Export config
@@ -495,7 +510,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                 >
                   <Pixel size={12} color="ink" className="mb-2">
                     {confirmReset === "progress"
-                      ? "Clear all progress, applied flags, and project completion? Your custom catalogue will be kept."
+                      ? "Clear all progress, applied flags, and pins? Your custom catalogue will be kept."
                       : "Clear progress AND revert to built-in disciplines? This cannot be undone."}
                   </Pixel>
                   <div className="flex gap-2">
@@ -538,12 +553,12 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                 }}
               >
                 {`{
-                  "version": 1,
-                  "disciplines": { … },
-                  "progress": { "skill:id": "done" },
-                  "applied": { "skill:id": true },
-                  "projectsDone": { "project-id": true }
-                }`}
+  "version": 2,
+  "disciplines": { … },            // optional
+  "progress": { "skill:id": "done" },
+  "applied": { "skill:id": true },
+  "pinned": ["skill:id"]
+}`}
               </pre>
             </PanelBody>
           </Panel>

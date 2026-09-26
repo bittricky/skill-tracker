@@ -1,0 +1,47 @@
+{
+  "$comment": "Your own curated learning material, merged by scripts/sync-disciplines.mjs. Keys are a skill id (`<discipline>:<nodeId>`), a section id (`<discipline>:sec:<x>`), or a discipline id. Values are arrays of { kind, label, url }. Kinds: article | video | course | podcast | book | opensource | website | official | roadmap. Course/book entries also surface in the per-discipline Learning Resources panel.",
+
+  "frontend": [
+    { "kind": "course", "label": "Frontend Masters — Learning Paths", "url": "https://frontendmasters.com/learn/" },
+    { "kind": "course", "label": "The Odin Project — Full Stack JavaScript", "url": "https://www.theodinproject.com/paths/full-stack-javascript" }
+  ],
+  "javascript": [
+    { "kind": "book", "label": "Eloquent JavaScript (free online)", "url": "https://eloquentjavascript.net/" },
+    { "kind": "book", "label": "You Don't Know JS Yet", "url": "https://github.com/getify/You-Dont-Know-JS" },
+    { "kind": "course", "label": "javascript.info — The Modern JavaScript Tutorial", "url": "https://javascript.info/" }
+  ],
+  "typescript": [
+    { "kind": "official", "label": "The TypeScript Handbook", "url": "https://www.typescriptlang.org/docs/handbook/intro.html" },
+    { "kind": "course", "label": "Total TypeScript — Free Tutorials", "url": "https://www.totaltypescript.com/tutorials" }
+  ],
+  "computer-science": [
+    { "kind": "course", "label": "Teach Yourself Computer Science", "url": "https://teachyourselfcs.com/" },
+    { "kind": "course", "label": "CS50x — Introduction to Computer Science", "url": "https://cs50.harvard.edu/x/" }
+  ],
+  "system-design": [
+    { "kind": "book", "label": "Designing Data-Intensive Applications", "url": "https://dataintensive.net/" },
+    { "kind": "opensource", "label": "The System Design Primer", "url": "https://github.com/donnemartin/system-design-primer" }
+  ],
+  "rust": [
+    { "kind": "book", "label": "The Rust Programming Language (the Book)", "url": "https://doc.rust-lang.org/book/" },
+    { "kind": "course", "label": "Rustlings — small exercises", "url": "https://github.com/rust-lang/rustlings" }
+  ],
+  "golang": [
+    { "kind": "official", "label": "A Tour of Go", "url": "https://go.dev/tour/" },
+    { "kind": "book", "label": "Learn Go with Tests", "url": "https://quii.gitbook.io/learn-go-with-tests" },
+    { "kind": "website", "label": "Go by Example", "url": "https://gobyexample.com/" }
+  ],
+  "linux": [
+    { "kind": "book", "label": "The Linux Command Line (free PDF)", "url": "https://linuxcommand.org/tlcl.php" }
+  ],
+  "git": [
+    { "kind": "book", "label": "Pro Git (free online)", "url": "https://git-scm.com/book/en/v2" },
+    { "kind": "course", "label": "Learn Git Branching (interactive)", "url": "https://learngitbranching.js.org/" }
+  ],
+  "docker": [
+    { "kind": "official", "label": "Docker — Get started guide", "url": "https://docs.docker.com/get-started/" }
+  ],
+  "kubernetes": [
+    { "kind": "official", "label": "Kubernetes — Tutorials", "url": "https://kubernetes.io/docs/tutorials/" }
+  ]
+}

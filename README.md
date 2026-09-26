@@ -4,7 +4,7 @@
 
 A personal, offline-first, installable skill progression tracker built on
 top of data collected and organized from [roadmap.sh](https://roadmap.sh)
-roadmaps.
+roadmaps — think of the skills screen in an RPG, for your own career.
 
 Progress is stored locally in the browser. No accounts, no mandatory server.
 Optional GitHub Gist sync (your token, your data) covers cross-device use.
@@ -12,240 +12,166 @@ Optional GitHub Gist sync (your token, your data) covers cross-device use.
 ## Features
 
 - **Discipline catalogue** grouped by kind: Role, Foundation, Language,
-  Framework, Tech.
-- **Cross-discipline skill linking** — e.g. `Closures` appears in JavaScript,
-  Frontend, etc., and navigating to its home discipline preserves context.
+  Framework, Tech — 47 disciplines, ~3.7k unique skills.
+- **Cross-discipline skill linking** — e.g. `What is HTTP?` is owned by HTML
+  and referenced from Frontend and Backend. Reference rows show the home
+  discipline's resources and link back to it.
 - **Two-axis progress model**:
   - _Status_ (`learning | done | skipped`) tracks what you've studied.
   - _Applied_ flag tracks what you've actually used in practice.
 - **Depth tiers** — per-discipline rollup of status + applied, shown as a
-  three-step stepper: **Exploring → Practicing → Fluent**. Thresholds:
+  three-step stepper: **Exploring → Practicing → Fluent**. One formula, in
+  `app/lib/depth.ts`:
   - Practicing: ≥40% done & ≥40% applied.
   - Fluent: ≥80% done & ≥60% applied.
-- **Skill matrix radar** (dashboard) plots depth per discipline with
-  category filter pills so you can focus on Foundations, Languages, etc.
-- **projects** (`sync:projects`) — each discipline gets a list
-  of hands-on builds. Completing a project toggles a
-  per-project done flag AND contributes to the discipline's Applied count,
-  which drives the depth tier.
-- **Settings modal** (gear icon, top-right) — JSON export / import of your
-  config, reset, and optional GitHub Gist sync.
-- **Custom catalogues** — edit the exported JSON to define your own
-  disciplines/sections/skills (design, music, research, …) and import it
-  back. The app reads the override from `localStorage` on next load.
-- **Installable PWA** — works fully offline after first visit. Manifest,
-  icons, and a vanilla service worker are included.
-- **Light/dark theme** with persistent preference and an auto-adapting
-  loader spinner.
+- **Pinned skills** — star up to three skills in the browser; they appear as
+  "Active Tracks" on the dashboard.
+- **Skill matrix radar** (dashboard) plots done / applied / active per
+  discipline with kind filters.
+- **Learning Resources** panel per discipline: your curated links
+  (`app/data/resources.overrides.json`) plus every course/book roadmap.sh
+  attaches to a skill, grouped by section.
+- **Settings modal** (gear icon, top-right) — JSON export / import, reset,
+  and optional GitHub Gist sync.
+- **Custom catalogues** — export with "include catalogue", edit the JSON to
+  define your own disciplines/sections/skills, import it back.
+- **Installable PWA** — works offline after first visit when served over
+  HTTPS (or `localhost`). Manifest, icons, and a vanilla service worker are
+  included.
+- **Light/dark theme** with persistent preference.
 
 ## Progress persistence
 
 All state is stored client-side under `localStorage`:
 
-| Key                                  | Contents                                         |
-| ------------------------------------ | ------------------------------------------------ |
-| `skill-tracker:v2`                   | `{ progress, applied, projectsDone }`            |
-| `skill-tracker:custom-disciplines`   | Optional user-authored discipline catalogue      |
-| `skill-tracker:gist-sync`            | `{ token, gistId, lastSyncedAt }` for sync       |
-| `skill-tracker-theme`                | `"light" \| "dark"`                              |
+| Key                                | Contents                                    |
+| ---------------------------------- | ------------------------------------------- |
+| `skill-tracker:v2`                 | `{ progress, applied, pinned }`             |
+| `skill-tracker:custom-disciplines` | Optional user-authored discipline catalogue |
+| `skill-tracker:gist-sync`          | `{ token, gistId, lastSyncedAt }` for sync  |
+| `skill-tracker-theme`              | `"light" \| "dark"`                         |
 
 The legacy `skill-tracker:v1` key (progress-only) is auto-migrated on first
-load and left in place.
+load. Skill ids are the persistence key, so the data pipeline never renames
+ids — moving a skill between sections keeps your progress.
 
 ## Project structure
 
 ```
 app/
   components/
-    browser/               Discipline detail UI (projects, depth stepper)
-    dashboard/             Dashboard UI (skill matrix, stat row)
-    ui/                    Reusable primitives (Tooltip, Loader)
-    SettingsModal.tsx      Export/import/reset + Gist sync UI
-    SettingsButton.tsx     Gear icon in the top-right
-    AppShell / AppSidebar  Layout + sidebar nav with per-discipline progress
-    …
-  data/                    Discipline + project data and types
-    disciplines.generated.json  (generated, large)
-    disciplines.upstream.json   (config: pinned commit + includes)
-    projects.generated.json     (generated from roadmap.sh projects)
-    index.ts                    Runtime exports (+ custom override loader)
+    browser/               Discipline detail UI (sections, skill rows, depth stepper, learning resources)
+    dashboard/             Dashboard UI (active tracks, stat row, skill matrix, header)
+    ui/                    Primitives (Panel, Pixel, Mono, ProgressBar, TierTag, Icon, SettingsModal, …)
+  data/
+    disciplines.generated.json  GENERATED — never hand-edit
+    disciplines.upstream.json   Pinned upstream commit + include list
+    disciplines.overrides.json  Hand corrections (drop / unlink / move / rename / merge)
+    resources.overrides.json    Your curated links (skill / section / discipline level)
+    custom/golang.json          Hand-sectioned discipline built from upstream content nodes
+    index.ts                    Types + runtime exports (+ custom override loader)
+    icons.ts                    Discipline → glyph map
   hooks/                   useProgress, useTheme
-  lib/                     Utilities
-    storage.ts             localStorage shape + v1→v2 migration
-    progress.ts            stats (section / discipline / global)
-    depth.ts               depth tier calculation
-    configExport.ts        export / import / validate / reset
-    gistSync.ts            GitHub Gist push/pull helpers
-    sidebarGroups.ts       Grouping logic for the sidebar
-  routes/                  Page routes (dashboard, browser)
-  app.css                  Theme tokens, scrollbar skin, loader keyframes
-  root.tsx                 Layout + manifest link + SW registration
-public/
-  manifest.webmanifest     PWA manifest
-  sw.js                    Service worker (runtime caching)
-  icon.svg                 Themed skill-graph icon
-  icon-maskable.svg        Maskable variant for Android adaptive icons
+  lib/                     storage, progress (stats), depth (tiers), configExport, gistSync, theme
+  routes/                  dashboard (/), browser (/browser?discipline=<id>)
+  app.css                  Theme tokens (dark + light), fonts, scrollbar
+  root.tsx                 Layout, manifest link, SW registration, error boundary
+public/                    manifest.webmanifest, sw.js, icons
 scripts/
-  sync-disciplines.mjs     Pull upstream + transform → disciplines.generated.json
-  sync-projects.mjs        Pull roadmap.sh projects → projects.generated.json
-  transform/               Pure helpers used by sync-disciplines
+  sync-disciplines.mjs     Upstream → transform → overrides → disciplines.generated.json
+  validate-data.mjs        Invariant checks (pnpm run data:check)
+  audit-data.mjs           Heuristic report of suspicious placements (pnpm run data:audit)
+  transform/               Pure transform steps used by the sync
 ```
 
 ## Getting started
 
-### Prerequisites
-
-- **Node.js 22+**
-
-### Install & run
+Requires **Node.js 22+** and **pnpm** (pinned via `packageManager`; `corepack enable`
+if you don't have it).
 
 ```bash
 pnpm install
-pnpm run dev
+pnpm run dev          # http://localhost:5173
 ```
 
-Open http://localhost:5173.
+| Command                     | Purpose                                                          |
+| --------------------------- | ---------------------------------------------------------------- |
+| `pnpm run dev`              | React Router dev server with HMR                                 |
+| `pnpm run build`            | Production build into `build/`                                   |
+| `pnpm run start`            | Serve the production build on :3000                              |
+| `pnpm run typecheck`        | React Router typegen + `tsc`                                     |
+| `pnpm run data:check`       | Validate `disciplines.generated.json` invariants                 |
+| `pnpm run data:audit`       | Print suspicious placements to extend the overrides file         |
+| `pnpm run sync:disciplines` | Regenerate the catalogue from the pinned upstream + overrides    |
+| `pnpm run docker:build`     | Build the production image locally                               |
+| `pnpm run docker:run`       | Run it on :3000                                                  |
 
-`pnpm run build` produces a production build
-in `build/`.
+## Data pipeline
 
-### Scripts
-
-| Command                      | Purpose                                                                    |
-| ---------------------------- | -------------------------------------------------------------------------- |
-| `pnpm run dev`                | React Router dev server with HMR                                           |
-| `pnpm run build`              | Production build                                                           |
-| `pnpm run start`              | Serve the production build                                                 |
-| `pnpm run typecheck`          | React Router type generation + `tsc`                                       |
-| `pnpm run sync:disciplines`   | Refresh `app/data/disciplines.generated.json` from pinned upstream         |
-| `pnpm run sync:projects`      | Refresh `app/data/projects.generated.json` from roadmap.sh project catalog |
-
-### Installing as an app (PWA)
-
-The service worker is **only registered from the production build** to
-avoid fighting HMR in dev. To try the install flow:
-
-```bash
-pnpm run build
-pnpm run start
+```
+disciplines.upstream.json ──┐
+  fetchFromUpstream entries ─┼─► parseUpstreamRoadmap (React Flow → sections)
+  source: "custom" entries ──┤   (edges first, spatial fallback)
+  carried-forward entries ───┘
+            │
+            ▼
+  fetchContentResources  ── per-node content/*.md at the pinned commit
+            │              fills empty resources[] and missing labels
+            ▼
+  applyLinkingFixes ─► applyDisciplineOverrides ─► applyLinkingFixes
+            │                      (drop / unlink / move / rename / merge)
+            ▼
+  applyResourceOverrides ─► normalizeResources ─► remapPrereqs
+            │
+            ▼
+  disciplines.generated.json  +  remap.log.json
 ```
 
-Then in Chrome / Edge / Android, use the browser's "Install app" action.
-On iOS: Safari → Share → Add to Home Screen. After first visit, the app
-works offline (navigations fall back to the cached shell).
+Upstream is pinned to a specific commit because later commits removed the
+roadmap JSON files and stripped resource lists from the content markdown.
+Directory listings use the GitHub REST API (60 req/h anonymous); set
+`GITHUB_TOKEN` if you hit the limit. Everything is cached under `.cache/`.
 
-The SW uses:
-
-- **Navigations** → network-first, fall back to cached shell or a built-in
-  offline page.
-- **Same-origin static assets** → stale-while-revalidate (plays nicely with
-  React Router's hashed chunk filenames).
-- **Cross-origin** (Google Fonts) → stale-while-revalidate with safe
-  handling for opaque responses.
-
-Bump `CACHE_VERSION` in `public/sw.js` when you want to invalidate the
-cache for all users.
-
-## UI & Theming
-
-- **Dark mode** (default): dark backgrounds with **purple accents**.
-- **Light mode**: light backgrounds with **red accents**.
-
-Theme preference is persisted in `localStorage`. The theme toggle and
-settings gear live in the top-right of every page. The PWA `theme-color`
-meta tags swap automatically with the user's OS preference.
+To fix a misfiled skill, add an entry to `disciplines.overrides.json` and
+re-run the sync. To attach your own course/book/article to a topic, add it to
+`resources.overrides.json` keyed by skill id, section id or discipline id.
 
 ## Import / export / sync
 
-Open the **gear icon** (top-right) to access the settings modal.
+Open the **gear icon** (top-right).
 
-### JSON export / import
+- **Export config** downloads `{ version, progress, applied, pinned }`. Tick
+  "include the built-in catalogue" only if you want to fork the disciplines.
+- **Import config** validates the payload and reloads. Importing an export
+  that contains the bundled catalogue does *not* pin it as a custom override.
+- **GitHub Gist sync**: create a fine-grained PAT with only the `gist` scope,
+  paste it, **Push** (creates a private gist) / **Pull** on another device.
+  The token lives in `localStorage` — don't use it on shared machines.
 
-- **Export config** downloads a single JSON document:
+## Deploying
 
-  ```json
-  {
-    "version": 1,
-    "exportedAt": "…",
-    "source": "skill-tracker",
-    "disciplines": { "disciplines": [ … ] },
-    "progress":     { "<skillId>": "done" },
-    "applied":      { "<skillId>": true },
-    "projectsDone": { "<projectId>": true }
-  }
-  ```
+### Docker
 
-  Each top-level field is independent. You can hand-edit and re-import
-  only the pieces you want.
-
-- **Import config** validates the payload, writes it to `localStorage`,
-  then reloads the page so the data module picks up any catalogue
-  override.
-
-### Custom catalogues (repurpose for any domain)
-
-Edit the `disciplines` block of an exported JSON to define your own
-roles, sections, and skills (e.g. for design, music, research, etc.),
-then re-import. A minimal shape:
-
-```json
-{
-  "version": 1,
-  "disciplines": {
-    "disciplines": [
-      {
-        "id": "visual",
-        "label": "Visual Design",
-        "kind": "role",
-        "color": "#f97316",
-        "sections": [
-          {
-            "id": "fundamentals",
-            "label": "Fundamentals",
-            "items": [
-              { "id": "visual:color-theory", "label": "Color Theory" },
-              { "id": "visual:typography",  "label": "Typography"   }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
+```bash
+pnpm run docker:build && pnpm run docker:run      # http://localhost:3000
 ```
 
-Skill `id`s must be globally unique. Use `"Revert to built-in"` in the
-settings modal to drop the override and go back to the bundled catalogue.
+The image is multi-stage, pnpm-based, runs as `node`, and listens on
+`0.0.0.0:3000`. Multi-arch builds (`linux/amd64,linux/arm64`) are published
+to GHCR by `.github/workflows/docker.yml` on tags and pushes to `main`.
 
-### GitHub Gist sync (optional)
+### umbrelOS (Raspberry Pi)
 
-For cross-device use without a backend:
-
-1. Create a Personal Access Token at
-   [github.com/settings/tokens](https://github.com/settings/tokens?type=beta)
-   with only the `gist` scope.
-2. Open settings → paste the token → **Connect**.
-3. **Push to gist** creates a private gist on first use (file:
-   `skill-tracker-config.json`), or updates the existing one.
-4. On another device, connect with the same token and paste the gist id
-   shown after the first push, then **Pull from gist**.
-
-The token is kept in `localStorage` under `skill-tracker:gist-sync` —
-fine for a personal device, don't use it on shared machines. **Disconnect**
-clears it.
+Packaging for umbrelOS is not set up yet. When it is, note that umbrelOS
+serves apps over plain `http://umbrel.local:<port>`, so the service worker
+will not register — the app works fully, but "Install app"/offline needs
+HTTPS (Tailscale Serve or Umbrel remote access).
 
 ## Tech stack
 
-- React Router 7 + React 19 + TypeScript
-- Tailwind CSS 4
-- FontAwesome icons
-- Vite 8
+React Router 7 (SSR) · React 19 · TypeScript · Tailwind CSS 4 · recharts ·
+pixelarticons glyphs · Vite 8 · pnpm
 
 ## Data source
 
-See `NOTICE.md` for attribution and licensing.
-
------
-
-
-@author Mitul Patel
+See `NOTICE.md` for attribution and licensing (CC BY-SA 4.0 upstream content).

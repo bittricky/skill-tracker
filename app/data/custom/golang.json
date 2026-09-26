@@ -1,0 +1,341 @@
+{
+  "$comment": "Hand-authored discipline. roadmap.sh never published the Go roadmap layout JSON (it is editor-rendered), only per-node content files. `nodeId` values refer to `src/data/roadmaps/golang/content/<slug>@<nodeId>.md` at the pinned upstream commit; labels default to the content file's `# Heading` and resources are pulled from its resource list. Skill ids become `golang:<nodeId>`.",
+  "id": "golang",
+  "label": "Go",
+  "kind": "language",
+  "upstreamId": "golang",
+  "contentSlug": "golang",
+  "prerequisiteDisciplineIds": [],
+  "sections": [
+    {
+      "id": "introduction",
+      "label": "Introduction",
+      "items": [
+        { "nodeId": "WwLLyHL5psm0GOI9bmOne" },
+        { "nodeId": "2rlmLn_yQQV-7DpX1qT98" },
+        { "nodeId": "4PrkkoZ5fY-oow0O-bVhu" },
+        { "nodeId": "J5mU0v491qrm-mr1W3Msd" },
+        { "nodeId": "PHHviBSqhYDSNuHBFbw3l" },
+        { "nodeId": "_3_tFOpQisx6DSP4Yc2E2" }
+      ]
+    },
+    {
+      "id": "variables-and-types",
+      "label": "Variables & Basic Types",
+      "items": [
+        { "nodeId": "BZKSsTgm28WV4nA74NYHO" },
+        { "nodeId": "pJUkMcrUvcxuR_w89-eEq", "label": "var vs :=" },
+        { "nodeId": "-M-qrXwVt7HfJv0CSRNGS" },
+        { "nodeId": "QWixUXjC8YG-i1gsKVY1v" },
+        { "nodeId": "xUKsD2eTP9-RszHvKYp9Y" },
+        { "nodeId": "0FJxELyk7_IiVHvZFFVm2" },
+        { "nodeId": "EAqL8Up3J63AWCZnqQph0" },
+        { "nodeId": "EzaH378F3kOdQbczhVjhA" },
+        { "nodeId": "Mn-M7kxOKEublJGitgjNA" },
+        { "nodeId": "PRTou83_rD0u7p2elGG4s" },
+        { "nodeId": "ZxZpReGdPq8ziSlYmf2nj" },
+        { "nodeId": "IAXI7OAAAG4fU6JvVNSZI" },
+        { "nodeId": "7h08RUNC_uAMI6vnGdcZ1" },
+        { "nodeId": "nzPe6XVqhtOZFbea6f2Hg" },
+        { "nodeId": "2IFxz3sFqDvUvzWNVwlWC" },
+        { "nodeId": "36gt0FmNDxuIIV47aqBeH" }
+      ]
+    },
+    {
+      "id": "control-flow",
+      "label": "Control Flow",
+      "items": [
+        { "nodeId": "C7wzT161ytHsCpO2zfmXo" },
+        { "nodeId": "dC-1LotbW29C4zZJv6ak6" },
+        { "nodeId": "2XaDvTJ5pyChgt1GFZF8W" },
+        { "nodeId": "ZmPhiTrB8EK0LDdaJOhc8" },
+        { "nodeId": "6r9XbwlBtHmJrhviG2cTD" },
+        { "nodeId": "orpxzKHFcf1BDQSefHl6O" },
+        { "nodeId": "ijS-b400c9BldRO6PlrC1" },
+        { "nodeId": "j0w6e8Pksh30PKDvXj3yk" },
+        { "nodeId": "IWdAJ1BXqJv8EMYvFWRaH" },
+        { "nodeId": "BRKryB5HawXyXeBWM4QqU" },
+        { "nodeId": "O29VoTfPiU8GZ_c16ZJIp" }
+      ]
+    },
+    {
+      "id": "functions",
+      "label": "Functions",
+      "items": [
+        { "nodeId": "axhcEfCEoFkLey4AbA84A" },
+        { "nodeId": "MBafBhpEV_7qgDNPOIBBs" },
+        { "nodeId": "ai2s1bwiTcPzrXQTxFDwV" },
+        { "nodeId": "HIvwT8Dcr6B2NjOjy9hFv" },
+        { "nodeId": "MUJfa0jIL_S_b2ndNpVVw" },
+        { "nodeId": "cEQ9NQX7ZkKLwz_hg9L_7" },
+        { "nodeId": "ZSiNvYDTW2RYyPttls5iz" },
+        { "nodeId": "z8-8nt-3GA7uN-cvOI-Qn" },
+        { "nodeId": "jx1vln8hqRJqVZfJi6CST" }
+      ]
+    },
+    {
+      "id": "collections",
+      "label": "Arrays, Slices & Maps",
+      "items": [
+        { "nodeId": "Eu8JV-_W-P_bCx_PglIW0" },
+        { "nodeId": "3aoMFQXIh3Qdo04isHwe_" },
+        { "nodeId": "PWrfmYnOJRlwgdFat91bC" },
+        { "nodeId": "qUykEUH1-9Dzotc_ltV3g" },
+        { "nodeId": "s1E4PQVVSlBeyNn7xBikW" },
+        { "nodeId": "j0zmfpaufr5TAZa_Bh8Vu" },
+        { "nodeId": "XupDuVRsM5VjdaNs7JaT5" },
+        { "nodeId": "Q6ic-AGG_gnXEOdmqom89" },
+        { "nodeId": "PC-azlCZ6wDCn1_nRyhUn" },
+        { "nodeId": "dMdOz2kUc8If3LcLZEfYf" }
+      ]
+    },
+    {
+      "id": "pointers",
+      "label": "Pointers & Memory",
+      "items": [
+        { "nodeId": "naBjKGrTBzlpapXzLHfvG" },
+        { "nodeId": "P0fUxEbb3bVYg35VWyg8R" },
+        { "nodeId": "NfYlEY8f_YPITT6Exp3Iw" },
+        { "nodeId": "ItMgLOzaUCCdiTk221pAF" },
+        { "nodeId": "_2JpTdzmXxszFCauJONCi" },
+        { "nodeId": "GG0j6MNVudvITHEOXUxim" },
+        { "nodeId": "ixoXVtRlrvTittqQq-Bgo" },
+        { "nodeId": "tM-AAWqMJsYZ1i6DCfBeD" }
+      ]
+    },
+    {
+      "id": "structs-and-methods",
+      "label": "Structs & Methods",
+      "items": [
+        { "nodeId": "wRwt9JHZPmq8uapxMjn0a" },
+        { "nodeId": "XLj16RmCe4-nKHW52Ebhf" },
+        { "nodeId": "SW2uMlhfC-dnQakShs2km" },
+        { "nodeId": "99a4irV044ybZN-boMgHv" },
+        { "nodeId": "6NKgb-OjGdT3QsMrDU05b" }
+      ]
+    },
+    {
+      "id": "interfaces",
+      "label": "Interfaces",
+      "items": [
+        { "nodeId": "hIRMnPyHRGh8xCU8BTS2n" },
+        { "nodeId": "nkONsPlFYCMqzWHTm_EPB" },
+        { "nodeId": "ueJ7ndK2SKniDVjN2aUlO" },
+        { "nodeId": "wK7GNTbOsMNs0N_1N4-dU" },
+        { "nodeId": "4EJ4WnH2HA3ci2uoqmNex" }
+      ]
+    },
+    {
+      "id": "error-handling",
+      "label": "Error Handling",
+      "items": [
+        { "nodeId": "7EKUfKx7_7lZOs3d84iyL" },
+        { "nodeId": "0mMP6QR0V-Zi25njD1TFT" },
+        { "nodeId": "dHk6Y0zFqxtCuDiQcHQsi" },
+        { "nodeId": "LVaWjZfij6-z_uwkAc0MK" },
+        { "nodeId": "s2WlOMMKNXf6O2Qiqcm_m" },
+        { "nodeId": "vjfqq1XVS25FVe9smtel0" },
+        { "nodeId": "2KyzUjcMiMgo_AvlPjYbx" },
+        { "nodeId": "rR_BIgiSR63rVlO2Igzin" }
+      ]
+    },
+    {
+      "id": "generics",
+      "label": "Generics",
+      "items": [
+        { "nodeId": "uEpTANOBHlFwCg5p44Lh0" },
+        { "nodeId": "9EdDI0vJaEmz3XxXMrpX9" },
+        { "nodeId": "p7L4EUsjMnJlrbb-oDvlf" },
+        { "nodeId": "eWZzradMaH57H4mI7Qw6n" },
+        { "nodeId": "8o6A2kGnupGYaaTwgsTDp" },
+        { "nodeId": "oAvCO3GOKktkbmPahkPlT" }
+      ]
+    },
+    {
+      "id": "concurrency",
+      "label": "Concurrency",
+      "items": [
+        { "nodeId": "08QOxnF3rKEDekrkX7w1j" },
+        { "nodeId": "EgXagvLpJkXUI2od5K1FD" },
+        { "nodeId": "4_nvU_YOs9Psey5TZLQFb" },
+        { "nodeId": "RBr1uAdngIsvSpIdHHOyV" },
+        { "nodeId": "nOI0juYhqJXNTiJBU4bKH" },
+        { "nodeId": "6ydgmac11Zu9Ithe0kKj9" },
+        { "nodeId": "amqOwSgVFDymAsDIobwiK" },
+        { "nodeId": "vxB3aGreqWBrNhiu8hcPE" },
+        { "nodeId": "p5u2tWRmRtyfBgKcSUHFU" },
+        { "nodeId": "GoV8yaQARJmO47e0_l_GY" }
+      ]
+    },
+    {
+      "id": "concurrency-patterns",
+      "label": "Concurrency Patterns",
+      "items": [
+        { "nodeId": "2yKVKaCXrcv5X4o2d6oqm" },
+        { "nodeId": "z8ItWHAupaastLcXY3npY" },
+        { "nodeId": "loozcCzPzkni7BOdcvt1S" },
+        { "nodeId": "8BrnnM7HM-bijbUDgnW49" },
+        { "nodeId": "pN8EsuKUPDUKyskodu_sC" }
+      ]
+    },
+    {
+      "id": "packages-and-modules",
+      "label": "Packages & Modules",
+      "items": [
+        { "nodeId": "AcYzrGFrwmeVYFEfhEiSZ" },
+        { "nodeId": "dA8SMhCev1NWNM1Tsxu57" },
+        { "nodeId": "kep_536v13aS1V9XwHKSr" },
+        { "nodeId": "5hnaPrYSBzxEIxFeg5tCK" },
+        { "nodeId": "zWXJOXo8dRnuTvYlWOL6r" },
+        { "nodeId": "6rwVq1bMSHoGatEfm9hkp" },
+        { "nodeId": "jOiAk5coeDNVXP2QiwQis" },
+        { "nodeId": "eBv3i2cNA7vc01jLAbB8m" },
+        { "nodeId": "CysLmwRqmQzOGAKM01AKF" },
+        { "nodeId": "LnhQJVsEaS_gSijCUqAMq" }
+      ]
+    },
+    {
+      "id": "toolchain",
+      "label": "Go Toolchain",
+      "items": [
+        { "nodeId": "core-go-commands", "label": "Go toolchain and tools" },
+        { "nodeId": "rW4QPWIS2TWzFY0Ljny2N" },
+        { "nodeId": "LXqEJwGA_0cVUbF6DVwBG" },
+        { "nodeId": "k35Ogbvr9yTdJPo4RV4tM" },
+        { "nodeId": "CPFiclXXVQCsbooA0iCEy" },
+        { "nodeId": "6RpfXYHnOGmM6pZ6ZBb29" },
+        { "nodeId": "qoQ6_5MgTu3ur1mkEgqG5" },
+        { "nodeId": "SoD0P5k4aSVRN96XxR5on" },
+        { "nodeId": "bxXzXM0zUm1vux1DKOLyf" },
+        { "nodeId": "TstTkc_-2RZMOqtSIklEM" },
+        { "nodeId": "ywiNCAAvpSVXTwWwguxSZ" }
+      ]
+    },
+    {
+      "id": "code-quality",
+      "label": "Code Quality & Static Analysis",
+      "items": [
+        { "nodeId": "core-quality-tools", "label": "Code quality and analysis" },
+        { "nodeId": "static-analysis", "label": "Linters" },
+        { "nodeId": "hgiNcGh3ggf8dBJ8C0HCL" },
+        { "nodeId": "954ffF8CmXYX-L36Lfl44" },
+        { "nodeId": "ksimJz7uvSh80ZIekSn_-" },
+        { "nodeId": "vulnerability-scanning", "label": "Security scanning" },
+        { "nodeId": "K__satcG2ETNRFBpPqrLw" }
+      ]
+    },
+    {
+      "id": "testing",
+      "label": "Testing",
+      "items": [
+        { "nodeId": "EskFmwCwOmZHcVzedPOJI" },
+        { "nodeId": "nZkLFmm2GENL81y5LB0c1" },
+        { "nodeId": "6-mr65JzXbRzIukE7jzoZ" },
+        { "nodeId": "LjLbm4JEZ19howOkju7zQ" },
+        { "nodeId": "Zt4FpqCEVlpMzclJeDiMs" },
+        { "nodeId": "t9xOuLBrAzEvv2-bOU2hF" },
+        { "nodeId": "27lhNAdKwRrc2S2ha3QNG" },
+        { "nodeId": "7aTYeCd915F3UHqb6j0Az" }
+      ]
+    },
+    {
+      "id": "standard-library",
+      "label": "Standard Library",
+      "items": [
+        { "nodeId": "-Qy9DEWVYUNRHWiXXhIWU" },
+        { "nodeId": "uB1fE15OprBcwN7p7ffJF", "label": "encoding/json" },
+        { "nodeId": "7SYEXD5r9WKEDfecQdO5d" },
+        { "nodeId": "Z8j6Zkg1LYEYcoRgs23Ms" },
+        { "nodeId": "9S1gkzBvt32uLy0IFZjrg" },
+        { "nodeId": "-8E79Ns4q-uAgcxtghPzf" },
+        { "nodeId": "aK9EQO1JR9hYIMkS3mdai" },
+        { "nodeId": "9K5ffACdKNPJiWPq4tUWD" },
+        { "nodeId": "GO50AoBOjO-EaK3s36jSS" },
+        { "nodeId": "iIPk-jK1vBCG_rKI_MPiu" }
+      ]
+    },
+    {
+      "id": "logging",
+      "label": "Logging",
+      "items": [
+        { "nodeId": "mGia5cJ7HFVXM0Fx5xhQE" },
+        { "nodeId": "hFlbSSBMcJtjXNL8jAcbc" },
+        { "nodeId": "4D8QsZVAUB9vGbVFgRHt4" },
+        { "nodeId": "TR7N68_evDMu3qWHbGJcz" }
+      ]
+    },
+    {
+      "id": "web-development",
+      "label": "Web Development",
+      "items": [
+        { "nodeId": "CwGw3CDVLqErQGTwjzhmL" },
+        { "nodeId": "NMLmbKjfMSqz-Iz2CooCl" },
+        { "nodeId": "xM1uUCXNrJwfTgi9E75KV" },
+        { "nodeId": "1qhqEYf6wYf5sfXgTUnmi" },
+        { "nodeId": "5lJPsJwgy0_T7Xl6eQxuB" },
+        { "nodeId": "p7yeYkbQKAjr2aA_eUno4" },
+        { "nodeId": "tBY6UB3gWZAxHPCFHoU_d" }
+      ]
+    },
+    {
+      "id": "realtime",
+      "label": "Realtime Communication",
+      "items": [
+        { "nodeId": "o2EYfm1WSd8Eq_ZcXYreo" },
+        { "nodeId": "N0EG-7sU9lGFwgidXuPkV" },
+        { "nodeId": "LOl-7BtdmYrBS0PTtHI1I" }
+      ]
+    },
+    {
+      "id": "databases",
+      "label": "Databases & ORMs",
+      "items": [
+        { "nodeId": "VcHHuIZ4lGzTxOoTwxA3e" },
+        { "nodeId": "fJdZIbAgOAB8nOEHQNsq6" },
+        { "nodeId": "cOj6klfBzTQQ8G75umLQZ" }
+      ]
+    },
+    {
+      "id": "cli",
+      "label": "Building CLIs",
+      "items": [
+        { "nodeId": "2fk1ewM42WnFlDejVETys" },
+        { "nodeId": "3frPZLeFXnHroY7_Uk5Dn" },
+        { "nodeId": "bmNLSk-XuK2EuLxPR1Sxh" },
+        { "nodeId": "x9hDkF73rmvbewrgRgyOv" }
+      ]
+    },
+    {
+      "id": "build-and-deploy",
+      "label": "Build, Deploy & Release",
+      "items": [
+        { "nodeId": "build-system", "label": "Code generation & build tags" },
+        { "nodeId": "deploy-optimize", "label": "Deployment & tooling" },
+        { "nodeId": "zCUmPIGVslLfECqfUgAr2" },
+        { "nodeId": "mvcWcecHA_jyQY1txFgL_" },
+        { "nodeId": "zmBYvecc5zSoLCinH68gc" },
+        { "nodeId": "Jxt4HD2iA6lRXNRJIVCLs" },
+        { "nodeId": "xsjUeyxweN2GbcjknDjT8" },
+        { "nodeId": "gChqUzY3SbPJH0H0jcoAp" }
+      ]
+    },
+    {
+      "id": "performance",
+      "label": "Performance & Debugging",
+      "items": [
+        { "nodeId": "profiling-tools", "label": "Performance and debugging" },
+        { "nodeId": "Blz9cpgKhuqtY75oUQw6I" },
+        { "nodeId": "RE2jfECHkWvy3ldDZL938" }
+      ]
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced Topics",
+      "items": [
+        { "nodeId": "expert-level", "label": "Advanced topics" },
+        { "nodeId": "mxbs96wFJ5XGDoETA0fU_" },
+        { "nodeId": "NlkrCAdUCJ7kU9meQJM5_" }
+      ]
+    }
+  ]
+}

@@ -69,12 +69,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           name="theme-color"
-          content="#0f0f0f"
+          content="#1c2030"
           media="(prefers-color-scheme: dark)"
         />
         <meta
           name="theme-color"
-          content="#f5f5f5"
+          content="#f3efe6"
           media="(prefers-color-scheme: light)"
         />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -118,14 +118,47 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{ background: "var(--color-surface-bg)" }}
+    >
+      <div
+        className="w-full max-w-xl rounded-xl p-6"
+        style={{
+          background: "var(--color-surface-panel)",
+          border: "1px solid var(--color-surface-border)",
+          boxShadow: "var(--shadow-raised)",
+        }}
+      >
+        <div
+          className="font-display text-[40px] font-bold leading-none tracking-[0.04em]"
+          style={{ color: "var(--color-accent-coral)" }}
+        >
+          {message}
+        </div>
+        <p className="mt-2 text-sm" style={{ color: "var(--color-ink-muted)" }}>
+          {details}
+        </p>
+        <a
+          href="/"
+          className="inline-block mt-4 text-xs font-display uppercase tracking-[0.08em] hover:underline"
+          style={{ color: "var(--color-accent-mustard)" }}
+        >
+          ← Back to dashboard
+        </a>
+        {stack && (
+          <pre
+            className="mt-4 w-full p-3 rounded-md overflow-x-auto text-[11px] leading-relaxed"
+            style={{
+              background: "var(--color-surface-inset)",
+              color: "var(--color-ink-muted)",
+              border: "1px solid var(--color-surface-bg-deep)",
+            }}
+          >
+            <code>{stack}</code>
+          </pre>
+        )}
+      </div>
     </main>
   );
 }

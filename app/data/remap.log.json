@@ -1,5 +1,620 @@
 {
-  "rewritten": [],
-  "dropped": [],
-  "kept": 501
+  "prereqs": {
+    "rewritten": [],
+    "dropped": [],
+    "kept": 491
+  },
+  "overrides": {
+    "dropped": [
+      {
+        "id": "html:Xy15NSxlS0QXYNzEvgocK",
+        "in": "html",
+        "section": "html:sec:all"
+      },
+      {
+        "id": "html:Xy15NSxlS0QXYNzEvgocK",
+        "in": "css",
+        "section": "css:sec:all"
+      },
+      {
+        "id": "css:9ZUXy6s9IAIEM5GHk_bXR",
+        "in": "html",
+        "section": "html:sec:all"
+      },
+      {
+        "id": "html:b83npHc-R9M03hEGzA9Ha",
+        "in": "css",
+        "section": "css:sec:all"
+      },
+      {
+        "id": "react-native:LRBHwYiT0Yyi18PwR49rc",
+        "in": "backend",
+        "section": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "react:10uL0r388lKh8pWYWqRZD",
+        "in": "ai-engineer",
+        "section": "ai-engineer:sec:d7fzv_ft12EopsQdmEsel"
+      },
+      {
+        "id": "rust:PskCueCc9pSxfnSzfdX-u",
+        "in": "game-developer",
+        "section": "game-developer:sec:5qfoD77wU4ETI7rUSy4Nc"
+      }
+    ],
+    "moved": [
+      {
+        "id": "backend:g8GjkJAhvnSxXTZks0V1g",
+        "in": "backend",
+        "to": "backend:sec:ELj8af7Mi38kUbaPJfCUR"
+      },
+      {
+        "id": "backend:zp3bq38tMnutT2N0tktOW",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:CWwh2abwqx4hAxpAGvhIx",
+        "in": "backend",
+        "to": "backend:sec:2f0ZO6GJElfZ2Eis28Hzg"
+      },
+      {
+        "id": "backend:28U6q_X-NTYf7OSKHjoWH",
+        "in": "backend",
+        "to": "backend:sec:F8frGuv1dunOdcVJ_IiGs"
+      },
+      {
+        "id": "backend:zp3bq38tMnutT2N0tktOW",
+        "in": "computer-science",
+        "to": "computer-science:sec:w-fvEiSJysywR3AOAB0ve"
+      },
+      {
+        "id": "backend:zp3bq38tMnutT2N0tktOW",
+        "in": "system-design",
+        "to": "system-design:sec:uQFzD_ryd-8Dr1ppjorYJ"
+      },
+      {
+        "id": "nodejs:tGD8XLHnfspfv8CbguGwV",
+        "in": "nodejs",
+        "to": "nodejs:sec:fFVCb6aZWRHdNDFt5C09R"
+      },
+      {
+        "id": "system-design:Kisvxlrjb7XnKFCOdxRtb",
+        "in": "system-design",
+        "to": "system-design:sec:-X4g8kljgVBOBcf1DDzgi"
+      },
+      {
+        "id": "system-design:o532nPnL-d2vXJn9k6vMl",
+        "in": "system-design",
+        "to": "system-design:sec:-X4g8kljgVBOBcf1DDzgi"
+      },
+      {
+        "id": "system-design:I_nR6EwjNXSG7_hw-_VhX",
+        "in": "devops",
+        "to": "devops:sec:w5d24Sf8GDkLDLGUPxzS9"
+      },
+      {
+        "id": "frontend:uum7vOhOUR38vLuGZy8Oa",
+        "in": "devops",
+        "to": "devops:sec:w5d24Sf8GDkLDLGUPxzS9"
+      },
+      {
+        "id": "html:0Q41Bm_TZqsC7X-MH8uFe",
+        "in": "devops",
+        "to": "devops:sec:w5d24Sf8GDkLDLGUPxzS9"
+      },
+      {
+        "id": "frontend:uum7vOhOUR38vLuGZy8Oa",
+        "in": "frontend",
+        "to": "frontend:sec:RDWbG3Iui6IPgp0shvXtg"
+      },
+      {
+        "id": "python:JDDG4KfhtIlw1rkNCzUli",
+        "in": "python",
+        "to": "python:sec:GISOFMKvnBys0O0IMpz2J"
+      }
+    ],
+    "renamed": [
+      {
+        "id": "system-design:sec:3pRi8M4xQXsehkdfUNtYL",
+        "from": "Idempotent Operations",
+        "to": "Caching Layers"
+      },
+      {
+        "id": "computer-science:sec:C1eNsPjiQo8INbvL2Lt7L",
+        "from": "K-D Trees",
+        "to": "Trees & Search Structures"
+      },
+      {
+        "id": "backend:sec:STQQbPa7PE3gbjMdL6P-t",
+        "from": "Testing",
+        "to": "API Protocols & Auth"
+      },
+      {
+        "id": "game-developer:sec:Hpf_CPmLpCSP8Qo07Kq1X",
+        "from": "Game AI",
+        "to": "Computer Graphics"
+      }
+    ],
+    "merged": [
+      {
+        "from": "python:sec:aWHgAk959DPUZL46CeRiI",
+        "into": "python:sec:GISOFMKvnBys0O0IMpz2J",
+        "count": 1
+      },
+      {
+        "from": "python:sec:pIluLJkySqn_gI_GykV6G",
+        "into": "python:sec:GISOFMKvnBys0O0IMpz2J",
+        "count": 1
+      },
+      {
+        "from": "python:sec:aB1LSQjDEQb_BxueOcnxU",
+        "into": "python:sec:GISOFMKvnBys0O0IMpz2J",
+        "count": 1
+      },
+      {
+        "from": "python:sec:4gtmtYWYRWqwLdZRL0XMg",
+        "into": "python:sec:GISOFMKvnBys0O0IMpz2J",
+        "count": 1
+      },
+      {
+        "from": "python:sec:jnLIVRrWxcX3yq3Op91Vr",
+        "into": "python:sec:GISOFMKvnBys0O0IMpz2J",
+        "count": 1
+      },
+      {
+        "from": "python:sec:KAXF2kUAOvtBZhY8G9rkI",
+        "into": "python:sec:GISOFMKvnBys0O0IMpz2J",
+        "count": 1
+      },
+      {
+        "from": "frontend:sec:i9z0stM4uKu27Cz6NIgNX",
+        "into": "frontend:sec:hkSc_1x09m7-7BO7WzlDT",
+        "count": 1
+      }
+    ],
+    "unlinked": [
+      {
+        "from": "react-native:ouNTekf4VpZv-Vja8_bfM",
+        "to": "cyber-security:r9byGV8XuBPzoqj5ZPf2W",
+        "in": "cyber-security",
+        "recovered": true
+      },
+      {
+        "from": "html:Ufgy4-kC2drCov4MqEhjy",
+        "to": "cyber-security:VNmrb5Dm4UKUgL8JBfhnE",
+        "in": "cyber-security",
+        "recovered": true
+      },
+      {
+        "from": "rust:w8nxQDxmfoUHkFV66TKiq",
+        "to": "cyber-security:9vEUVJ8NTh0wKyIE6-diY",
+        "in": "cyber-security",
+        "recovered": true
+      },
+      {
+        "from": "css:lo6OuD5hsZ7_r01jp-u0U",
+        "to": "game-developer:WK6fLWJq9Vh2ySVrSqd-U",
+        "in": "game-developer",
+        "recovered": true
+      },
+      {
+        "from": "shell-bash:YyCvxYgFzobwF_vMQXunZ",
+        "to": "nestjs:pipes",
+        "in": "nestjs",
+        "recovered": false
+      },
+      {
+        "from": "nextjs:gpZNwsh075wl5eH2gLKro",
+        "to": "nestjs:middleware",
+        "in": "nestjs",
+        "recovered": false
+      },
+      {
+        "from": "mongodb:yRJ6jeysFXBpwLEqvrdKk",
+        "to": "nestjs:role-based-access-control",
+        "in": "nestjs",
+        "recovered": false
+      },
+      {
+        "from": "javascript:sciU68E13mcfL577y6Vim",
+        "to": "redis:ltF4vCT9ZA2XuUuHnuGnN",
+        "in": "redis",
+        "recovered": true
+      },
+      {
+        "from": "html:v3Uf4LTfCbyasNJ-2Vfj9",
+        "to": "redis:lV_MnUNTB2h925idX0YWk",
+        "in": "redis",
+        "recovered": true
+      },
+      {
+        "from": "graphql:UYwuUVTeurwODV4_Kdt_W",
+        "to": "redis:-TjnSOY8txYrhhxRV1OIl",
+        "in": "redis",
+        "recovered": true
+      },
+      {
+        "from": "redis:wsuKH7YwGDV6GYQbdhA4o",
+        "to": "kubernetes:s0gHg8CqwrSylpSPu8arA",
+        "in": "kubernetes",
+        "recovered": true
+      },
+      {
+        "from": "redis:2p5RF4lVYfRvYTo1Ofm-a",
+        "to": "backend:QvMEEsXh0-rzn5hDGcmEv",
+        "in": "backend",
+        "recovered": true
+      },
+      {
+        "from": "mongodb:JAosQ9tFj7y70lGQ0vHzC",
+        "to": "backend:VoYSis1F1ZfTxMlQlXQKB",
+        "in": "backend",
+        "recovered": true
+      },
+      {
+        "from": "nextjs:mTh5PZNpzJNKPqpu5PVL6",
+        "to": "devops:K81bmtgnB1gfhYdi3TB5a",
+        "in": "devops",
+        "recovered": true
+      },
+      {
+        "from": "nextjs:DHqdXJFhVZWaNa5zSX8Wk",
+        "to": "system-design:Q0fKphqmPwjTD0dhqiP6K",
+        "in": "system-design",
+        "recovered": true
+      },
+      {
+        "from": "kubernetes:Qelo1YvAcUoX5PA-RYbNp",
+        "to": "computer-science:xDiS0HmrEoPjkQg9x2O3o",
+        "in": "computer-science",
+        "recovered": true
+      },
+      {
+        "from": "graphql:UYwuUVTeurwODV4_Kdt_W",
+        "to": "computer-science:4u5w9QCptLWuY9O7_UU8V",
+        "in": "computer-science",
+        "recovered": true
+      },
+      {
+        "from": "linux:Rib7h9lh_ndiXkwNbftz_",
+        "to": "computer-science:RbdT5MOE4L-E7PPWKRITX",
+        "in": "computer-science",
+        "recovered": true
+      },
+      {
+        "from": "redis:xF0wQYmtwXYkrzvWg5gOO",
+        "to": "computer-science:jVsZFTzyrYEDyR8LiBQL0",
+        "in": "computer-science",
+        "recovered": true
+      },
+      {
+        "from": "typescript:YbDuIo1BbZKEAZwmXlCdZ",
+        "to": "computer-science:TwW6SO2IXqkxJXVjLzdwU",
+        "in": "computer-science",
+        "recovered": true
+      },
+      {
+        "from": "rust:B-S1hE-ofNTutnkc2hJBf",
+        "to": "computer-science:hJB5gO9tosRlC4UmdSNzl",
+        "in": "computer-science",
+        "recovered": true
+      },
+      {
+        "from": "rust:fq2NMV-QV9ayJl82ZWzov",
+        "to": "computer-science:JI990pDX2jjNe6IH_Y_t0",
+        "in": "computer-science",
+        "recovered": true
+      },
+      {
+        "from": "typescript:YbDuIo1BbZKEAZwmXlCdZ",
+        "to": "datastructures-and-algorithms:lxY3ErxJ_D3zkSAXIBUpv",
+        "in": "datastructures-and-algorithms",
+        "recovered": true
+      },
+      {
+        "from": "python:0-m8jVuDKE8hX1QorKGTM",
+        "to": "datastructures-and-algorithms:kSy-8ubESdmIX4Fyl8TSu",
+        "in": "datastructures-and-algorithms",
+        "recovered": true
+      },
+      {
+        "from": "python:uJIqgsqUbE62Tyo3K75Qx",
+        "to": "datastructures-and-algorithms:UYm7unZfXd9Ge5EYV4odb",
+        "in": "datastructures-and-algorithms",
+        "recovered": true
+      },
+      {
+        "from": "javascript:YJGhhFuWmFvhRKOg6nwON",
+        "to": "datastructures-and-algorithms:4ZAzcwP0oPGZ9Rw042V8-",
+        "in": "datastructures-and-algorithms",
+        "recovered": true
+      },
+      {
+        "from": "python:S0FLE70szSVUPI0CDEQK7",
+        "to": "software-design-architecture:Dj36yLBShoazj7SAw6a_A",
+        "in": "software-design-architecture",
+        "recovered": true
+      },
+      {
+        "from": "typescript:tZFWeWHdOUJcCEtHfXH9p",
+        "to": "software-design-architecture:RMkEE7c0jdVFqZ4fmjL6Y",
+        "in": "software-design-architecture",
+        "recovered": true
+      },
+      {
+        "from": "graphql:tc_rjJZrr2x3bp8mcoQ0F",
+        "to": "software-design-architecture:SrcPhS4F7aT80qNjbv54f",
+        "in": "software-design-architecture",
+        "recovered": true
+      },
+      {
+        "from": "linux:2oQiuQ2j02SCt9t5eV6hg",
+        "to": "software-design-architecture:8y0ot5sbplUIUyXe9gvc8",
+        "in": "software-design-architecture",
+        "recovered": true
+      },
+      {
+        "from": "javascript:1RcwBHU3jzx0YxxUGZic4",
+        "to": "typescript:d8iV-IBZ6cSnH8Z5_HRmc",
+        "in": "typescript",
+        "recovered": true
+      },
+      {
+        "from": "javascript:ZLs0NKM0lrnOy5ATDhlk0",
+        "to": "typescript:Sa6IZtM4XJstultz-pbh0",
+        "in": "typescript",
+        "recovered": true
+      },
+      {
+        "from": "javascript:b1HvkoWA2t4kt8mS6FySm",
+        "to": "rust:bjwJCGMx5ZfrH7vz3eLS7",
+        "in": "rust",
+        "recovered": true
+      },
+      {
+        "from": "javascript:1RcwBHU3jzx0YxxUGZic4",
+        "to": "rust:Hu1jf46OpX44nam_UvYqc",
+        "in": "rust",
+        "recovered": true
+      },
+      {
+        "from": "typescript:jq-GD0DLyzrEXQKUmt5kv",
+        "to": "rust:81_J7CwtUUjYPvKV_prg3",
+        "in": "rust",
+        "recovered": true
+      },
+      {
+        "from": "typescript:YbDuIo1BbZKEAZwmXlCdZ",
+        "to": "rust:2DbdHCjFzGHwCUETakaGh",
+        "in": "rust",
+        "recovered": true
+      },
+      {
+        "from": "javascript:YJGhhFuWmFvhRKOg6nwON",
+        "to": "python:94KnPMQdNTOwQkUv37tAk",
+        "in": "python",
+        "recovered": true
+      },
+      {
+        "from": "javascript:F_Lrj0F7UXriqJ0mhwxCy",
+        "to": "python:AqwzR8dZKLQIoj_6KKZ3t",
+        "in": "python",
+        "recovered": true
+      },
+      {
+        "from": "javascript:NZedBxG9B9TRVOf2QE2yL",
+        "to": "shell-bash:4WFWrrcvLgU8Fz8RjQ4lf",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "css:UKUulhLMTcmwi-jDDoGTp",
+        "to": "shell-bash:sYzelzBxQUcz5bK1HVWam",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "python:NP1kjSk0ujU0Gx-ajNHlR",
+        "to": "shell-bash:tEaYnBeI5tO8NT-a1PG3B",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "vue:dxwKfBxd5KYVkfEPMdHp-",
+        "to": "shell-bash:fR3sok0EJTGHELbPO6MAW",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "python:-DJgS6l2qngfwurExlmmT",
+        "to": "shell-bash:peZDR615PgGw7TQalyG_2",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "nextjs:tcDL4OEbZplbjNa8VTLpv",
+        "to": "shell-bash:lzzQWCFqpOnN2J_3Jck_3",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "kubernetes:r3fzAN5DzratAKnnT8hzb",
+        "to": "shell-bash:Sn7RlXc5dgD1gqDGikco-",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "linux:-pW7R76yNIeGf7TQoX4QL",
+        "to": "shell-bash:Bj0lEgFXJtG_7y6YssOcj",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "python:Dvy7BnNzK55qbh_SgOk8m",
+        "to": "shell-bash:1rIFm5ROQ8b1rsWeD9h4x",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "javascript:c38b6t5f17Zg2O2yg3eFP",
+        "to": "shell-bash:ryZ2MI4blZCwfuNC_TeUe",
+        "in": "shell-bash",
+        "recovered": true
+      },
+      {
+        "from": "react:Nex2HcTOYIbfqUzXyxSMY",
+        "to": "vue:X0J3ogH3W8EQe68tLfcGL",
+        "in": "vue",
+        "recovered": true
+      },
+      {
+        "from": "react:aE6XBgH23135_9QmD4ff2",
+        "to": "vue:tU4Umtnfu01t9gLlnlK6b",
+        "in": "vue",
+        "recovered": true
+      },
+      {
+        "from": "vue:raEfI4GLMW2fOucka07VE",
+        "to": "react-native:0gH7vI_Hy7s9hO2TF6hR3",
+        "in": "react-native",
+        "recovered": true
+      },
+      {
+        "from": "html:YHoag7UR40OeIVUjfhQg_",
+        "to": "react-native:KoXTwQUqPt_ZhOFuaelny",
+        "in": "react-native",
+        "recovered": true
+      },
+      {
+        "from": "python:l7k0qTYe42wYBTlT2-1cy",
+        "to": "nodejs:EEnmOcDKPZzY_O1NwP_5j",
+        "in": "nodejs",
+        "recovered": true
+      },
+      {
+        "from": "python:dEFLBGpiH6nbSMeR7ecaT",
+        "to": "graphql:YZaFEK547FYricfOuANvH",
+        "in": "graphql",
+        "recovered": true
+      },
+      {
+        "from": "rust:FswpjWqqt8-BzUTsDDjel",
+        "to": "graphql:wfOsfb0zSAIdNkwFHfBcw",
+        "in": "graphql",
+        "recovered": true
+      },
+      {
+        "from": "css:XuySIveFuvA_FvqDnNPRL",
+        "to": "graphql:sJ1_c3e08aehiqNMbIEEP",
+        "in": "graphql",
+        "recovered": true
+      },
+      {
+        "from": "javascript:1RcwBHU3jzx0YxxUGZic4",
+        "to": "mongodb:eU4XCnrf27FO3KCda8QYw",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "typescript:YbDuIo1BbZKEAZwmXlCdZ",
+        "to": "mongodb:q6ZKxFcSAQ8bgUdGaDpuu",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "javascript:xe8HZ8Mt1fK8yJMcDPYHJ",
+        "to": "mongodb:QcdZKNcCtKls6P4YNXR2W",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "javascript:ZLs0NKM0lrnOy5ATDhlk0",
+        "to": "mongodb:kx_GOr51UMpdUAnS5u9qZ",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "javascript:b1HvkoWA2t4kt8mS6FySm",
+        "to": "mongodb:hmo7zCZ1jKgobS5R0eBSD",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "sql:Ivqo2wa-_NhGU3vGd0pUI",
+        "to": "mongodb:T6cq--pute6-8aG7z6QKN",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "javascript:CxyNyFMuTLS3owtRMgClD",
+        "to": "mongodb:g6AKQiFcY_8lsWRbkbZSC",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "javascript:R6ICrk6vjoBxx5nRGo4Jg",
+        "to": "mongodb:XAS4jQlsHkttLDuSSsD2o",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "sql:7hEqkoxkdAWmakGZsMJx-",
+        "to": "mongodb:zbFH2NRHZEOv5eKLL_HR0",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "sql:Ps9Yv2s-bKvEegGAbPsiA",
+        "to": "mongodb:4L9UQ4oaaK3wZwOLIMa6T",
+        "in": "mongodb",
+        "recovered": true
+      },
+      {
+        "from": "nextjs:iv6rWEqjh07d0n2kAQedO",
+        "to": "linux:zwXEmpPYjA7_msS43z7I0",
+        "in": "linux",
+        "recovered": true
+      },
+      {
+        "from": "python:dEFLBGpiH6nbSMeR7ecaT",
+        "to": "linux:JyxvZOb7iusOSUYSlniGl",
+        "in": "linux",
+        "recovered": true
+      },
+      {
+        "from": "python:Dvy7BnNzK55qbh_SgOk8m",
+        "to": "linux:WJT-yrMq8cEI87RHWA2jY",
+        "in": "linux",
+        "recovered": true
+      },
+      {
+        "from": "python:NP1kjSk0ujU0Gx-ajNHlR",
+        "to": "linux:rQxfp7UWqN72iqewZhOdc",
+        "in": "linux",
+        "recovered": true
+      },
+      {
+        "from": "vue:dxwKfBxd5KYVkfEPMdHp-",
+        "to": "linux:rOGnHbGIr3xPCFdpkqoeK",
+        "in": "linux",
+        "recovered": true
+      },
+      {
+        "from": "javascript:ghjNJW67Wj5L5QK46xwL-",
+        "to": "computer-science:hTPLcuOW7eEE5oYhNfmOG",
+        "in": "computer-science",
+        "recovered": true
+      }
+    ],
+    "missing": []
+  },
+  "resourceOverrides": {
+    "applied": {
+      "skills": 0,
+      "sections": 0,
+      "disciplines": 11
+    },
+    "missing": []
+  }
 }

@@ -1,105 +1,68 @@
-import { PROJECTS_BY_DISCIPLINE, type Discipline, type Section } from "~/data";
-import type {
-  AppliedMap,
-  ProgressMap,
-  ProjectsDoneMap,
-  Status,
-} from "./storage";
+import type { Discipline, Section } from "~/data";
+import type { AppliedMap, ProgressMap, Status } from "./storage";
 
 export interface Stats {
   total: number;
   done: number;
   learning: number;
   skipped: number;
-  pct: number;
-}
-
-export interface ProjectStats {
-  total: number;
-  done: number;
+  applied: number;
   pct: number;
 }
 
 function empty(): Stats {
-  return { total: 0, done: 0, learning: 0, skipped: 0, pct: 0 };
+  return { total: 0, done: 0, learning: 0, skipped: 0, applied: 0, pct: 0 };
 }
 
-/**
- * Count applied items for a discipline. By design (user choice: "Both"),
- * completing a roadmap.sh project counts toward the Applied metric for
- * each discipline that project lists in its `roadmapIds`, in addition to
- * any per-skill applied flags.
- */
-export function appliedCount(
-  discipline: Discipline,
-  applied: AppliedMap,
-  projectsDone: ProjectsDoneMap,
-): number {
-  let count = 0;
-  for (const sec of discipline.sections) {
-    for (const item of sec.items) {
-      if (applied[item.id]) count++;
-    }
-  }
-  const projects = PROJECTS_BY_DISCIPLINE[discipline.id] ?? [];
-  for (const p of projects) {
-    if (projectsDone[p.id]) count++;
-  }
-  return count;
+function tally(
+  s: Stats,
+  id: string,
+  progress: ProgressMap,
+  applied?: AppliedMap,
+): void {
+  s.total++;
+  const st = progress[id];
+  if (st === "done") s.done++;
+  else if (st === "learning") s.learning++;
+  else if (st === "skipped") s.skipped++;
+  if (applied?.[id]) s.applied++;
 }
 
-export function projectStats(
-  discipline: Discipline,
-  projectsDone: ProjectsDoneMap,
-): ProjectStats {
-  const list = PROJECTS_BY_DISCIPLINE[discipline.id] ?? [];
-  const total = list.length;
-  let done = 0;
-  for (const p of list) if (projectsDone[p.id]) done++;
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  return { total, done, pct };
+function finalize(s: Stats): Stats {
+  const denom = s.total - s.skipped;
+  s.pct = denom > 0 ? Math.round((s.done / denom) * 100) : 0;
+  return s;
 }
 
 export function statusOf(progress: ProgressMap, id: string): Status {
   return progress[id] ?? "untouched";
 }
 
-export function sectionStats(section: Section, progress: ProgressMap): Stats {
+export function sectionStats(
+  section: Section,
+  progress: ProgressMap,
+  applied?: AppliedMap,
+): Stats {
   const s = empty();
-  for (const item of section.items) {
-    s.total++;
-    const st = progress[item.id];
-    if (st === "done") s.done++;
-    else if (st === "learning") s.learning++;
-    else if (st === "skipped") s.skipped++;
-  }
-  const denom = s.total - s.skipped;
-  s.pct = denom > 0 ? Math.round((s.done / denom) * 100) : 0;
-  return s;
+  for (const item of section.items) tally(s, item.id, progress, applied);
+  return finalize(s);
 }
 
 export function disciplineStats(
   discipline: Discipline,
   progress: ProgressMap,
+  applied?: AppliedMap,
 ): Stats {
   const s = empty();
-  for (const sec of discipline.sections) {
-    for (const item of sec.items) {
-      s.total++;
-      const st = progress[item.id];
-      if (st === "done") s.done++;
-      else if (st === "learning") s.learning++;
-      else if (st === "skipped") s.skipped++;
-    }
-  }
-  const denom = s.total - s.skipped;
-  s.pct = denom > 0 ? Math.round((s.done / denom) * 100) : 0;
-  return s;
+  for (const sec of discipline.sections)
+    for (const item of sec.items) tally(s, item.id, progress, applied);
+  return finalize(s);
 }
 
 export function globalStats(
   disciplines: Discipline[],
   progress: ProgressMap,
+  applied?: AppliedMap,
 ): Stats {
   const seen = new Set<string>();
   const s = empty();
@@ -108,15 +71,9 @@ export function globalStats(
       for (const item of sec.items) {
         if (seen.has(item.id)) continue; // dedupe across disciplines
         seen.add(item.id);
-        s.total++;
-        const st = progress[item.id];
-        if (st === "done") s.done++;
-        else if (st === "learning") s.learning++;
-        else if (st === "skipped") s.skipped++;
+        tally(s, item.id, progress, applied);
       }
     }
   }
-  const denom = s.total - s.skipped;
-  s.pct = denom > 0 ? Math.round((s.done / denom) * 100) : 0;
-  return s;
+  return finalize(s);
 }

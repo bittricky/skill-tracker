@@ -187,15 +187,29 @@ export async function pullFromGist(): Promise<ImportSummary> {
   if (!res.ok) throw errorFromResponse(res, "Gist fetch failed");
 
   const json = (await res.json()) as {
-    files: Record<string, { content?: string } | undefined>;
+    files: Record<
+      string,
+      { content?: string; truncated?: boolean; raw_url?: string } | undefined
+    >;
   };
   const file = json.files?.[GIST_FILENAME];
-  if (!file || !file.content)
-    throw new Error(`Gist is missing the "${GIST_FILENAME}" file.`);
+  if (!file) throw new Error(`Gist is missing the "${GIST_FILENAME}" file.`);
+
+  // The gists API truncates file bodies over ~1 MB; fall back to raw_url.
+  let content = file.content ?? "";
+  if (file.truncated || !content) {
+    if (!file.raw_url)
+      throw new Error("Gist file is truncated and has no raw_url.");
+    const rawRes = await fetch(file.raw_url, {
+      headers: { Authorization: `Bearer ${cfg.token}` },
+    });
+    if (!rawRes.ok) throw errorFromResponse(rawRes, "Gist raw fetch failed");
+    content = await rawRes.text();
+  }
 
   let parsed: ExportedConfig;
   try {
-    parsed = JSON.parse(file.content) as ExportedConfig;
+    parsed = JSON.parse(content) as ExportedConfig;
   } catch (e) {
     throw new Error(`Gist contents aren't valid JSON: ${(e as Error).message}`);
   }

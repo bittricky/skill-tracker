@@ -61,18 +61,31 @@ function slugify(label, fallback) {
 
 export function transformUpstreamRoadmap(raw, entry) {
   const nodes = Array.isArray(raw?.nodes) ? raw.nodes : [];
+  const edges = Array.isArray(raw?.edges) ? raw.edges : [];
 
   const topics = [];
   const subtopics = [];
 
   for (const n of nodes) {
     const t = n.type;
+    // Link buttons / external jump nodes are navigation, not skills.
+    if (n?.data?.href) continue;
     if (TOPIC_TYPES.has(t)) topics.push(n);
     else if (SUBTOPIC_TYPES.has(t)) subtopics.push(n);
     else if (!IGNORED_TYPES.has(t)) {
       // Unknown type — treat as subtopic only if it has a label we can render.
       if (n?.data?.label) subtopics.push(n);
     }
+  }
+
+  // Explicit topic<->subtopic edges beat the spatial heuristic when present.
+  const topicIds = new Set(topics.map((t) => t.id));
+  const topicForSub = new Map();
+  for (const e of edges) {
+    if (topicIds.has(e.source) && !topicIds.has(e.target))
+      topicForSub.set(e.target, e.source);
+    else if (topicIds.has(e.target) && !topicIds.has(e.source))
+      topicForSub.set(e.source, e.target);
   }
 
   if (topics.length === 0) {
@@ -115,19 +128,25 @@ export function transformUpstreamRoadmap(raw, entry) {
     };
   });
 
-  // Assign each subtopic to its nearest topic by center distance.
+  // Assign each subtopic: explicit edge first, else nearest topic by center.
+  const sectionByTopicId = new Map(sections.map((s, i) => [s._topicId, i]));
   for (const sub of subtopics) {
-    const c = nodeCenter(sub);
-    let best = 0;
-    let bestD = Infinity;
-    for (let i = 0; i < sections.length; i++) {
-      const d = dist2(c, sections[i]._center);
-      if (d < bestD) {
-        bestD = d;
-        best = i;
+    let best = sectionByTopicId.get(topicForSub.get(sub.id));
+    if (best === undefined) {
+      const c = nodeCenter(sub);
+      let bestD = Infinity;
+      best = 0;
+      for (let i = 0; i < sections.length; i++) {
+        const d = dist2(c, sections[i]._center);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
       }
     }
-    sections[best].items.push(itemFromNode(entry.id, sub, sections[best].items.length));
+    sections[best].items.push(
+      itemFromNode(entry.id, sub, sections[best].items.length),
+    );
   }
 
   for (const s of sections) {

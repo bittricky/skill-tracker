@@ -1,14 +1,8 @@
-type Tier = "exploring" | "practicing" | "fluent";
+import { TIER_META, type DepthTier } from "~/lib/depth";
 
 interface TierTagProps {
-  tier: Tier;
+  tier: DepthTier;
 }
-
-const TIER_META: Record<Tier, { label: string; color: string }> = {
-  exploring: { label: "Exploring", color: "var(--color-accent-coral)" },
-  practicing: { label: "Practicing", color: "var(--color-accent-mustard)" },
-  fluent: { label: "Fluent", color: "var(--color-accent-teal)" },
-};
 
 export function TierTag({ tier }: TierTagProps) {
   const meta = TIER_META[tier];

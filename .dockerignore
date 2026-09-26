@@ -1,4 +1,10 @@
-.react-router
-build
 node_modules
+build
+.react-router
+.cache
+.git
+.github
 README.md
+AGENTS.md
+*.log
+.DS_Store

@@ -3,17 +3,22 @@
   "author": "Mitul Patel",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "sync:disciplines": "node scripts/sync-disciplines.mjs",
-    "sync:projects": "node scripts/sync-projects.mjs",
+    "data:check": "node scripts/validate-data.mjs",
+    "data:audit": "node scripts/audit-data.mjs",
     "docker:dev": "docker compose up dev",
     "docker:build": "docker build -t skill-tracker .",
-    "docker:run": "docker run -p 3000:3000 skill-tracker",
-    "docker:up": "docker compose up -d",
+    "docker:run": "docker run --rm -p 3000:3000 skill-tracker",
+    "docker:up": "docker compose up -d prod",
     "docker:down": "docker compose down"
   },
   "dependencies": {

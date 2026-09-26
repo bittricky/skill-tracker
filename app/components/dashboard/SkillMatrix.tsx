@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router";
 import {
   Radar,
   RadarChart,
@@ -7,128 +8,52 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
-import { DISCIPLINES, type DisciplineKind } from "~/data";
+import {
+  DISCIPLINES,
+  KIND_META,
+  KIND_ORDER,
+  type DisciplineKind,
+} from "~/data";
+import { iconForDiscipline } from "~/data/icons";
+import { calculateDepth, TIER_META } from "~/lib/depth";
 import { disciplineStats } from "~/lib/progress";
-import type { ProgressMap } from "~/lib/storage";
+import type { AppliedMap, ProgressMap } from "~/lib/storage";
 import { Panel, PanelHeader } from "~/components/ui/Panel";
 import { Pixel } from "~/components/ui/Pixel";
 import { Mono } from "~/components/ui/Mono";
-import { Icon, type IconName } from "~/components/ui/Icon";
+import { Icon } from "~/components/ui/Icon";
 import { ProgressBar } from "~/components/ui/ProgressBar";
-import { TierTag } from "~/components/ui/TierTag";
 
 interface SkillMatrixProps {
   progress: ProgressMap;
+  applied: AppliedMap;
 }
 
-type Filter = DisciplineKind;
+export function SkillMatrix({ progress, applied }: SkillMatrixProps) {
+  const [filter, setFilter] = useState<DisciplineKind>("role");
 
-const FILTERS: { value: Filter; label: string }[] = [
-  { value: "role", label: "Roles" },
-  { value: "foundation", label: "Foundations" },
-  { value: "language", label: "Languages" },
-  { value: "framework", label: "Frameworks" },
-  { value: "tech", label: "Tech" },
-];
-
-const SPRITES: Record<string, IconName> = {
-  // Roles — unique icons
-  frontend: "Briefcase",
-  backend: "Server",
-  fullstack: "Globe",
-  shopify: "Sparkle",
-  devops: "SettingsCog",
-  "ai-engineer": "UserPlus",
-  "ai-agents": "Sparkle",
-  "api-design": "Link",
-  "game-developer": "Trophy",
-  "cyber-security": "SettingsCog",
-  blockchain: "Box",
-  "network-engineer": "Server",
-
-  // Languages — braces { }
-  javascript: "Braces",
-  typescript: "Braces",
-  rust: "Braces",
-  sql: "Braces",
-  python: "Braces",
-  golang: "Braces",
-  kotlin: "Braces",
-  ruby: "Braces",
-  scala: "Braces",
-  cpp: "Braces",
-  "shell-bash": "Terminal",
-  zsh: "Terminal",
-
-  // Frameworks — blocks (composable building units)
-  react: "Box",
-  nextjs: "Box",
-  vue: "Box",
-  svelte: "Box",
-  nuxt: "Box",
-  "react-native": "Box",
-  nestjs: "Box",
-  "swift-ui": "Box",
-  flutter: "Box",
-  django: "Box",
-  flask: "Box",
-  nodejs: "Server",
-
-  // Tech — server (infrastructure / runtime services)
-  postgresql: "Server",
-  redis: "Server",
-  docker: "Server",
-  mongodb: "Server",
-  kubernetes: "SettingsCog",
-  graphql: "Database",
-  linux: "Terminal",
-  elasticsearch: "Database",
-  git: "GitBranch",
-
-  // Foundations — book-open (foundational knowledge / textbook learning)
-  html: "BookOpen",
-  css: "BookOpen",
-  "computer-science": "BookOpen",
-  "datastructures-and-algorithms": "BookOpen",
-  "software-design-architecture": "BookOpen",
-  "system-design": "BookOpen",
-};
-
-const TIER_META = {
-  exploring: { label: "Exploring", color: "var(--color-accent-coral)" },
-  practicing: { label: "Practicing", color: "var(--color-accent-mustard)" },
-  fluent: { label: "Fluent", color: "var(--color-accent-teal)" },
-};
-
-function getTier(pct: number): "exploring" | "practicing" | "fluent" {
-  if (pct > 70) return "fluent";
-  if (pct > 30) return "practicing";
-  return "exploring";
-}
-
-export function SkillMatrix({ progress }: SkillMatrixProps) {
-  const [filter, setFilter] = useState<Filter>("role");
-  const [selected, setSelected] = useState<string | null>(null);
-
-  const items = useMemo(
-    () => DISCIPLINES.filter((d) => d.kind === filter),
-    [filter],
+  const rows = useMemo(
+    () =>
+      DISCIPLINES.filter((d) => d.kind === filter).map((d) => ({
+        d,
+        stats: disciplineStats(d, progress, applied),
+        depth: calculateDepth(d, progress, applied),
+      })),
+    [filter, progress, applied],
   );
 
   const data = useMemo(
     () =>
-      items.map((d) => {
-        const stats = disciplineStats(d, progress);
-        return {
-          skill: d.label,
-          value: stats.pct,
-          active:
-            stats.learning > 0
-              ? Math.round(((stats.done + stats.learning) / stats.total) * 100)
-              : 0,
-        };
-      }),
-    [items, progress],
+      rows.map(({ d, stats, depth }) => ({
+        skill: d.label,
+        done: depth.donePct,
+        applied: depth.appliedPct,
+        active:
+          stats.total > 0
+            ? Math.round(((stats.done + stats.learning) / stats.total) * 100)
+            : 0,
+      })),
+    [rows],
   );
 
   return (
@@ -140,19 +65,19 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
         glyph="CircuitBoard"
       >
         <div
-          className="flex gap-1 p-1 rounded-md"
+          className="flex gap-1 p-1 rounded-md flex-wrap justify-end"
           style={{
             background: "var(--color-surface-inset)",
             border: "1px solid var(--color-surface-bg-deep)",
           }}
         >
-          {FILTERS.map((f) => {
-            const isActive = filter === f.value;
+          {KIND_ORDER.map((k) => {
+            const isActive = filter === k;
             return (
               <button
-                key={f.value}
-                onClick={() => setFilter(f.value)}
-                className="font-display text-sm tracking-[0.04em] px-3 py-1.5 rounded cursor-pointer transition-all"
+                key={k}
+                onClick={() => setFilter(k)}
+                className="font-display text-sm tracking-[0.04em] px-2.5 py-1 rounded cursor-pointer transition-all"
                 style={{
                   background: isActive
                     ? "var(--color-surface-panel-hi)"
@@ -163,64 +88,48 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
                   fontWeight: isActive ? 700 : 400,
                 }}
               >
-                {f.label}
+                {KIND_META[k].plural}
               </button>
             );
           })}
         </div>
       </PanelHeader>
 
-      <div className="grid grid-cols-2 gap-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
         {/* Left — discipline list */}
-        <div className="border-r border-surface-divider p-3 max-h-[380px] overflow-y-auto">
-          {items.map((d) => {
-            const stats = disciplineStats(d, progress);
-            const pct = stats.pct;
-            const tier = getTier(pct);
-            const tierColor = TIER_META[tier].color;
-            const isSelected = selected === d.id;
-            const sprite = SPRITES[d.id] || "Home";
-
+        <div className="md:border-r border-b md:border-b-0 border-surface-divider p-3 max-h-95 overflow-y-auto">
+          {rows.map(({ d, stats, depth }) => {
+            const tierMeta = TIER_META[depth.tier];
             return (
-              <div
+              <Link
                 key={d.id}
-                onClick={() => setSelected(d.id)}
-                className="flex items-center gap-2.5 p-2 rounded cursor-pointer transition-all mb-0.5"
-                style={{
-                  background: isSelected ? `${tierColor}1a` : "transparent",
-                  border: `1px solid ${isSelected ? tierColor : "transparent"}`,
-                }}
-                onMouseEnter={(e) => {
-                  if (!isSelected)
-                    e.currentTarget.style.background =
-                      "var(--color-surface-panel-hi)";
-                }}
-                onMouseLeave={(e) => {
-                  if (!isSelected)
-                    e.currentTarget.style.background = "transparent";
-                }}
+                to={`/browser?discipline=${d.id}`}
+                className="flex items-center gap-2.5 p-2 rounded cursor-pointer transition-all mb-0.5 border border-transparent hover:bg-surface-panel-hi hover:border-surface-border"
               >
-                <Icon name={sprite as IconName} color={tierColor} size={24} />
+                <Icon
+                  name={iconForDiscipline(d.id, d.kind)}
+                  color={tierMeta.color}
+                  size={24}
+                />
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline mb-1">
-                    <Mono size={12} color="ink" weight={600}>
+                  <div className="flex justify-between items-baseline mb-1 gap-2">
+                    <Mono
+                      size={12}
+                      color="ink"
+                      weight={600}
+                      className="truncate"
+                    >
                       {d.label}
                     </Mono>
-                    <Mono
-                      size={11}
-                      color={
-                        tier === "exploring"
-                          ? "coral"
-                          : tier === "practicing"
-                            ? "mustard"
-                            : "teal"
-                      }
-                      weight={600}
-                    >
-                      {pct}%
+                    <Mono size={11} color={tierMeta.accent} weight={600}>
+                      {depth.donePct}%
                     </Mono>
                   </div>
-                  <ProgressBar pct={pct} color={tierColor} height={4} />
+                  <ProgressBar
+                    pct={depth.donePct}
+                    color={tierMeta.color}
+                    height={4}
+                  />
                   <div className="flex justify-between mt-1">
                     <Mono size={10} color="ink-muted">
                       {stats.done}
@@ -232,13 +141,16 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
                           ● {stats.learning}
                         </span>
                       )}
+                      <span className="text-accent-lavender ml-1.5">
+                        ✓ {depth.appliedPct}%
+                      </span>
                     </Mono>
                     <Pixel size={10} color="ink-dim">
-                      {TIER_META[tier].label}
+                      {tierMeta.label}
                     </Pixel>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -308,8 +220,15 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
                   fillOpacity={0.5}
                 />
                 <Radar
+                  name="Applied"
+                  dataKey="applied"
+                  stroke="var(--color-accent-lavender)"
+                  strokeWidth={1.5}
+                  fill="none"
+                />
+                <Radar
                   name="Done"
-                  dataKey="value"
+                  dataKey="done"
                   stroke="var(--color-accent-mustard)"
                   strokeWidth={2}
                   fill="url(#mustardFillV3)"
@@ -324,31 +243,35 @@ export function SkillMatrix({ progress }: SkillMatrixProps) {
               </RadarChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex justify-center gap-4 pt-2 border-t border-surface-divider">
+          <div className="flex justify-center gap-4 pt-2 border-t border-surface-divider flex-wrap">
+            <Legend color="var(--color-accent-mustard)" label="Done" />
+            <Legend color="var(--color-accent-lavender)" label="Applied" />
             <span className="flex items-center gap-1.5">
               <span
-                className="w-3 h-[3px] rounded-sm"
-                style={{ background: "var(--color-accent-mustard)" }}
-              />
-              <Pixel color="ink-soft" size={12}>
-                Done
-              </Pixel>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="w-3 h-[3px]"
+                className="w-3 h-0.75"
                 style={{
                   background:
                     "repeating-linear-gradient(to right, var(--color-accent-coral) 0, var(--color-accent-coral) 3px, transparent 3px, transparent 6px)",
                 }}
               />
               <Pixel color="ink-soft" size={12}>
-                + Active
+                Done + Active
               </Pixel>
             </span>
           </div>
         </div>
       </div>
     </Panel>
+  );
+}
+
+function Legend({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className="w-3 h-0.75 rounded-sm" style={{ background: color }} />
+      <Pixel color="ink-soft" size={12}>
+        {label}
+      </Pixel>
+    </span>
   );
 }

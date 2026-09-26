@@ -5,13 +5,18 @@ const V2_KEY = "skill-tracker:v2";
 export type Status = "untouched" | "learning" | "done" | "skipped";
 export type ProgressMap = Record<string, Exclude<Status, "untouched">>;
 export type AppliedMap = Record<string, boolean>;
-/** projectId -> marked-done flag. */
-export type ProjectsDoneMap = Record<string, boolean>;
 
 export interface StorageData {
   progress: ProgressMap;
   applied: AppliedMap;
-  projectsDone: ProjectsDoneMap;
+  /** Skill ids pinned to the dashboard "Active Tracks" panel (ordered). */
+  pinned: string[];
+}
+
+export const MAX_PINNED = 3;
+
+function emptyStorage(): StorageData {
+  return { progress: {}, applied: {}, pinned: [] };
 }
 
 function safeRead(key: string): unknown | null {
@@ -35,62 +40,33 @@ function safeWrite(key: string, value: unknown): void {
 }
 
 export function loadStorage(): StorageData {
-  if (typeof window === "undefined") {
-    return { progress: {}, applied: {}, projectsDone: {} };
-  }
+  if (typeof window === "undefined") return emptyStorage();
   const v2 = safeRead(V2_KEY);
   if (v2 && typeof v2 === "object") {
     const obj = v2 as Partial<StorageData>;
     return {
       progress: (obj.progress ?? {}) as ProgressMap,
       applied: (obj.applied ?? {}) as AppliedMap,
-      projectsDone: (obj.projectsDone ?? {}) as ProjectsDoneMap,
+      pinned: Array.isArray(obj.pinned)
+        ? obj.pinned.filter((x): x is string => typeof x === "string")
+        : [],
     };
   }
   // Migrate from v1 (progress only) once.
   const v1 = safeRead(V1_KEY);
   if (v1 && typeof v1 === "object") {
     const migrated: StorageData = {
+      ...emptyStorage(),
       progress: v1 as ProgressMap,
-      applied: {},
-      projectsDone: {},
     };
     safeWrite(V2_KEY, migrated);
     return migrated;
   }
-  return { progress: {}, applied: {}, projectsDone: {} };
+  return emptyStorage();
 }
 
 export function saveStorage(data: StorageData): void {
   safeWrite(V2_KEY, data);
-}
-
-// Back-compat helpers (still used by hooks/tests)
-export function loadProgress(): ProgressMap {
-  return loadStorage().progress;
-}
-
-export function saveProgress(data: ProgressMap): void {
-  const current = loadStorage();
-  saveStorage({ ...current, progress: data });
-}
-
-export function loadApplied(): AppliedMap {
-  return loadStorage().applied;
-}
-
-export function saveApplied(data: AppliedMap): void {
-  const current = loadStorage();
-  saveStorage({ ...current, applied: data });
-}
-
-export function loadProjectsDone(): ProjectsDoneMap {
-  return loadStorage().projectsDone;
-}
-
-export function saveProjectsDone(data: ProjectsDoneMap): void {
-  const current = loadStorage();
-  saveStorage({ ...current, projectsDone: data });
 }
 
 export const STATUS_CYCLE: Status[] = [

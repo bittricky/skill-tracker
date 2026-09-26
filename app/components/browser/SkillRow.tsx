@@ -2,27 +2,30 @@ import { useState } from "react";
 import type { Skill } from "~/data";
 import {
   DISCIPLINE_BY_ID,
+  SKILL_BY_ID,
   SKILL_LABEL_BY_ID,
   SKILL_HOME_DISCIPLINE_BY_ID,
 } from "~/data";
-import { STATUS, type Status } from "~/lib/storage";
+import { STATUS_CYCLE, type Status } from "~/lib/storage";
 import { ResourceLinks } from "~/components/browser/ResourceLinks";
 import { Tooltip } from "~/components/ui/Tooltip";
-import { Mono } from "~/components/ui/Mono";
 import { cn } from "~/lib/cn";
 
 interface SkillRowProps {
   skill: Skill;
   status: Status;
   isApplied: boolean;
-  onCycle: () => void;
+  isPinned: boolean;
+  onSetStatus: (forceTo?: Status) => void;
   onToggleApplied: () => void;
+  onTogglePinned: () => void;
   currentDisciplineId: string;
+  web?: boolean;
   onNavigate?: (disciplineId: string, skillId?: string) => void;
   onRevealSkill?: (skillId: string) => boolean;
 }
 
-const STATUS_META: Record<
+export const STATUS_META: Record<
   Status,
   { label: string; color: string; bg: string }
 > = {
@@ -54,16 +57,17 @@ export function SkillRow({
   skill,
   status,
   isApplied,
-  onCycle,
+  isPinned,
+  onSetStatus,
   onToggleApplied,
+  onTogglePinned,
   currentDisciplineId,
+  web = false,
   onNavigate,
   onRevealSkill,
 }: SkillRowProps) {
   const [expanded, setExpanded] = useState(false);
   const meta = STATUS_META[status];
-
-  const toggleExpanded = () => setExpanded(!expanded);
 
   const rowBg =
     status === "learning"
@@ -88,6 +92,11 @@ export function SkillRow({
     isReference && skill.homeDisciplineId !== currentDisciplineId
       ? DISCIPLINE_BY_ID[skill.homeDisciplineId]
       : null;
+  // Reference rows may carry a stale/empty copy; always read the home record.
+  const resources = SKILL_BY_ID[skill.id]?.resources ?? skill.resources ?? [];
+
+  const hasDetails =
+    resources.length > 0 || prereqs.length > 0 || Boolean(homeDiscipline);
 
   return (
     <div
@@ -95,28 +104,25 @@ export function SkillRow({
       className="border-b border-surface-divider/30 last:border-b-0 scroll-mt-28"
     >
       <div
-        onClick={toggleExpanded}
-        className={`flex items-start gap-3 px-3 py-2.5 cursor-pointer select-none transition-colors ${rowBg} group`}
+        onClick={() => setExpanded(!expanded)}
+        className={`flex items-start gap-2 sm:gap-3 px-3 py-2.5 cursor-pointer select-none transition-colors ${rowBg} group`}
       >
         {/* Status button */}
-        <div
+        <button
           onClick={(e) => {
             e.stopPropagation();
-            onCycle();
+            onSetStatus();
           }}
-          className="shrink-0 mt-0.5"
+          title="Cycle status"
+          className="shrink-0 mt-0.5 px-2 py-1 rounded text-[10px] font-display font-bold tracking-[0.06em] transition-colors min-w-14.5"
+          style={{
+            background: meta.bg,
+            color: meta.color,
+            border: `1px solid ${meta.color}40`,
+          }}
         >
-          <button
-            className="px-2 py-1 rounded text-[10px] font-display font-bold tracking-[0.06em] transition-colors"
-            style={{
-              background: meta.bg,
-              color: meta.color,
-              border: `1px solid ${meta.color}40`,
-            }}
-          >
-            {meta.label}
-          </button>
-        </div>
+          {meta.label}
+        </button>
 
         {/* Skill content */}
         <div className="flex-1 min-w-0">
@@ -124,10 +130,7 @@ export function SkillRow({
             <span className={`text-[13px] leading-snug ${labelCls}`}>
               {skill.label}
             </span>
-            {/* Expand indicator */}
-            {(skill.resources?.length > 0 ||
-              prereqs.length > 0 ||
-              homeDiscipline) && (
+            {hasDetails && (
               <svg
                 width="12"
                 height="12"
@@ -204,13 +207,31 @@ export function SkillRow({
         {skill.sources && skill.sources.length > 1 && (
           <Tooltip
             label={`Appears in ${skill.sources.length} disciplines`}
-            className="shrink-0 mt-0.5"
+            className="shrink-0 mt-0.5 hidden sm:block"
           >
             <span className="text-[9.5px] text-ink-dim bg-surface-inset rounded-md px-1.5 py-0.5 font-medium border border-surface-border/50">
               ×{skill.sources.length}
             </span>
           </Tooltip>
         )}
+
+        {/* Pin button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onTogglePinned();
+          }}
+          title={isPinned ? "Unpin from dashboard" : "Pin to dashboard"}
+          aria-pressed={isPinned}
+          className={cn(
+            "shrink-0 mt-0.5 w-7 h-7 rounded text-[12px] leading-none transition-colors border",
+            isPinned
+              ? "text-accent-mustard border-accent-mustard/60 bg-accent-mustard/10"
+              : "text-ink-dim border-transparent hover:border-surface-border hover:text-ink-muted",
+          )}
+        >
+          {isPinned ? "★" : "☆"}
+        </button>
 
         {/* Applied button */}
         <button
@@ -229,27 +250,28 @@ export function SkillRow({
             background: isApplied ? "rgba(92, 184, 168, 0.1)" : "transparent",
           }}
         >
-          {isApplied ? "✓ APPLIED" : "MARK APPLIED"}
+          <span className="sm:hidden">{isApplied ? "✓" : "APPLY"}</span>
+          <span className="hidden sm:inline">
+            {isApplied ? "✓ APPLIED" : "MARK APPLIED"}
+          </span>
         </button>
       </div>
 
       {/* Expanded content */}
       {expanded && (
-        <div className="px-3 pt-3 pb-4 pl-11 border-t border-surface-divider/30 bg-surface-inset/30">
+        <div className="px-3 pt-3 pb-4 sm:pl-11 border-t border-surface-divider/30 bg-surface-inset/30">
           {/* Status quick-change buttons */}
           <div className="flex gap-1.5 mb-3 flex-wrap">
-            {(Object.keys(STATUS) as Status[]).map((s) => {
-              const sc = STATUS[s];
+            {STATUS_CYCLE.map((s) => {
               const isActive = status === s;
-              const meta = STATUS_META[s];
+              const m = STATUS_META[s];
               return (
                 <button
                   key={s}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    // Force status change - would need to modify onCycle to accept status
-                    onCycle();
+                    onSetStatus(s);
                   }}
                   className={`px-3 py-1 rounded-md text-[11px] cursor-pointer transition-all font-medium border ${
                     isActive
@@ -257,22 +279,21 @@ export function SkillRow({
                       : "text-ink-muted border-surface-border/50 hover:border-surface-border hover:text-ink"
                   }`}
                   style={{
-                    background: isActive ? meta.color : "transparent",
-                    boxShadow: isActive ? `0 0 12px ${meta.color}40` : "none",
+                    background: isActive ? m.color : "transparent",
+                    boxShadow: isActive ? `0 0 12px ${m.color}40` : "none",
                   }}
                 >
-                  {meta.label}
+                  {m.label}
                 </button>
               );
             })}
           </div>
 
-          {/* Resources */}
           <ResourceLinks
             label={skill.label}
-            resources={skill.resources}
-            sources={skill.sources}
-            primary={skill.primary !== false}
+            resources={resources}
+            fromLabel={homeDiscipline?.label ?? null}
+            web={web}
           />
         </div>
       )}

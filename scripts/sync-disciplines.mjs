@@ -2,27 +2,25 @@
 /**
  * sync-disciplines.mjs
  *
- * Produces `app/data/disciplines.generated.json` from:
- *   1. The prior committed payload (`app/data/roadmaps.generated.json` — legacy
- *      name kept to preserve git history until the rename lands), carrying
- *      forward every included discipline except those listed in `removed[]`.
- *   2. Any `include[]` entry flagged `fetchFromUpstream: true`, fetched from
- *      `https://raw.githubusercontent.com/<repo>/<commit>/<upstreamPath>` and
- *      transformed from upstream React Flow node format into our `Section[]`.
+ * Produces `app/data/disciplines.generated.json`. Pipeline:
  *
- * Then applies:
- *   - Linking fixes: dedupe within-discipline, recompute `sources[]` from
- *     actual membership, normalize section ids, fix `homeDisciplineId`, drop
- *     orphan prereqs only after attempting remap.
- *   - Prereq remap: a skill id is `<disciplineId>:<upstreamNodeId>`; when a
- *     prereq references an id we no longer materialize, find any kept skill
- *     that shares the same `upstreamNodeId` suffix and rewrite the prereq to
- *     that canonical id.
- *   - New optional schema fields: `Section.order`, `Skill.upstreamNodeId`,
- *     `Skill.related`, `Discipline.prerequisiteDisciplineIds`, `Discipline.upstreamId`.
+ *   1. Load `disciplines.upstream.json` (pinned repo/commit + include list).
+ *   2. For each include entry:
+ *        - `fetchFromUpstream: true`  → fetch the React Flow JSON at
+ *          `upstreamPath` and transform (topic → section, subtopic → skill).
+ *        - `source: "custom"`         → load the hand-authored file at
+ *          `customPath` (sections of `{ nodeId, label? }`).
+ *        - otherwise                  → carry the discipline forward from the
+ *          previously generated payload.
+ *   3. Fetch per-node content markdown for every discipline (cached) and fill
+ *      empty `resources[]` / missing labels by `upstreamNodeId`.
+ *   4. Linking fixes (dedupe, bidirectional `sources[]`, section ids, home).
+ *   5. Hand overrides: `disciplines.overrides.json` (drop/unlink/move/rename/
+ *      merge) and `resources.overrides.json` (extra links).
+ *   6. Normalize resources (kinds, labels, dedupe) and remap orphan prereqs.
  *
  * Side outputs:
- *   - `app/data/remap.log.json`     — every rewritten / dropped prereq edge.
+ *   - `app/data/remap.log.json`     — prereq rewrites + override log.
  *   - `.cache/upstream/<commit>/…`  — cached raw upstream files.
  *
  * License: the upstream repository is CC BY-SA 4.0. See NOTICE.md.
@@ -36,14 +34,21 @@ import { fileURLToPath } from "node:url";
 import { transformUpstreamRoadmap } from "./transform/parseUpstreamRoadmap.mjs";
 import { applyLinkingFixes } from "./transform/applyLinkingFixes.mjs";
 import { remapPrereqs } from "./transform/remapPrereqs.mjs";
+import { fetchContentResources } from "./transform/fetchContentResources.mjs";
+import { normalizeResources } from "./transform/normalizeResources.mjs";
+import {
+  applyDisciplineOverrides,
+  applyResourceOverrides,
+} from "./transform/applyOverrides.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const DATA_DIR = join(ROOT, "app", "data");
 const CONFIG_PATH = join(DATA_DIR, "disciplines.upstream.json");
-const LEGACY_INPUT = join(DATA_DIR, "roadmaps.generated.json");
 const GENERATED_INPUT = join(DATA_DIR, "disciplines.generated.json");
 const OUTPUT_PATH = join(DATA_DIR, "disciplines.generated.json");
+const DISCIPLINE_OVERRIDES_PATH = join(DATA_DIR, "disciplines.overrides.json");
+const RESOURCE_OVERRIDES_PATH = join(DATA_DIR, "resources.overrides.json");
 const REMAP_LOG_PATH = join(DATA_DIR, "remap.log.json");
 const CACHE_DIR = join(ROOT, ".cache", "upstream");
 
@@ -57,6 +62,13 @@ const DEFAULT_COLORS = {
 
 async function readJSON(path) {
   return JSON.parse(await readFile(path, "utf8"));
+}
+
+async function readJSONIfExists(path, fallback) {
+  if (!existsSync(path)) return fallback;
+  const parsed = await readJSON(path);
+  delete parsed.$comment;
+  return parsed;
 }
 
 async function fetchCached(commit, upstreamPath, repo) {
@@ -77,8 +89,6 @@ async function fetchCached(commit, upstreamPath, repo) {
 }
 
 async function loadPriorPayload() {
-  // Prefer an already-generated payload if present (future re-syncs); fall
-  // back to the legacy `roadmaps.generated.json` for the initial migration.
   if (existsSync(GENERATED_INPUT)) {
     try {
       const st = await stat(GENERATED_INPUT);
@@ -87,21 +97,56 @@ async function loadPriorPayload() {
       /* fallthrough */
     }
   }
-  if (existsSync(LEGACY_INPUT)) {
-    const legacy = await readJSON(LEGACY_INPUT);
-    // Legacy shape: { generatedAt, roadmaps: [...] }
-    return { generatedAt: legacy.generatedAt, disciplines: legacy.roadmaps };
-  }
   return { generatedAt: null, disciplines: [] };
 }
 
+/** Hand-authored discipline file → our Discipline shape (labels filled later). */
+function disciplineFromCustom(custom, entry) {
+  const seen = new Set();
+  return {
+    id: entry.id,
+    label: entry.label ?? custom.label,
+    kind: entry.kind ?? custom.kind,
+    color: entry.color ?? custom.color,
+    description: custom.description,
+    upstreamId: custom.upstreamId ?? entry.id,
+    prerequisiteDisciplineIds: custom.prerequisiteDisciplineIds,
+    sections: (custom.sections ?? []).map((sec, sIdx) => ({
+      id: `${entry.id}:sec:${sec.id}`,
+      label: sec.label,
+      description: sec.description,
+      order: sIdx,
+      resources: sec.resources,
+      items: (sec.items ?? [])
+        .filter((it) => {
+          const key = it.nodeId ?? it.id;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .map((it, i) => ({
+          id: `${entry.id}:${it.nodeId ?? it.id}`,
+          label: it.label ?? null, // filled from content title
+          resources: it.resources ?? [],
+          sources: [entry.id],
+          prerequisites: it.prerequisites ?? [],
+          related: [],
+          primary: true,
+          homeDisciplineId: entry.id,
+          upstreamNodeId: it.nodeId,
+          order: i,
+        })),
+    })),
+  };
+}
+
 function upgradeDiscipline(rm, config) {
-  // Upgrade a legacy discipline object to the new shape (additive only).
   const sections = (rm.sections ?? []).map((sec, i) => ({
     id: sec.id,
     label: sec.label,
     description: sec.description,
     order: typeof sec.order === "number" ? sec.order : i,
+    resources: sec.resources,
     items: (sec.items ?? []).map((item) => {
       const upstreamNodeId =
         item.upstreamNodeId ??
@@ -122,6 +167,7 @@ function upgradeDiscipline(rm, config) {
         primary: item.primary !== false,
         homeDisciplineId,
         upstreamNodeId,
+        order: item.order,
       };
     }),
   }));
@@ -135,8 +181,31 @@ function upgradeDiscipline(rm, config) {
     prerequisiteDisciplineIds:
       config.prerequisiteDisciplineIds?.[rm.id] ?? rm.prerequisiteDisciplineIds,
     upstreamId: rm.upstreamId ?? rm.id,
+    resources: rm.resources,
     sections,
   };
+}
+
+/**
+ * Fill empty resources / missing labels from the content map. Only touches
+ * primary rows (references read from their home at runtime).
+ */
+function fillFromContent(discipline, content, stats) {
+  for (const sec of discipline.sections) {
+    for (const item of sec.items) {
+      if (!item.primary || !item.upstreamNodeId) continue;
+      const c = content.get(item.upstreamNodeId);
+      if (!c) {
+        if (!item.label) item.label = item.upstreamNodeId;
+        continue;
+      }
+      if (!item.label) item.label = c.title;
+      if (item.resources.length === 0 && c.resources.length > 0) {
+        item.resources = c.resources;
+        stats.filled++;
+      }
+    }
+  }
 }
 
 async function main() {
@@ -147,62 +216,134 @@ async function main() {
 
   const prior = await loadPriorPayload();
   const priorById = new Map(prior.disciplines.map((d) => [d.id, d]));
-
   const removedSet = new Set(removed);
   const wantedIds = new Set(include.map((x) => x.id));
 
   const disciplines = [];
-  const fetchedFromUpstream = [];
+  const fetched = [];
+  const custom = [];
 
   for (const entry of include) {
     if (removedSet.has(entry.id)) continue;
 
     if (entry.fetchFromUpstream) {
       const raw = await fetchCached(commit, entry.upstreamPath, repo);
-      const transformed = transformUpstreamRoadmap(raw, entry);
-      disciplines.push(upgradeDiscipline(transformed, config));
-      fetchedFromUpstream.push(entry.id);
+      disciplines.push(
+        upgradeDiscipline(transformUpstreamRoadmap(raw, entry), config),
+      );
+      fetched.push(entry.id);
+      continue;
+    }
+
+    if (entry.source === "custom") {
+      const file = await readJSON(join(ROOT, entry.customPath));
+      disciplines.push(
+        upgradeDiscipline(disciplineFromCustom(file, entry), config),
+      );
+      custom.push(entry.id);
       continue;
     }
 
     const prev = priorById.get(entry.id);
     if (!prev) {
       console.warn(
-        `  ! skipping ${entry.id}: not in prior payload and not fetched from upstream`,
+        `  ! skipping ${entry.id}: not in prior payload and no source`,
       );
       continue;
     }
-    // Carry forward, but honor config overrides for label/kind.
-    const merged = {
-      ...prev,
-      label: entry.label ?? prev.label,
-      kind: entry.kind ?? prev.kind,
-      color: entry.color ?? prev.color,
-    };
-    disciplines.push(upgradeDiscipline(merged, config));
+    disciplines.push(
+      upgradeDiscipline(
+        {
+          ...prev,
+          label: entry.label ?? prev.label,
+          kind: entry.kind ?? prev.kind,
+          color: entry.color ?? prev.color,
+        },
+        config,
+      ),
+    );
   }
 
-  // Warn about disciplines in prior but dropped from config (sanity check).
   for (const prev of prior.disciplines ?? []) {
     if (!wantedIds.has(prev.id) && !removedSet.has(prev.id)) {
       console.warn(`  ! dropping ${prev.id}: no longer in include[]`);
     }
   }
 
-  console.log(`  carried forward: ${disciplines.length - fetchedFromUpstream.length}`);
-  console.log(`  fetched from upstream: ${fetchedFromUpstream.join(", ") || "(none)"}`);
+  console.log(
+    `  carried forward: ${disciplines.length - fetched.length - custom.length}`,
+  );
+  console.log(`  fetched from upstream: ${fetched.join(", ") || "(none)"}`);
+  console.log(`  custom: ${custom.join(", ") || "(none)"}`);
   console.log(`  removed: ${[...removedSet].join(", ") || "(none)"}`);
+
+  // Per-node content (resources + titles) for every discipline that has an
+  // upstream content folder. 404s are tolerated (hand-authored stubs).
+  console.log(`→ loading upstream content markdown`);
+  const contentByDiscipline = new Map();
+  const fillStats = { filled: 0 };
+  for (const entry of include) {
+    if (removedSet.has(entry.id) || entry.noContent) continue;
+    const contentSlug = entry.contentSlug ?? entry.upstreamId ?? entry.id;
+    try {
+      const { byNodeId } = await fetchContentResources({
+        repo,
+        commit,
+        contentSlug,
+        cacheDir: CACHE_DIR,
+      });
+      if (byNodeId.size) contentByDiscipline.set(entry.id, byNodeId);
+    } catch (err) {
+      console.warn(
+        `  ! no content for ${entry.id} (${contentSlug}): ${err.message}`,
+      );
+    }
+  }
+  for (const d of disciplines) {
+    const content = contentByDiscipline.get(d.id);
+    if (content) fillFromContent(d, content, fillStats);
+    else
+      for (const s of d.sections)
+        for (const it of s.items)
+          it.label ??= it.upstreamNodeId ?? "(untitled)";
+  }
+  console.log(`  filled ${fillStats.filled} empty resource lists from content`);
 
   // Linking fixes: dedupe within-discipline, recompute sources, normalize
   // section ids, fix homeDisciplineId.
-  const fixed = applyLinkingFixes(disciplines);
+  let fixed = applyLinkingFixes(disciplines);
 
-  // Remap orphan prereqs (e.g. left behind by removing full-stack).
-  const { disciplines: remapped, log } = remapPrereqs(fixed, {
+  // Hand overrides.
+  const disciplineOverrides = await readJSONIfExists(
+    DISCIPLINE_OVERRIDES_PATH,
+    {},
+  );
+  const resourceOverrides = await readJSONIfExists(RESOURCE_OVERRIDES_PATH, {});
+  const ov = applyDisciplineOverrides(
+    fixed,
+    disciplineOverrides,
+    contentByDiscipline,
+  );
+  fixed = applyLinkingFixes(ov.disciplines); // sources[] changed by drop/unlink
+  const rv = applyResourceOverrides(fixed, resourceOverrides);
+  console.log(
+    `  overrides: ${ov.log.dropped.length} dropped, ${ov.log.unlinked.length} unlinked, ${ov.log.moved.length} moved, ${ov.log.renamed.length} renamed, ${ov.log.merged.length} merged, ${ov.log.missing.length} missing`,
+  );
+  console.log(
+    `  resource overrides: ${rv.log.applied.skills} skills, ${rv.log.applied.sections} sections, ${rv.log.applied.disciplines} disciplines, ${rv.log.missing.length} unmatched`,
+  );
+  for (const m of ov.log.missing)
+    console.warn(`  ! override target missing: ${JSON.stringify(m)}`);
+  for (const m of rv.log.missing)
+    console.warn(`  ! resource override target missing: ${m}`);
+
+  normalizeResources(rv.disciplines);
+
+  // Remap orphan prereqs.
+  const { disciplines: remapped, log } = remapPrereqs(rv.disciplines, {
     priorDisciplines: prior.disciplines ?? [],
     removedIds: removedSet,
   });
-
   console.log(
     `  prereq remap: ${log.rewritten.length} rewritten, ${log.dropped.length} dropped, ${log.kept} kept`,
   );
@@ -217,7 +358,11 @@ async function main() {
   await writeFile(OUTPUT_PATH, JSON.stringify(out, null, 2) + "\n", "utf8");
   await writeFile(
     REMAP_LOG_PATH,
-    JSON.stringify(log, null, 2) + "\n",
+    JSON.stringify(
+      { prereqs: log, overrides: ov.log, resourceOverrides: rv.log },
+      null,
+      2,
+    ) + "\n",
     "utf8",
   );
 

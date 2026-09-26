@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Route } from "./+types/dashboard";
 import { DISCIPLINES } from "~/data";
 import { useProgress } from "~/hooks/useProgress";
+import { globalStats } from "~/lib/progress";
 import { Loader } from "~/components/ui/Loader";
 import {
   HeaderBar,
@@ -21,30 +22,12 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Dashboard() {
-  const { progress, applied, projectsDone, loaded } = useProgress();
+  const { progress, applied, pinned, loaded, togglePinned } = useProgress();
 
-  const stats = useMemo(() => {
-    let done = 0;
-    let learning = 0;
-    let appliedCount = 0;
-    const seen = new Set<string>();
-    for (const d of DISCIPLINES) {
-      for (const sec of d.sections) {
-        for (const item of sec.items) {
-          if (seen.has(item.id)) continue;
-          seen.add(item.id);
-          const st = progress[item.id];
-          if (st === "done") done++;
-          else if (st === "learning") learning++;
-          if (applied[item.id]) appliedCount++;
-        }
-      }
-    }
-    const projects = Object.keys(projectsDone).filter(
-      (id) => projectsDone[id],
-    ).length;
-    return { done, learning, applied: appliedCount, projects };
-  }, [progress, applied, projectsDone]);
+  const stats = useMemo(
+    () => globalStats(DISCIPLINES, progress, applied),
+    [progress, applied],
+  );
 
   if (!loaded) {
     return (
@@ -58,19 +41,19 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen p-5">
-      <div className="max-w-[1280px] mx-auto">
+    <div className="min-h-screen p-3 sm:p-5">
+      <div className="max-w-7xl mx-auto">
         <HeaderBar />
 
         <div className="flex flex-col gap-3.5">
-          <ActiveTracks disciplines={DISCIPLINES} progress={progress} />
-          <StatRow
-            done={stats.done}
-            applied={stats.applied}
-            learning={stats.learning}
-            projects={stats.projects}
+          <ActiveTracks
+            pinned={pinned}
+            progress={progress}
+            applied={applied}
+            onUnpin={togglePinned}
           />
-          <SkillMatrix progress={progress} />
+          <StatRow stats={stats} />
+          <SkillMatrix progress={progress} applied={applied} />
         </div>
       </div>
     </div>

@@ -2,7 +2,6 @@
 
 /* ============================================================
    Cozy Game Menu Design Tokens
-   Per PLAN.md Section 2 — warm matte palette, rounded panels
    ============================================================ */
 
 @theme {
@@ -58,6 +57,45 @@
 }
 
 /* ============================================================
+   Light theme — warm paper surfaces, same five accents (toned down)
+   Toggled via <html data-theme="light"> (see lib/theme.ts)
+   ============================================================ */
+
+[data-theme="light"] {
+  --color-surface-bg: #f3efe6;
+  --color-surface-bg-deep: #e6e0d3;
+  --color-surface-panel: #fbf8f1;
+  --color-surface-panel-hi: #f1ece1;
+  --color-surface-panel-lo: #ece6d9;
+  --color-surface-inset: #ebe5d8;
+  --color-surface-divider: #ddd6c6;
+  --color-surface-border: #cdc4b0;
+
+  --color-ink: #2a2622;
+  --color-ink-soft: #4a453e;
+  --color-ink-muted: #75706a;
+  --color-ink-dim: #a29c93;
+
+  --color-accent-mustard: #b8801a;
+  --color-accent-mustard-soft: #a06f14;
+  --color-accent-coral: #c9553a;
+  --color-accent-coral-soft: #a8452e;
+  --color-accent-teal: #2f8f80;
+  --color-accent-teal-soft: #257366;
+  --color-accent-lavender: #6f5fb8;
+  --color-accent-rose: #b75a6d;
+
+  --shadow-inset:
+    inset 0 1px 2px rgba(0, 0, 0, 0.08), inset 0 -1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-raised:
+    0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 12px rgba(60, 50, 30, 0.12);
+  --shadow-button-press: inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+  --shadow-button-rest: 0 2px 0 rgba(0, 0, 0, 0.12);
+  --shadow-keycap: inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+  color-scheme: light;
+}
+
+/* ============================================================
    Global Styles
    ============================================================ */
 
@@ -71,6 +109,10 @@ body {
   color: var(--color-ink);
   color-scheme: dark;
   font-family: var(--font-body);
+}
+
+[data-theme="light"] body {
+  color-scheme: light;
 }
 
 /* Subtle warm vignette background */

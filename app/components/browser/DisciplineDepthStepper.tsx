@@ -5,14 +5,27 @@ import { Pixel } from "~/components/ui/Pixel";
 interface DisciplineDepthStepperProps {
   tier: DepthTier;
   donePct: number;
+  appliedPct: number;
 }
 
 const TIERS: DepthTier[] = ["exploring", "practicing", "fluent"];
 
+/** What it takes to reach the next tier (see `tierFor` in lib/depth). */
+const NEXT_THRESHOLD: Record<
+  DepthTier,
+  { done: number; applied: number } | null
+> = {
+  exploring: { done: 40, applied: 40 },
+  practicing: { done: 80, applied: 60 },
+  fluent: null,
+};
+
 export function DisciplineDepthStepper({
   tier,
   donePct,
+  appliedPct,
 }: DisciplineDepthStepperProps) {
+  const next = NEXT_THRESHOLD[tier];
   const activeIndex = TIERS.indexOf(tier);
 
   return (
@@ -64,19 +77,21 @@ export function DisciplineDepthStepper({
       </div>
 
       {/* Caption */}
-      <div className="mt-5">
+      <div className="mt-5 flex flex-col gap-1">
         <Pixel size={13} color="ink-muted">
           Currently{" "}
           <span style={{ color: "var(--color-ink)" }}>
             {getDepthLabel(tier)}
           </span>
-          {tier !== "fluent" && (
-            <>
-              {" · "}
-              <span className="tabular-nums">{donePct}%</span> complete
-            </>
-          )}
+          {" · "}
+          <span className="tabular-nums">{donePct}%</span> done ·{" "}
+          <span className="tabular-nums">{appliedPct}%</span> applied
         </Pixel>
+        {next && (
+          <Pixel size={11} color="ink-dim">
+            Next tier needs ≥{next.done}% done and ≥{next.applied}% applied
+          </Pixel>
+        )}
       </div>
     </div>
   );

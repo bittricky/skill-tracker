@@ -2,78 +2,52 @@ import { useCallback, useEffect, useState } from "react";
 import {
   loadStorage,
   saveStorage,
+  MAX_PINNED,
   STATUS_CYCLE,
-  type AppliedMap,
-  type ProgressMap,
-  type ProjectsDoneMap,
+  type StorageData,
   type Status,
 } from "~/lib/storage";
 
-export interface UseProgress {
-  progress: ProgressMap;
-  applied: AppliedMap;
-  projectsDone: ProjectsDoneMap;
+export interface UseProgress extends StorageData {
   loaded: boolean;
   setStatus: (id: string, forceTo?: Status) => void;
   setApplied: (id: string, value?: boolean) => void;
-  toggleProjectDone: (projectId: string, value?: boolean) => void;
+  togglePinned: (id: string) => void;
   reset: () => void;
 }
 
 export function useProgress(): UseProgress {
-  const [progress, setProgress] = useState<ProgressMap>({});
-  const [applied, setAppliedState] = useState<AppliedMap>({});
-  const [projectsDone, setProjectsDoneState] = useState<ProjectsDoneMap>({});
+  const [data, setData] = useState<StorageData>({
+    progress: {},
+    applied: {},
+    pinned: [],
+  });
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const data = loadStorage();
-    setProgress(data.progress);
-    setAppliedState(data.applied);
-    setProjectsDoneState(data.projectsDone);
+    setData(loadStorage());
     setLoaded(true);
   }, []);
 
-  const persist = useCallback(
-    (
-      p: ProgressMap | ((prev: ProgressMap) => ProgressMap) = (x) => x,
-      a: AppliedMap | ((prev: AppliedMap) => AppliedMap) = (x) => x,
-      pd: ProjectsDoneMap | ((prev: ProjectsDoneMap) => ProjectsDoneMap) = (
-        x,
-      ) => x,
-    ) => {
-      setProgress((curP) => {
-        const nextP = typeof p === "function" ? p(curP) : p;
-        setAppliedState((curA) => {
-          const nextA = typeof a === "function" ? a(curA) : a;
-          setProjectsDoneState((curPd) => {
-            const nextPd = typeof pd === "function" ? pd(curPd) : pd;
-            saveStorage({
-              progress: nextP,
-              applied: nextA,
-              projectsDone: nextPd,
-            });
-            return nextPd;
-          });
-          return nextA;
-        });
-        return nextP;
-      });
-    },
-    [],
-  );
+  const persist = useCallback((update: (prev: StorageData) => StorageData) => {
+    setData((prev) => {
+      const next = update(prev);
+      saveStorage(next);
+      return next;
+    });
+  }, []);
 
   const setStatus = useCallback(
     (id: string, forceTo?: Status) => {
       persist((prev) => {
-        const cur: Status = prev[id] ?? "untouched";
+        const cur: Status = prev.progress[id] ?? "untouched";
         const next: Status =
           forceTo ??
           STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur) + 1) % STATUS_CYCLE.length];
-        const updated: ProgressMap = { ...prev };
-        if (next === "untouched") delete updated[id];
-        else updated[id] = next;
-        return updated;
+        const progress = { ...prev.progress };
+        if (next === "untouched") delete progress[id];
+        else progress[id] = next;
+        return { ...prev, progress };
       });
     },
     [persist],
@@ -81,45 +55,31 @@ export function useProgress(): UseProgress {
 
   const setApplied = useCallback(
     (id: string, value?: boolean) => {
-      persist(undefined, (prev) => {
-        const next: AppliedMap = { ...prev };
-        const newVal = value ?? !prev[id];
-        if (newVal) next[id] = true;
-        else delete next[id];
-        return next;
+      persist((prev) => {
+        const applied = { ...prev.applied };
+        if (value ?? !prev.applied[id]) applied[id] = true;
+        else delete applied[id];
+        return { ...prev, applied };
       });
     },
     [persist],
   );
 
-  const toggleProjectDone = useCallback(
-    (projectId: string, value?: boolean) => {
-      persist(undefined, undefined, (prev) => {
-        const next: ProjectsDoneMap = { ...prev };
-        const newVal = value ?? !prev[projectId];
-        if (newVal) next[projectId] = true;
-        else delete next[projectId];
-        return next;
+  const togglePinned = useCallback(
+    (id: string) => {
+      persist((prev) => {
+        const pinned = prev.pinned.includes(id)
+          ? prev.pinned.filter((x) => x !== id)
+          : [...prev.pinned, id].slice(-MAX_PINNED);
+        return { ...prev, pinned };
       });
     },
     [persist],
   );
 
   const reset = useCallback(() => {
-    setProgress({});
-    setAppliedState({});
-    setProjectsDoneState({});
-    saveStorage({ progress: {}, applied: {}, projectsDone: {} });
-  }, []);
+    persist(() => ({ progress: {}, applied: {}, pinned: [] }));
+  }, [persist]);
 
-  return {
-    progress,
-    applied,
-    projectsDone,
-    loaded,
-    setStatus,
-    setApplied,
-    toggleProjectDone,
-    reset,
-  };
+  return { ...data, loaded, setStatus, setApplied, togglePinned, reset };
 }

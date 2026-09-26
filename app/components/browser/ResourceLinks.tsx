@@ -4,13 +4,10 @@ import type { Resource } from "~/data";
 interface ResourceLinksProps {
   label: string;
   resources: Resource[];
-  sources?: string[];
-  /**
-   * When false, this skill is only *referenced* here (not home). Hide the
-   * curated "Resources" block so role disciplines don't duplicate resource
-   * lists already shown in the skill's home discipline.
-   */
-  primary?: boolean;
+  /** Label of the discipline that owns these resources, when not the current one. */
+  fromLabel?: string | null;
+  /** Show MDN search (web disciplines only). */
+  web?: boolean;
 }
 
 const KIND_ICON = {
@@ -22,68 +19,91 @@ const KIND_ICON = {
   opensource: "opensource",
   website: "website",
   official: "official",
+  roadmap: "website",
 } as const;
+
+/** Rank so curated learning material (courses, books) floats to the top. */
+const KIND_RANK: Record<string, number> = {
+  course: 0,
+  book: 1,
+  official: 2,
+  video: 3,
+  article: 4,
+  opensource: 5,
+  website: 6,
+  roadmap: 7,
+};
+
+export function ResourceList({ resources }: { resources: Resource[] }) {
+  const sorted = [...resources].sort(
+    (a, b) => (KIND_RANK[a.kind] ?? 9) - (KIND_RANK[b.kind] ?? 9),
+  );
+  return (
+    <div className="space-y-0.5">
+      {sorted.map((r) => (
+        <a
+          key={r.url}
+          href={r.url}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-1.5 py-0.5 text-xs text-brand-primary hover:text-brand-secondary hover:underline"
+          title={r.kind}
+        >
+          <span className="w-4 text-center opacity-60">
+            <Icon
+              name={
+                ICONS[KIND_ICON[r.kind as keyof typeof KIND_ICON]] ??
+                ICONS.external
+              }
+              size={11}
+            />
+          </span>
+          <span className="truncate">{r.label}</span>
+          <span className="ml-auto text-[9px] uppercase tracking-wider text-ink-dim shrink-0">
+            {r.kind}
+          </span>
+        </a>
+      ))}
+    </div>
+  );
+}
 
 export function ResourceLinks({
   label,
   resources,
-  sources,
-  primary = true,
+  fromLabel,
+  web = false,
 }: ResourceLinksProps) {
-  const curated = primary ? resources.filter((r) => r.kind !== "feed") : [];
+  const q = encodeURIComponent(label);
   const searches = [
-    {
+    web && {
       n: "MDN",
-      u: `https://developer.mozilla.org/en-US/search?q=${encodeURIComponent(label)}`,
-    },
-    {
-      n: "Educative",
-      u: `https://www.educative.io/search?query=${encodeURIComponent(label)}`,
+      u: `https://developer.mozilla.org/en-US/search?q=${q}`,
     },
     {
       n: "YouTube",
       u: `https://www.youtube.com/results?search_query=${encodeURIComponent(label + " tutorial")}`,
     },
-    { n: "DevDocs", u: `https://devdocs.io/` },
+    { n: "Udemy", u: `https://www.udemy.com/courses/search/?q=${q}` },
     {
-      n: "Udemy",
-      u: `https://www.udemy.com/courses/search/?q=${encodeURIComponent(label)}`,
+      n: "roadmap.sh",
+      u: `https://roadmap.sh/search?q=${q}`,
     },
-    {
-      n: "freeCodeCamp",
-      u: `https://www.freecodecamp.org/`,
-    },
-  ];
+  ].filter((s): s is { n: string; u: string } => Boolean(s));
 
   return (
     <div className="pt-2">
-      {curated.length > 0 && (
+      {resources.length > 0 && (
         <>
-          <div className="text-[10px] font-semibold text-brand-dim tracking-wider uppercase mb-1.5">
-            Resources
+          <div className="flex items-baseline gap-2 mb-1.5">
+            <span className="text-[10px] font-semibold text-brand-dim tracking-wider uppercase">
+              Resources
+            </span>
+            {fromLabel && (
+              <span className="text-[10px] text-ink-dim">from {fromLabel}</span>
+            )}
           </div>
-          <div className="space-y-0.5">
-            {curated.map((r) => (
-              <a
-                key={r.url}
-                href={r.url}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1.5 py-0.5 text-xs text-brand-primary hover:text-brand-secondary hover:underline"
-              >
-                <span className="w-4 text-center opacity-60">
-                  <Icon
-                    name={
-                      ICONS[KIND_ICON[r.kind as keyof typeof KIND_ICON]] ??
-                      ICONS.external
-                    }
-                    size={11}
-                  />
-                </span>
-                <span className="truncate">{r.label}</span>
-              </a>
-            ))}
-          </div>
+          <ResourceList resources={resources} />
           <div className="h-px bg-brand-primary/10 my-2" />
         </>
       )}
@@ -104,13 +124,6 @@ export function ResourceLinks({
           </a>
         ))}
       </div>
-
-      {sources && sources.length > 1 && (
-        <div className="mt-3 text-[10px] text-brand-dim">
-          Appears in:{" "}
-          <span className="text-brand-muted">{sources.join(" · ")}</span>
-        </div>
-      )}
     </div>
   );
 }

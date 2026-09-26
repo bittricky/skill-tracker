@@ -183,31 +183,8 @@ export function Icon({
   );
 }
 
-// Common icon mappings for easier usage
+// Common icon mappings for easier usage (discipline glyphs live in ~/data/icons)
 export const ICONS = {
-  // Roles — unique icons
-  frontend: "Briefcase",
-  backend: "Server",
-  fullstack: "Globe",
-  shopify: "Sparkle",
-  devops: "SettingsCog",
-
-  // Languages — braces { }
-  javascript: "Braces",
-  typescript: "Braces",
-  rust: "Braces",
-  sql: "Braces",
-
-  // Frameworks — blocks (composable building units)
-  react: "Box",
-  remix: "Box",
-  "next-js": "Box",
-
-  // Tech — server (infrastructure / runtime services)
-  postgresql: "Server",
-  redis: "Server",
-  docker: "Server",
-
   // Resource icons
   article: "Article",
   video: "Video",

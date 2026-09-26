@@ -1,5 +1,4 @@
 import generated from "./disciplines.generated.json";
-import projectsGenerated from "./projects.generated.json";
 
 export type ResourceKind =
   | "article"
@@ -10,7 +9,7 @@ export type ResourceKind =
   | "opensource"
   | "website"
   | "official"
-  | "feed"
+  | "roadmap"
   | string;
 
 export interface Resource {
@@ -39,6 +38,8 @@ export interface Section {
   description?: string;
   order?: number;
   items: Skill[];
+  /** Curated section-level links (from `resources.overrides.json`). */
+  resources?: Resource[];
 }
 
 export type DisciplineKind =
@@ -59,9 +60,11 @@ export interface Discipline {
   /** Slug in the upstream developer-roadmap repo, when applicable. */
   upstreamId?: string;
   sections: Section[];
+  /** Curated discipline-level links (from `resources.overrides.json`). */
+  resources?: Resource[];
 }
 
-interface GeneratedPayload {
+export interface GeneratedPayload {
   generatedAt: string;
   upstreamCommit?: string;
   upstreamRepo?: string;
@@ -90,8 +93,9 @@ function loadCustomPayload(): GeneratedPayload | null {
   }
 }
 
+export const BUILT_IN_PAYLOAD = generated as unknown as GeneratedPayload;
 const customPayload = loadCustomPayload();
-const payload = customPayload ?? (generated as unknown as GeneratedPayload);
+const payload = customPayload ?? BUILT_IN_PAYLOAD;
 
 /** True when the loaded payload came from a user-imported catalogue. */
 export const IS_CUSTOM_CATALOGUE: boolean = customPayload !== null;
@@ -107,13 +111,38 @@ export const DISCIPLINE_BY_ID: Record<string, Discipline> = Object.fromEntries(
 
 export const KIND_META: Record<
   DisciplineKind,
-  { label: string; color: string }
+  { label: string; plural: string; color: string; description: string }
 > = {
-  role: { label: "Role", color: "#34d399" },
-  foundation: { label: "Foundation", color: "#f97316" },
-  language: { label: "Language", color: "#a78bfa" },
-  framework: { label: "Framework", color: "#38bdf8" },
-  tech: { label: "Tech", color: "#22d3ee" },
+  role: {
+    label: "Role",
+    plural: "Roles",
+    color: "#34d399",
+    description: "Job-shaped tracks that span many skills",
+  },
+  foundation: {
+    label: "Foundation",
+    plural: "Foundations",
+    color: "#f97316",
+    description: "Theory and fundamentals that transfer everywhere",
+  },
+  language: {
+    label: "Language",
+    plural: "Languages",
+    color: "#a78bfa",
+    description: "Programming and markup languages",
+  },
+  framework: {
+    label: "Framework",
+    plural: "Frameworks",
+    color: "#38bdf8",
+    description: "Libraries and frameworks built on a language",
+  },
+  tech: {
+    label: "Tech",
+    plural: "Tech",
+    color: "#22d3ee",
+    description: "Runtimes, databases, infrastructure and tooling",
+  },
 };
 
 export const KIND_ORDER: DisciplineKind[] = [
@@ -125,12 +154,17 @@ export const KIND_ORDER: DisciplineKind[] = [
 ];
 
 /**
- * Per-skill lookups (canonical id -> label, home discipline id). Built once at
- * module load so UI code can resolve prereqs and cross-discipline jumps without
- * walking every section.
+ * Per-skill lookups (canonical id -> label, home discipline id, primary
+ * record). Built once at module load so UI code can resolve prereqs and
+ * cross-discipline jumps without walking every section.
  */
 export const SKILL_LABEL_BY_ID: Record<string, string> = {};
 export const SKILL_HOME_DISCIPLINE_BY_ID: Record<string, string> = {};
+export const SKILL_BY_ID: Record<string, Skill> = {};
+export const SKILL_SECTION_BY_ID: Record<
+  string,
+  { disciplineId: string; sectionId: string }
+> = {};
 for (const d of DISCIPLINES) {
   for (const sec of d.sections) {
     for (const item of sec.items) {
@@ -138,48 +172,12 @@ for (const d of DISCIPLINES) {
       // `primary` rows are from the canonical home discipline; prefer that record.
       if (item.primary || !SKILL_HOME_DISCIPLINE_BY_ID[item.id]) {
         SKILL_HOME_DISCIPLINE_BY_ID[item.id] = item.homeDisciplineId;
+        SKILL_BY_ID[item.id] = item;
+        SKILL_SECTION_BY_ID[item.id] = {
+          disciplineId: d.id,
+          sectionId: sec.id,
+        };
       }
     }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Projects (roadmap.sh project catalogue, synced via `npm run sync:projects`).
-// ---------------------------------------------------------------------------
-
-export type ProjectDifficulty = "beginner" | "intermediate" | "advanced";
-
-export interface Project {
-  /** roadmap.sh project slug (stable identifier). */
-  id: string;
-  title: string;
-  description: string;
-  difficulty: ProjectDifficulty;
-  /** Free-form tag from upstream ("CLI", "Frontend Project", …) or null. */
-  nature: string | null;
-  /** Subset of our known discipline ids this project is listed under. */
-  roadmapIds: string[];
-  skills: string[];
-  /** Canonical URL on roadmap.sh. */
-  url: string;
-}
-
-interface ProjectsPayload {
-  generatedAt: string | null;
-  upstreamRepo?: string;
-  upstreamBranch?: string;
-  projects: Project[];
-}
-
-const projectsPayload = projectsGenerated as unknown as ProjectsPayload;
-
-export const PROJECTS: Project[] = projectsPayload.projects;
-export const PROJECTS_GENERATED_AT: string | null = projectsPayload.generatedAt;
-
-/** disciplineId -> projects that list it in `roadmapIds`. */
-export const PROJECTS_BY_DISCIPLINE: Record<string, Project[]> = {};
-for (const p of PROJECTS) {
-  for (const rid of p.roadmapIds) {
-    (PROJECTS_BY_DISCIPLINE[rid] ??= []).push(p);
   }
 }

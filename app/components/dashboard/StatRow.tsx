@@ -1,48 +1,46 @@
 import { Pixel } from "~/components/ui/Pixel";
+import type { Stats } from "~/lib/progress";
 
 interface StatRowProps {
-  done: number;
-  applied: number;
-  learning: number;
-  projects?: number;
+  stats: Stats;
 }
 
-export function StatRow({ done, applied, learning, projects }: StatRowProps) {
-  const showProjects = typeof projects === "number";
-  const stats = [
+export function StatRow({ stats }: StatRowProps) {
+  const remaining = Math.max(0, stats.total - stats.done - stats.skipped);
+  const cards = [
     {
       label: "Skills Done",
-      value: String(done),
-      sub: "0 this week",
+      value: String(stats.done),
+      sub: `${stats.pct}% of ${stats.total - stats.skipped} tracked`,
       color: "var(--color-accent-teal)",
       hero: false,
     },
     {
       label: "Active",
-      value: String(learning),
-      sub: `${applied} applied`,
+      value: String(stats.learning),
+      sub: "currently learning",
       color: "var(--color-accent-mustard)",
       hero: true,
     },
     {
       label: "Applied",
-      value: String(applied),
-      sub: `in ${projects ?? 0} projects`,
+      value: String(stats.applied),
+      sub: "used in practice",
       color: "var(--color-accent-lavender)",
       hero: false,
     },
     {
-      label: "Total Hours",
-      value: "0",
-      sub: "0 / week avg",
+      label: "Remaining",
+      value: String(remaining),
+      sub: `${stats.skipped} skipped`,
       color: "var(--color-accent-rose)",
       hero: false,
     },
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-2.5">
-      {stats.map((s) => (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+      {cards.map((s) => (
         <div
           key={s.label}
           className="rounded-xl overflow-hidden relative"
@@ -55,7 +53,7 @@ export function StatRow({ done, applied, learning, projects }: StatRowProps) {
         >
           {s.hero && (
             <div
-              className="absolute top-0 left-0 right-0 h-[3px]"
+              className="absolute top-0 left-0 right-0 h-0.75"
               style={{ background: s.color }}
             />
           )}

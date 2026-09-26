@@ -1,5 +1,6 @@
-import { PROJECTS_BY_DISCIPLINE, type Discipline } from "~/data";
-import type { AppliedMap, ProgressMap, ProjectsDoneMap } from "./storage";
+import type { Discipline } from "~/data";
+import type { AppliedMap, ProgressMap } from "./storage";
+import { disciplineStats } from "./progress";
 
 export type DepthTier = "exploring" | "practicing" | "fluent";
 
@@ -10,81 +11,58 @@ export interface DepthResult {
 }
 
 /**
- * Calculate depth tier based on completion and application percentages.
+ * Single source of truth for depth tiers.
  *
  * Thresholds:
- * - Exploring:   0–40% done
- * - Practicing:  40% done + 40% applied
- * - Fluent:      80% done + 60% applied
+ * - Exploring:   anything below Practicing
+ * - Practicing:  ≥40% done AND ≥40% applied
+ * - Fluent:      ≥80% done AND ≥60% applied
  */
+export function tierFor(donePct: number, appliedPct: number): DepthTier {
+  if (donePct >= 80 && appliedPct >= 60) return "fluent";
+  if (donePct >= 40 && appliedPct >= 40) return "practicing";
+  return "exploring";
+}
+
 export function calculateDepth(
   discipline: Discipline,
   progress: ProgressMap,
   applied: AppliedMap,
-  projectsDone: ProjectsDoneMap = {},
 ): DepthResult {
-  const items: string[] = [];
-  for (const sec of discipline.sections) {
-    for (const item of sec.items) {
-      items.push(item.id);
-    }
-  }
-
-  if (items.length === 0) {
-    return { tier: "exploring", donePct: 0, appliedPct: 0 };
-  }
-
-  let doneCount = 0;
-  let appliedCount = 0;
-
-  for (const id of items) {
-    if (progress[id] === "done") doneCount++;
-    if (applied[id]) appliedCount++;
-  }
-
-  // Completing a roadmap.sh project contributes to the applied metric for
-  // every discipline it's listed under.
-  const projects = PROJECTS_BY_DISCIPLINE[discipline.id] ?? [];
-  for (const p of projects) {
-    if (projectsDone[p.id]) appliedCount++;
-  }
-
-  // Cap applied at the effective ceiling (skills + projects) so the pct
-  // stays within 0..100 when projects push the count past total skills.
-  const appliedDenom = items.length + projects.length;
-  const donePct = Math.round((doneCount / items.length) * 100);
-  const appliedPct =
-    appliedDenom > 0 ? Math.round((appliedCount / appliedDenom) * 100) : 0;
-
-  if (donePct >= 80 && appliedPct >= 60) {
-    return { tier: "fluent", donePct, appliedPct };
-  }
-  if (donePct >= 40 && appliedPct >= 40) {
-    return { tier: "practicing", donePct, appliedPct };
-  }
-  return { tier: "exploring", donePct, appliedPct };
+  const s = disciplineStats(discipline, progress, applied);
+  if (s.total === 0) return { tier: "exploring", donePct: 0, appliedPct: 0 };
+  const donePct = s.pct;
+  const appliedPct = Math.round((s.applied / s.total) * 100);
+  return { tier: tierFor(donePct, appliedPct), donePct, appliedPct };
 }
 
+export const TIER_META: Record<
+  DepthTier,
+  { label: string; color: string; accent: "coral" | "mustard" | "teal" }
+> = {
+  exploring: {
+    label: "Exploring",
+    color: "var(--color-accent-coral)",
+    accent: "coral",
+  },
+  practicing: {
+    label: "Practicing",
+    color: "var(--color-accent-mustard)",
+    accent: "mustard",
+  },
+  fluent: {
+    label: "Fluent",
+    color: "var(--color-accent-teal)",
+    accent: "teal",
+  },
+};
+
 export function getDepthLabel(tier: DepthTier): string {
-  switch (tier) {
-    case "exploring":
-      return "Exploring";
-    case "practicing":
-      return "Practicing";
-    case "fluent":
-      return "Fluent";
-  }
+  return TIER_META[tier].label;
 }
 
 export function getDepthColor(tier: DepthTier): string {
-  switch (tier) {
-    case "exploring":
-      return "var(--color-accent-coral)";
-    case "practicing":
-      return "var(--color-accent-mustard)";
-    case "fluent":
-      return "var(--color-accent-teal)";
-  }
+  return TIER_META[tier].color;
 }
 
 export function getDepthBgColor(tier: DepthTier): string {

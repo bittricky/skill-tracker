@@ -1,24 +1,18 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useSearchParams } from "react-router";
 import type { Route } from "./+types/browser";
 import {
   DISCIPLINES,
   DISCIPLINE_BY_ID,
-  PROJECTS_BY_DISCIPLINE,
-  SKILL_LABEL_BY_ID,
-  SKILL_HOME_DISCIPLINE_BY_ID,
-  type Discipline,
-  type Skill,
+  KIND_META,
+  KIND_ORDER,
   type DisciplineKind,
 } from "~/data";
+import { iconForDiscipline, KIND_ICON } from "~/data/icons";
 import { useProgress } from "~/hooks/useProgress";
-import { calculateDepth, type DepthTier } from "~/lib/depth";
-import {
-  STATUS,
-  type Status,
-  type ProgressMap,
-  type AppliedMap,
-} from "~/lib/storage";
+import { calculateDepth, TIER_META } from "~/lib/depth";
+import { disciplineStats } from "~/lib/progress";
+import type { Status } from "~/lib/storage";
 import { Loader } from "~/components/ui/Loader";
 import { Panel, PanelHeader, PanelBody } from "~/components/ui/Panel";
 import { Pixel } from "~/components/ui/Pixel";
@@ -27,9 +21,9 @@ import { ProgressBar } from "~/components/ui/ProgressBar";
 import { SecondaryButton } from "~/components/ui/SecondaryButton";
 import { TierTag } from "~/components/ui/TierTag";
 import { DisciplineDepthStepper } from "~/components/browser/DisciplineDepthStepper";
-import { DisciplineProjects } from "~/components/browser/DisciplineProjects";
+import { LearningResources } from "~/components/browser/LearningResources";
 import { SectionBlock } from "~/components/browser/SectionBlock";
-import { Icon, ICONS, type IconName } from "~/components/ui/Icon";
+import { Icon } from "~/components/ui/Icon";
 import { HeaderBar } from "~/components/dashboard/HeaderBar";
 import { cn } from "~/lib/cn";
 
@@ -43,81 +37,6 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const SPRITES: Record<string, IconName> = {
-  // Roles — unique icons
-  frontend: "Briefcase",
-  backend: "Server",
-  fullstack: "Globe",
-  shopify: "Sparkle",
-  devops: "SettingsCog",
-  "ai-engineer": "UserPlus",
-  "ai-agents": "Sparkle",
-  "api-design": "Link",
-  "game-developer": "Trophy",
-  "cyber-security": "SettingsCog",
-  blockchain: "Box",
-  "network-engineer": "Server",
-
-  // Languages — braces { }
-  javascript: "Braces",
-  typescript: "Braces",
-  rust: "Braces",
-  sql: "Braces",
-  python: "Braces",
-  golang: "Braces",
-  kotlin: "Braces",
-  ruby: "Braces",
-  scala: "Braces",
-  cpp: "Braces",
-  "shell-bash": "Terminal",
-  zsh: "Terminal",
-
-  // Frameworks — blocks (composable building units)
-  react: "Box",
-  nextjs: "Box",
-  vue: "Box",
-  svelte: "Box",
-  nuxt: "Box",
-  "react-native": "Box",
-  nestjs: "Box",
-  "swift-ui": "Box",
-  flutter: "Box",
-  django: "Box",
-  flask: "Box",
-  nodejs: "Server",
-
-  // Tech — server (infrastructure / runtime services)
-  postgresql: "Server",
-  redis: "Server",
-  docker: "Server",
-  mongodb: "Server",
-  kubernetes: "SettingsCog",
-  graphql: "Database",
-  linux: "Terminal",
-  elasticsearch: "Database",
-  git: "GitBranch",
-
-  // Foundations — book-open (foundational knowledge / textbook learning)
-  html: "BookOpen",
-  css: "BookOpen",
-  "computer-science": "BookOpen",
-  "datastructures-and-algorithms": "BookOpen",
-  "software-design-architecture": "BookOpen",
-  "system-design": "BookOpen",
-};
-
-const KIND_FILTERS: {
-  value: DisciplineKind;
-  label: string;
-  glyph: IconName;
-}[] = [
-  { value: "role", label: "Roles", glyph: "User" },
-  { value: "foundation", label: "Foundations", glyph: "BookOpen" },
-  { value: "language", label: "Languages", glyph: "Braces" },
-  { value: "framework", label: "Frameworks", glyph: "Box" },
-  { value: "tech", label: "Tech", glyph: "SettingsCog" },
-];
-
 const FILTERS: [Status | "all", string][] = [
   ["all", "All"],
   ["untouched", "To Do"],
@@ -126,11 +45,21 @@ const FILTERS: [Status | "all", string][] = [
   ["skipped", "Skipped"],
 ];
 
-function getTier(pct: number): DepthTier {
-  if (pct > 70) return "fluent";
-  if (pct > 30) return "practicing";
-  return "exploring";
-}
+/** Disciplines where an MDN search chip makes sense. */
+const WEB_DISCIPLINES = new Set([
+  "frontend",
+  "html",
+  "css",
+  "javascript",
+  "typescript",
+  "react",
+  "vue",
+  "svelte",
+  "nextjs",
+  "nuxt",
+  "nodejs",
+  "api-design",
+]);
 
 function scrollToSkill(skillId: string, attempts = 6): void {
   const el = document.getElementById(`skill-${skillId}`);
@@ -147,15 +76,14 @@ export default function Browser() {
   const {
     progress,
     applied,
-    projectsDone,
+    pinned,
     loaded,
     setStatus,
     setApplied,
-    toggleProjectDone,
+    togglePinned,
   } = useProgress();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<Status | "all">("all");
-  const [kindFilter, setKindFilter] = useState<DisciplineKind>("role");
   const [search, setSearch] = useState("");
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
     new Set(),
@@ -166,47 +94,28 @@ export default function Browser() {
     ? requestedId
     : (DISCIPLINES[0]?.id ?? "");
   const activeDiscipline = DISCIPLINE_BY_ID[activeId];
+  const [kindFilter, setKindFilter] = useState<DisciplineKind>(
+    activeDiscipline?.kind ?? "role",
+  );
 
   const depth = useMemo(
     () =>
       activeDiscipline
-        ? calculateDepth(activeDiscipline, progress, applied, projectsDone)
+        ? calculateDepth(activeDiscipline, progress, applied)
         : null,
-    [activeDiscipline, progress, applied, projectsDone],
+    [activeDiscipline, progress, applied],
   );
 
-  const projects = activeDiscipline
-    ? (PROJECTS_BY_DISCIPLINE[activeDiscipline.id] ?? [])
-    : [];
+  const stats = useMemo(
+    () =>
+      activeDiscipline
+        ? disciplineStats(activeDiscipline, progress, applied)
+        : null,
+    [activeDiscipline, progress, applied],
+  );
 
-  // Calculate discipline stats
-  const stats = useMemo(() => {
-    if (!activeDiscipline) return { done: 0, total: 0, learning: 0, pct: 0 };
-    let done = 0,
-      learning = 0,
-      total = 0;
-    for (const sec of activeDiscipline.sections) {
-      for (const item of sec.items) {
-        total++;
-        if (progress[item.id] === "done") done++;
-        else if (progress[item.id] === "learning") learning++;
-      }
-    }
-    return {
-      done,
-      total,
-      learning,
-      pct: total > 0 ? Math.round((done / total) * 100) : 0,
-    };
-  }, [activeDiscipline, progress]);
-
-  const tier = getTier(stats.pct);
-  const tierColor =
-    tier === "exploring"
-      ? "var(--color-accent-coral)"
-      : tier === "practicing"
-        ? "var(--color-accent-mustard)"
-        : "var(--color-accent-teal)";
+  const tier = depth?.tier ?? "exploring";
+  const tierMeta = TIER_META[tier];
 
   const handleNavigate = useCallback(
     (disciplineId: string, skillId?: string) => {
@@ -214,6 +123,8 @@ export default function Browser() {
         scrollToSkill(skillId);
         return;
       }
+      const target = DISCIPLINE_BY_ID[disciplineId];
+      if (target) setKindFilter(target.kind);
       setSearchParams({ discipline: disciplineId });
     },
     [activeId, setSearchParams],
@@ -231,20 +142,16 @@ export default function Browser() {
   const revealSkill = useCallback(
     (skillId: string): boolean => {
       if (!activeDiscipline) return false;
-      // Check if skill exists in current discipline
       const hasSkill = activeDiscipline.sections.some((sec) =>
         sec.items.some((item) => item.id === skillId),
       );
-
-      if (hasSkill) {
-        // Clear anything that could hide the row, then scroll
-        setFilter("all");
-        setSearch("");
-        setCollapsedSections(new Set());
-        scrollToSkill(skillId);
-        return true;
-      }
-      return false;
+      if (!hasSkill) return false;
+      // Clear anything that could hide the row, then scroll
+      setFilter("all");
+      setSearch("");
+      setCollapsedSections(new Set());
+      scrollToSkill(skillId);
+      return true;
     },
     [activeDiscipline],
   );
@@ -276,7 +183,7 @@ export default function Browser() {
     );
   }
 
-  if (!activeDiscipline) {
+  if (!activeDiscipline || !stats) {
     return (
       <div
         className="h-screen flex items-center justify-center"
@@ -284,26 +191,29 @@ export default function Browser() {
       >
         <Pixel size={13} color="ink-muted">
           No disciplines found. Run{" "}
-          <code className="font-mono">npm run sync:disciplines</code>.
+          <code className="font-mono">pnpm run sync:disciplines</code>.
         </Pixel>
       </div>
     );
   }
 
+  const kindColor = KIND_META[kindFilter].color;
+
   return (
-    <div className="min-h-screen p-5">
-      <div className="max-w-[1280px] mx-auto">
+    <div className="min-h-screen p-3 sm:p-5">
+      <div className="max-w-7xl mx-auto">
         <HeaderBar
           title={activeDiscipline.label}
           subtitle={
-            activeDiscipline.description || "Explore and master this discipline"
+            activeDiscipline.description ||
+            `${KIND_META[activeDiscipline.kind].label} · ${stats.total} skills`
           }
+          icon={iconForDiscipline(activeDiscipline.id, activeDiscipline.kind)}
           iconSize={44}
         />
 
-        {/* Two column layout */}
-        <div className="grid grid-cols-[280px_1fr] gap-3.5">
-          {/* Left sidebar - Discipline list */}
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-3.5">
+          {/* Left column */}
           <div className="flex flex-col gap-3">
             <Panel>
               <PanelHeader
@@ -313,67 +223,43 @@ export default function Browser() {
               />
               <PanelBody className="p-2">
                 {/* Kind Filter Pills */}
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {KIND_FILTERS.map((k) => {
-                    const isActive = kindFilter === k.value;
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {KIND_ORDER.map((k) => {
+                    const km = KIND_META[k];
+                    const isActive = kindFilter === k;
                     return (
                       <button
-                        key={k.value}
-                        onClick={() => setKindFilter(k.value)}
+                        key={k}
+                        onClick={() => setKindFilter(k)}
+                        title={km.description}
                         className={cn(
-                          "flex items-center gap-1.5 font-display text-xs tracking-[0.04em] px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200 ease-in-out transform hover:scale-105",
+                          "flex items-center gap-1.5 font-display text-xs tracking-[0.04em] px-2.5 py-1 rounded-full cursor-pointer transition-all",
                           isActive ? "shadow-md" : "hover:shadow-sm",
                         )}
                         style={{
                           background: isActive
-                            ? k.color
+                            ? km.color
                             : "var(--color-surface-inset)",
-                          color: isActive ? "" : "var(--color-ink-muted)",
+                          color: isActive
+                            ? "var(--color-surface-bg)"
+                            : "var(--color-ink-muted)",
                           fontWeight: isActive ? 600 : 400,
                           border: isActive
-                            ? `1px solid ${k.color}80`
+                            ? `1px solid ${km.color}80`
                             : "1px solid var(--color-surface-border)",
-                          boxShadow: isActive
-                            ? `0 4px 12px ${k.color}30`
-                            : "none",
                         }}
-                        title={k.description}
                       >
-                        <Icon
-                          name={k.glyph}
-                          size={16}
-                          className={cn(
-                            "transition-transform duration-200",
-                            isActive && "scale-110",
-                          )}
-                        />
-                        <span className="hidden sm:inline">{k.label}</span>
+                        <Icon name={KIND_ICON[k]} size={14} />
+                        <span>{km.plural}</span>
                       </button>
                     );
                   })}
                 </div>
                 {/* Discipline List */}
-                <div className="flex flex-col gap-1.5 max-h-[360px] overflow-y-auto pr-1">
+                <div className="flex flex-col gap-1.5 max-h-65 lg:max-h-90 overflow-y-auto pr-1">
                   {DISCIPLINES.filter((d) => d.kind === kindFilter).map((d) => {
                     const isActive = d.id === activeId;
-                    const dStats = { done: 0, total: 0 };
-                    for (const sec of d.sections) {
-                      for (const item of sec.items) {
-                        dStats.total++;
-                        if (progress[item.id] === "done") dStats.done++;
-                      }
-                    }
-                    const dPct =
-                      dStats.total > 0
-                        ? Math.round((dStats.done / dStats.total) * 100)
-                        : 0;
-                    const dTier = getTier(dPct);
-                    const kindFilterInfo = KIND_FILTERS.find(
-                      (k) => k.value === kindFilter,
-                    );
-                    const accentColor =
-                      kindFilterInfo?.color || "var(--color-accent-coral)";
-
+                    const dStats = disciplineStats(d, progress);
                     return (
                       <button
                         key={d.id}
@@ -387,16 +273,16 @@ export default function Browser() {
                       >
                         <div
                           className={cn(
-                            "flex items-center justify-center w-10 h-10 rounded-lg transition-all",
+                            "flex items-center justify-center w-10 h-10 rounded-lg transition-all shrink-0",
                             isActive
                               ? "bg-surface-inset"
                               : "bg-surface-inset/50 group-hover:bg-surface-inset",
                           )}
                         >
                           <Icon
-                            name={SPRITES[d.id] || "Home"}
+                            name={iconForDiscipline(d.id, d.kind)}
                             size={20}
-                            style={{ color: accentColor }}
+                            color={kindColor}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -405,6 +291,7 @@ export default function Browser() {
                               size={12}
                               color={isActive ? "ink" : "ink-muted"}
                               weight={isActive ? 700 : 500}
+                              className="truncate"
                             >
                               {d.label}
                             </Mono>
@@ -417,13 +304,13 @@ export default function Browser() {
                           <div className="flex items-center gap-2 mt-1">
                             <div className="flex-1">
                               <ProgressBar
-                                pct={dPct}
-                                color={accentColor}
+                                pct={dStats.pct}
+                                color={kindColor}
                                 height={4}
                               />
                             </div>
                             <Mono size={10} color="ink-dim">
-                              {dPct}%
+                              {dStats.pct}%
                             </Mono>
                           </div>
                         </div>
@@ -445,23 +332,29 @@ export default function Browser() {
                   <DisciplineDepthStepper
                     tier={depth.tier}
                     donePct={depth.donePct}
+                    appliedPct={depth.appliedPct}
                   />
                 </PanelBody>
               </Panel>
             )}
+
+            <LearningResources
+              discipline={activeDiscipline}
+              onRevealSkill={revealSkill}
+            />
           </div>
 
           {/* Right content */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 min-w-0">
             {/* Filter bar */}
             <div
-              className="flex items-center gap-2 p-2 rounded-lg"
+              className="flex flex-wrap items-center gap-2 p-2 rounded-lg"
               style={{
                 background: "var(--color-surface-panel)",
                 border: "1px solid var(--color-surface-border)",
               }}
             >
-              <div className="flex gap-1">
+              <div className="flex gap-1 flex-wrap">
                 {FILTERS.map(([v, l]) => (
                   <SecondaryButton
                     key={v}
@@ -482,27 +375,7 @@ export default function Browser() {
                   border: "1px solid var(--color-surface-bg-deep)",
                 }}
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="text-ink-muted"
-                >
-                  <circle
-                    cx="11"
-                    cy="11"
-                    r="7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                  <path
-                    d="M20 20l-3.5-3.5"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <Icon name="Search" size={14} className="text-ink-muted" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -516,14 +389,8 @@ export default function Browser() {
             <Panel className="flex-1">
               <PanelHeader
                 title="Skills"
-                subtitle={`${stats.done}/${stats.total} completed · ${stats.learning} learning`}
-                accentColor={
-                  tier === "exploring"
-                    ? "coral"
-                    : tier === "practicing"
-                      ? "mustard"
-                      : "teal"
-                }
+                subtitle={`${stats.done}/${stats.total} done · ${stats.learning} active · ${stats.applied} applied`}
+                accentColor={tierMeta.accent}
                 glyph="Home"
               >
                 <TierTag tier={tier} />
@@ -540,7 +407,7 @@ export default function Browser() {
                           setFilter("all");
                           setSearch("");
                         }}
-                        className="mt-2 text-xs text-accent-mustard hover:opacity-80"
+                        className="mt-2 text-xs text-accent-mustard hover:opacity-80 block mx-auto"
                       >
                         Show all topics
                       </button>
@@ -554,13 +421,16 @@ export default function Browser() {
                         section={sec}
                         progress={progress}
                         applied={applied}
-                        onCycle={setStatus}
+                        pinned={pinned}
+                        onSetStatus={setStatus}
                         onToggleApplied={setApplied}
-                        tierColor={tierColor}
+                        onTogglePinned={togglePinned}
+                        tierColor={tierMeta.color}
                         isOpen={!collapsedSections.has(sec.id)}
                         onToggle={() => toggleSection(sec.id)}
                         isLast={secIndex === filteredSections.length - 1}
                         currentDisciplineId={activeDiscipline.id}
+                        web={WEB_DISCIPLINES.has(activeDiscipline.id)}
                         onNavigate={handleNavigate}
                         onRevealSkill={revealSkill}
                       />
@@ -569,13 +439,6 @@ export default function Browser() {
                 )}
               </PanelBody>
             </Panel>
-
-            {/* Projects */}
-            <DisciplineProjects
-              projects={projects}
-              projectsDone={projectsDone}
-              onToggleProjectDone={toggleProjectDone}
-            />
           </div>
         </div>
       </div>

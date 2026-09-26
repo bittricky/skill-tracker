@@ -6,75 +6,84 @@
  *                       when present; stored under `skill-tracker:custom-disciplines`)
  *   - `progress`      : per-skill status map
  *   - `applied`       : per-skill applied flags
- *   - `projectsDone`  : per-project done flags
+ *   - `pinned`        : skill ids pinned to the dashboard
  *
  * Hand-editing this JSON lets anyone repurpose the tracker for any skill
  * domain (design, music, research, etc.) — not just developer roadmaps.
+ *
+ * The built-in catalogue is only embedded on request (`includeCatalogue`)
+ * or when a custom catalogue is active. Re-importing an export that happens
+ * to contain the bundled catalogue does NOT pin it as a custom override,
+ * otherwise users would silently freeze themselves on a stale copy.
  */
 
 import {
+  BUILT_IN_PAYLOAD,
   CUSTOM_DISCIPLINES_KEY,
   DISCIPLINES,
   GENERATED_AT,
+  IS_CUSTOM_CATALOGUE,
   UPSTREAM_COMMIT,
   UPSTREAM_REPO,
   type Discipline,
+  type GeneratedPayload,
 } from "~/data";
 import {
   loadStorage,
   saveStorage,
   type AppliedMap,
   type ProgressMap,
-  type ProjectsDoneMap,
 } from "./storage";
 
-export const CONFIG_VERSION = 1;
+export const CONFIG_VERSION = 2;
 
 export interface ExportedConfig {
   version: number;
   exportedAt: string;
   source: "skill-tracker";
   /** Optional: user-authored or current built-in discipline catalogue. */
-  disciplines?: {
-    generatedAt: string;
-    upstreamCommit?: string;
-    upstreamRepo?: string;
-    disciplines: Discipline[];
-  };
+  disciplines?: GeneratedPayload;
   progress?: ProgressMap;
   applied?: AppliedMap;
-  projectsDone?: ProjectsDoneMap;
+  pinned?: string[];
 }
 
 export interface ImportSummary {
   importedDisciplines: boolean;
   importedProgress: boolean;
   importedApplied: boolean;
-  importedProjects: boolean;
+  importedPinned: boolean;
   disciplineCount?: number;
 }
 
+export interface ExportOptions {
+  /** Force-embed the catalogue even when it's the bundled one. */
+  includeCatalogue?: boolean;
+}
+
 /**
- * Build an export document from the live app state. Always includes the
- * current catalogue so recipients can see the schema, even if they only
- * intend to use the progress fields.
+ * Build an export document from the live app state. The catalogue is
+ * embedded when it is custom (so it round-trips) or when explicitly asked.
  */
-export function buildExportConfig(): ExportedConfig {
+export function buildExportConfig(opts: ExportOptions = {}): ExportedConfig {
   const storage = loadStorage();
-  return {
+  const config: ExportedConfig = {
     version: CONFIG_VERSION,
     exportedAt: new Date().toISOString(),
     source: "skill-tracker",
-    disciplines: {
+    progress: storage.progress,
+    applied: storage.applied,
+    pinned: storage.pinned,
+  };
+  if (IS_CUSTOM_CATALOGUE || opts.includeCatalogue) {
+    config.disciplines = {
       generatedAt: GENERATED_AT,
       upstreamCommit: UPSTREAM_COMMIT,
       upstreamRepo: UPSTREAM_REPO,
       disciplines: DISCIPLINES,
-    },
-    progress: storage.progress,
-    applied: storage.applied,
-    projectsDone: storage.projectsDone,
-  };
+    };
+  }
+  return config;
 }
 
 /** Trigger a browser download of the given config JSON. */
@@ -154,9 +163,18 @@ export function validateImport(input: unknown): string | null {
     return "progress: expected an object";
   if (input.applied !== undefined && !isRecord(input.applied))
     return "applied: expected an object";
-  if (input.projectsDone !== undefined && !isRecord(input.projectsDone))
-    return "projectsDone: expected an object";
+  if (input.pinned !== undefined && !Array.isArray(input.pinned))
+    return "pinned: expected an array";
   return null;
+}
+
+/** True when a payload is (by provenance) the catalogue bundled with this build. */
+function isBuiltInCatalogue(p: GeneratedPayload): boolean {
+  return (
+    p.generatedAt === BUILT_IN_PAYLOAD.generatedAt &&
+    p.upstreamCommit === BUILT_IN_PAYLOAD.upstreamCommit &&
+    p.disciplines.length === BUILT_IN_PAYLOAD.disciplines.length
+  );
 }
 
 /**
@@ -168,29 +186,33 @@ export function applyImport(input: ExportedConfig): ImportSummary {
     importedDisciplines: false,
     importedProgress: false,
     importedApplied: false,
-    importedProjects: false,
+    importedPinned: false,
   };
   if (typeof window === "undefined") return summary;
 
   if (input.disciplines) {
-    window.localStorage.setItem(
-      CUSTOM_DISCIPLINES_KEY,
-      JSON.stringify(input.disciplines),
-    );
-    summary.importedDisciplines = true;
-    summary.disciplineCount = input.disciplines.disciplines.length;
+    if (isBuiltInCatalogue(input.disciplines)) {
+      // Same catalogue as the bundle: drop any stale override instead.
+      window.localStorage.removeItem(CUSTOM_DISCIPLINES_KEY);
+    } else {
+      window.localStorage.setItem(
+        CUSTOM_DISCIPLINES_KEY,
+        JSON.stringify(input.disciplines),
+      );
+      summary.importedDisciplines = true;
+      summary.disciplineCount = input.disciplines.disciplines.length;
+    }
   }
 
   const current = loadStorage();
-  const next = {
+  saveStorage({
     progress: input.progress ?? current.progress,
     applied: input.applied ?? current.applied,
-    projectsDone: input.projectsDone ?? current.projectsDone,
-  };
-  if (input.progress !== undefined) summary.importedProgress = true;
-  if (input.applied !== undefined) summary.importedApplied = true;
-  if (input.projectsDone !== undefined) summary.importedProjects = true;
-  saveStorage(next);
+    pinned: input.pinned ?? current.pinned,
+  });
+  summary.importedProgress = input.progress !== undefined;
+  summary.importedApplied = input.applied !== undefined;
+  summary.importedPinned = input.pinned !== undefined;
 
   return summary;
 }
@@ -203,7 +225,7 @@ export function clearCustomDisciplines(): void {
 
 /** Wipe progress only, keeping any custom catalogue. */
 export function resetProgressOnly(): void {
-  saveStorage({ progress: {}, applied: {}, projectsDone: {} });
+  saveStorage({ progress: {}, applied: {}, pinned: [] });
 }
 
 /** Wipe everything (progress + custom catalogue). */
@@ -211,3 +233,5 @@ export function resetAll(): void {
   resetProgressOnly();
   clearCustomDisciplines();
 }
+
+export type { Discipline };

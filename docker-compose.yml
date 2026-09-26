@@ -9,14 +9,14 @@ services:
       - .:/app
       - /app/node_modules
     working_dir: /app
-    command: npm run dev -- --host 0.0.0.0
+    command: pnpm run dev -- --host 0.0.0.0
     environment:
       - NODE_ENV=development
 
   prod:
     build:
       context: .
+    image: skill-tracker:local
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
+    restart: unless-stopped

@@ -1,23 +1,29 @@
-import type { Skill } from "~/data";
+import { useState } from "react";
+import type { Section } from "~/data";
 import type { ProgressMap, AppliedMap, Status } from "~/lib/storage";
+import { sectionStats } from "~/lib/progress";
 import { cn } from "~/lib/cn";
 import { Mono } from "~/components/ui/Mono";
 import { Pixel } from "~/components/ui/Pixel";
 import { ProgressBar } from "~/components/ui/ProgressBar";
 
 import { SkillRow } from "./SkillRow";
+import { ResourceList } from "./ResourceLinks";
 
 interface SectionBlockProps {
-  section: { id: string; label: string; items: Skill[]; description?: string };
+  section: Section;
   progress: ProgressMap;
   applied: AppliedMap;
-  onCycle: (id: string, forceTo?: Status) => void;
+  pinned: string[];
+  onSetStatus: (id: string, forceTo?: Status) => void;
   onToggleApplied: (id: string, value?: boolean) => void;
+  onTogglePinned: (id: string) => void;
   tierColor: string;
   isOpen: boolean;
   onToggle: () => void;
   isLast: boolean;
   currentDisciplineId: string;
+  web?: boolean;
   onNavigate?: (disciplineId: string, skillId?: string) => void;
   onRevealSkill?: (skillId: string) => boolean;
 }
@@ -26,23 +32,22 @@ export function SectionBlock({
   section,
   progress,
   applied,
-  onCycle,
+  pinned,
+  onSetStatus,
   onToggleApplied,
+  onTogglePinned,
   tierColor,
   isOpen,
   onToggle,
   isLast,
   currentDisciplineId,
+  web,
   onNavigate,
   onRevealSkill,
 }: SectionBlockProps) {
-  const doneCount = section.items.filter(
-    (i) => progress[i.id] === "done",
-  ).length;
-  const pct =
-    section.items.length > 0
-      ? Math.round((doneCount / section.items.length) * 100)
-      : 0;
+  const [showResources, setShowResources] = useState(false);
+  const stats = sectionStats(section, progress);
+  const sectionResources = section.resources ?? [];
 
   return (
     <div
@@ -50,22 +55,22 @@ export function SectionBlock({
     >
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-panel-hi transition-colors"
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-surface-panel-hi transition-colors text-left"
       >
-        <div className="flex items-center gap-2">
-          <Mono size={13} color="ink" weight={600}>
+        <div className="flex items-center gap-2 min-w-0">
+          <Mono size={13} color="ink" weight={600} className="truncate">
             {section.label}
           </Mono>
           <Pixel size={11} color="ink-muted">
-            ({section.items.length})
+            ({stats.done}/{stats.total})
           </Pixel>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <ProgressBar
-            pct={pct}
+            pct={stats.pct}
             color={tierColor}
             height={4}
-            className="w-20"
+            className="w-14 sm:w-20"
           />
           <Mono size={11} color="ink-muted">
             {isOpen ? "−" : "+"}
@@ -80,15 +85,39 @@ export function SectionBlock({
               {section.description}
             </div>
           )}
+          {sectionResources.length > 0 && (
+            <div className="mx-1 mb-2 rounded-md border border-accent-lavender/30 bg-accent-lavender/5">
+              <button
+                type="button"
+                onClick={() => setShowResources((v) => !v)}
+                className="w-full flex items-center justify-between px-3 py-1.5 text-left"
+              >
+                <Pixel size={11} color="lavender">
+                  Section resources ({sectionResources.length})
+                </Pixel>
+                <Mono size={11} color="ink-muted">
+                  {showResources ? "−" : "+"}
+                </Mono>
+              </button>
+              {showResources && (
+                <div className="px-3 pb-2">
+                  <ResourceList resources={sectionResources} />
+                </div>
+              )}
+            </div>
+          )}
           {section.items.map((item) => (
             <SkillRow
               key={item.id}
               skill={item}
               status={progress[item.id] ?? "untouched"}
               isApplied={!!applied[item.id]}
-              onCycle={() => onCycle(item.id)}
+              isPinned={pinned.includes(item.id)}
+              onSetStatus={(forceTo) => onSetStatus(item.id, forceTo)}
               onToggleApplied={() => onToggleApplied(item.id)}
+              onTogglePinned={() => onTogglePinned(item.id)}
               currentDisciplineId={currentDisciplineId}
+              web={web}
               onNavigate={onNavigate}
               onRevealSkill={onRevealSkill}
             />
