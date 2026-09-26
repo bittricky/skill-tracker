@@ -160,13 +160,6 @@ The image is multi-stage, pnpm-based, runs as `node`, and listens on
 `0.0.0.0:3000`. Multi-arch builds (`linux/amd64,linux/arm64`) are published
 to GHCR by `.github/workflows/docker.yml` on tags and pushes to `main`.
 
-### umbrelOS (Raspberry Pi)
-
-Packaging for umbrelOS is not set up yet. When it is, note that umbrelOS
-serves apps over plain `http://umbrel.local:<port>`, so the service worker
-will not register — the app works fully, but "Install app"/offline needs
-HTTPS (Tailscale Serve or Umbrel remote access).
-
 ## Tech stack
 
 React Router 7 (SSR) · React 19 · TypeScript · Tailwind CSS 4 · recharts ·

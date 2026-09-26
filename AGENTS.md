@@ -153,8 +153,6 @@ Never edit `disciplines.generated.json` by hand; the next sync would erase it.
 - `public/sw.js` is registered from `root.tsx` only when *not* on
   `localhost:<port>`. Bump `CACHE_VERSION` whenever cached assets or the SW
   logic change.
-- Requires a secure context (HTTPS or `localhost`) to register; plain
-  `http://umbrel.local:<port>` will not install/offline — the app still works.
 
 ## Deploy
 
