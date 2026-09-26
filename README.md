@@ -4,7 +4,7 @@
 
 A personal, offline-first, installable skill progression tracker built on
 top of data collected and organized from [roadmap.sh](https://roadmap.sh)
-roadmaps — think of the skills screen in an RPG, for your own career.
+roadmaps.
 
 Progress is stored locally in the browser. No accounts, no mandatory server.
 Optional GitHub Gist sync (your token, your data) covers cross-device use.
