@@ -36,6 +36,13 @@ data structure, and preserves stable skill ids across re-fetches.
 
 ## Assignment algorithm, in required order
 
+This is the target design — the current parser does NOT implement it yet.
+Today `transformUpstreamRoadmap` assigns each subtopic *individually*: a
+direct topic↔subtopic edge if one exists, else the nearest topic by
+center-to-center distance. There is no stack detection, no edge-chain BFS,
+and no box-to-box distance. Implement the algorithm below before relying on
+this section.
+
 Stop at the first method that produces an assignment. Do not skip ahead to
 a later method if an earlier one succeeds.
 
@@ -50,49 +57,92 @@ a later method if an earlier one succeeds.
    y-range expanded by 400px in both directions. If nothing qualifies,
    fall back to the globally nearest topic by box-to-box distance.
 
-Record which method produced each assignment (1, 2, or 3) in the sync log.
-Method 3 assignments are lower-confidence and should be flagged by
-`scripts/audit-data.mjs`.
+When implemented, record which method produced each assignment (1, 2, or 3)
+in the sync log — the parser currently emits no assignment provenance.
+`scripts/audit-data.mjs` does NOT flag low-confidence assignments today; it
+only reports tiny/huge sections, duplicate section labels, odd
+cross-discipline references, and skills with no resources. Add method-3
+flagging there if you implement the algorithm above.
 
 ## Id preservation across re-fetch
 
-Skill ids follow the pattern `<home-discipline>:<upstream-node-id>`. A
+Skill ids follow the pattern `<home-discipline>:<upstream-node-id>`, derived
+in `upgradeDiscipline` (`scripts/sync-disciplines.mjs`) by taking everything
+after the last `:` in `item.id` when `upstreamNodeId` isn't already set. A
 cross-linked row (a skill that appears in more than one discipline) carries
-the id from its home discipline, not the discipline currently displaying it.
-Re-fetching upstream data without preserving ids breaks every cross-link.
+the id from its home discipline (`homeDisciplineId`), not the discipline
+currently displaying it, and its membership is tracked via the `sources[]`
+array. Re-fetching upstream data without preserving ids breaks every
+cross-link.
 
-To preserve ids: build a map from normalized skill label to the prior row,
+This id-preservation step (`preserveIds`) does not exist in the codebase
+yet. To add it: build a map from normalized skill label to the prior row,
 scoped to a single discipline (matching labels across different disciplines
-caused false cross-links in an earlier version of this pipeline do not do
+caused false cross-links in an earlier version of this pipeline — do not do
 that again). For each newly parsed skill, if exactly one prior row in the
 same discipline has a matching normalized label, reuse that row's `id`,
 `homeDisciplineId`, `sources`, `prerequisites`, `related`, `resources` (only
 where the new row's value is empty), and `primary` flag. Zero or multiple
 matches: keep the freshly generated id.
 
+Call `preserveIds` inside the `if (entry.fetchFromUpstream)` branch of the
+`for (const entry of include)` loop in `main()`, comparing against
+`priorById.get(entry.id)` — that map is already loaded earlier in `main()`
+from the prior generated payload. Do not add a second prior-data lookup.
+
 ## Sync log format
 
-Write one entry per discipline to `remap.log.json`:
+`remap.log.json` is fully overwritten on every run of
+`scripts/sync-disciplines.mjs`, in a single `writeFile` call inside `main()`.
+It is not appended to and not merged. As of the current codebase it contains
+three top-level keys, assembled together right before that write:
 
 ```json
 {
-  "<discipline-id>": {
-    "matched": <number of skills that reused a prior id>,
-    "newIds": ["<discipline>:<nodeId>", "..."]
+  "prereqs": { "rewritten": [...], "dropped": [...], "kept": <number> },
+  "overrides": { "dropped": [...], "moved": [...], "renamed": [...], "merged": [...], "unlinked": [...], "missing": [...] },
+  "resourceOverrides": { "applied": { "skills": <n>, "sections": <n>, "disciplines": <n> }, "missing": [...] }
+}
+```
+
+When id preservation is added, add a fourth top-level key,
+`idPreservation`, to the same object literal that is already being built in
+`main()` — do not write it to a separate file or with a separate
+`writeFile` call, since the existing call overwrites the whole file:
+
+```json
+{
+  "prereqs": { "...": "..." },
+  "overrides": { "...": "..." },
+  "resourceOverrides": { "...": "..." },
+  "idPreservation": {
+    "<discipline-id>": {
+      "matched": <number of skills that reused a prior id>,
+      "newIds": ["<discipline>:<nodeId>", "..."]
+    }
   }
 }
 ```
 
-Print the total unmatched count to the console after the sync script runs.
+Print the total unmatched count to the console after the sync script runs,
+the same way the existing override and prereq steps already do (see the
+`console.log` calls following `applyDisciplineOverrides` and
+`remapPrereqs` in `main()`).
 
 ## Manual override workflow
 
-When the algorithm above places a skill in the wrong section (this is
-expected for dense roadmaps with label sub-headers), do not modify the
-parser. Instead, add a `moveSkills` or `renameSections` entry to
-`app/data/disciplines.overrides.json` for that specific skill or section.
-This keeps the parser simple and general, and keeps discipline-specific
-corrections in one reviewable file.
+When the algorithm above places a skill in the wrong section (expected for
+dense roadmaps with label sub-headers), do not modify the parser. Instead,
+add an entry to `app/data/disciplines.overrides.json`. Confirmed supported
+operations, matching `applyDisciplineOverrides` in
+`scripts/transform/applyOverrides.mjs`: dropSkills, unlinkSkills,
+moveSkills, renameSections, mergeSections, dropSections,
+describeDisciplines. Only the first five record per-op entries in the
+`overrides` key of `remap.log.json`; dropSections and describeDisciplines
+appear there only when their target is missing. Keeping
+discipline-specific corrections in this one file, rather than in the
+parser, is what let phase 1's overrides survive the phase 2 re-derivation
+work.
 
 ## Validation steps to run after any change to this pipeline
 
