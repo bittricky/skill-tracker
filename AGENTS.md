@@ -8,7 +8,7 @@ commands, storage keys, or the data pipeline.
 
 A **personal legibility tool**: an offline-first, single-user web app that
 shows what the author is learning, how deep they are in each discipline, and
-what they have actually applied — like the skills screen in an RPG. It is
+what they have actually applied. It is
 *not* a learning platform, a multi-user product, or a backend service.
 
 Non-negotiables:
