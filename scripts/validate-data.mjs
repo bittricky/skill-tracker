@@ -14,6 +14,8 @@
  *   - resource kinds ⊆ allowed set; urls are http(s); no dup urls in a row
  *   - prerequisites reference existing skill ids
  *   - per-discipline resource coverage ≥ MIN_COVERAGE (warning unless --strict)
+ *   - no two sections in a discipline share a label (error)
+ *   - ≤ MAX_SECTIONS sections per discipline, ≤ MAX_SECTION_ITEMS per section (warnings)
  */
 
 import { readFile } from "node:fs/promises";
@@ -24,6 +26,8 @@ import { ALLOWED_KINDS } from "./transform/normalizeResources.mjs";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const strict = process.argv.includes("--strict");
 const MIN_COVERAGE = 90;
+const MAX_SECTIONS = 40;
+const MAX_SECTION_ITEMS = 80;
 const KINDS = new Set(["role", "foundation", "language", "framework", "tech"]);
 
 const payload = JSON.parse(
@@ -47,8 +51,12 @@ for (const d of payload.disciplines) {
   if (!d.sections?.length) err(`${d.id}: no sections`);
 
   const seenInDiscipline = new Set();
+  const sectionLabels = new Map();
   let total = 0;
   let withRes = 0;
+
+  if ((d.sections?.length ?? 0) > MAX_SECTIONS)
+    warn(`${d.id}: ${d.sections.length} sections (> ${MAX_SECTIONS})`);
 
   for (const sec of d.sections ?? []) {
     if (sectionIds.has(sec.id)) err(`duplicate section id ${sec.id}`);
@@ -57,6 +65,21 @@ for (const d of payload.disciplines) {
       err(`${sec.id}: section id must start with "${d.id}:sec:"`);
     if (!sec.items?.length) err(`${sec.id}: empty section`);
     if (!sec.label) err(`${sec.id}: missing label`);
+    if ((sec.items?.length ?? 0) > MAX_SECTION_ITEMS)
+      warn(
+        `${sec.id} "${sec.label}": ${sec.items.length} items (> ${MAX_SECTION_ITEMS})`,
+      );
+    const labelKey = String(sec.label ?? "")
+      .trim()
+      .toLowerCase();
+    if (labelKey) {
+      const prev = sectionLabels.get(labelKey);
+      if (prev)
+        err(
+          `${d.id}: sections ${prev} and ${sec.id} share the label "${sec.label}"`,
+        );
+      else sectionLabels.set(labelKey, sec.id);
+    }
 
     for (const it of sec.items ?? []) {
       total++;
@@ -93,24 +116,36 @@ for (const d of payload.disciplines) {
 
   const cov = total ? Math.round((withRes / total) * 100) : 0;
   if (cov < MIN_COVERAGE)
-    (strict ? err : warn)(`${d.id}: resource coverage ${cov}% (${withRes}/${total}) below ${MIN_COVERAGE}%`);
+    (strict ? err : warn)(
+      `${d.id}: resource coverage ${cov}% (${withRes}/${total}) below ${MIN_COVERAGE}%`,
+    );
 }
 
 for (const [id, occ] of occurrences) {
   const primaries = occ.filter((o) => o.primary);
   if (primaries.length !== 1)
-    err(`${id}: expected exactly 1 primary row, found ${primaries.length} (${occ.map((o) => o.disciplineId).join(", ")})`);
+    err(
+      `${id}: expected exactly 1 primary row, found ${primaries.length} (${occ.map((o) => o.disciplineId).join(", ")})`,
+    );
   const homes = new Set(occ.map((o) => o.home));
-  if (homes.size !== 1) err(`${id}: inconsistent homeDisciplineId across rows: ${[...homes].join(", ")}`);
+  if (homes.size !== 1)
+    err(
+      `${id}: inconsistent homeDisciplineId across rows: ${[...homes].join(", ")}`,
+    );
   const home = [...homes][0];
   if (primaries[0] && primaries[0].disciplineId !== home)
-    err(`${id}: primary row is in ${primaries[0].disciplineId} but home is ${home}`);
+    err(
+      `${id}: primary row is in ${primaries[0].disciplineId} but home is ${home}`,
+    );
   const actual = [...new Set(occ.map((o) => o.disciplineId))].sort().join(",");
   for (const o of occ) {
     const declared = [...o.sources].sort().join(",");
     if (declared !== actual)
-      err(`${id} (in ${o.disciplineId}): sources [${declared}] ≠ actual [${actual}]`);
-    if (!o.sources.includes(o.home)) err(`${id}: home ${o.home} not in sources`);
+      err(
+        `${id} (in ${o.disciplineId}): sources [${declared}] ≠ actual [${actual}]`,
+      );
+    if (!o.sources.includes(o.home))
+      err(`${id}: home ${o.home} not in sources`);
   }
 }
 
@@ -119,7 +154,8 @@ for (const d of payload.disciplines)
   for (const sec of d.sections)
     for (const it of sec.items)
       for (const p of it.prerequisites ?? [])
-        if (!allSkillIds.has(p)) err(`${it.id}: prerequisite ${p} does not exist`);
+        if (!allSkillIds.has(p))
+          err(`${it.id}: prerequisite ${p} does not exist`);
 
 const uniqueSkills = occurrences.size;
 console.log(
@@ -127,5 +163,7 @@ console.log(
 );
 for (const w of warnings) console.log(`  warn  ${w}`);
 for (const e of errors) console.log(`  FAIL  ${e}`);
-console.log(errors.length ? `✗ ${errors.length} error(s)` : "✓ all invariants hold");
+console.log(
+  errors.length ? `✗ ${errors.length} error(s)` : "✓ all invariants hold",
+);
 process.exit(errors.length ? 1 : 0);

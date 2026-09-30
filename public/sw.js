@@ -10,15 +10,14 @@
  *       stale-while-revalidate. Always returns cached bytes instantly when
  *       available, then refreshes the cache in the background.
  *   - Cross-origin requests:
- *       passed through (fetch as normal). Google Fonts CSS/font files are
- *       still cached opportunistically via the runtime cache if successful.
+ *       passed through untouched (fetch as normal, never cached).
  *
  * Versioning:
  *   Bump CACHE_VERSION whenever you change this file to invalidate old
  *   caches. Old versions are cleared in the `activate` event.
  */
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const SHELL_CACHE = `skill-tracker-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `skill-tracker-runtime-${CACHE_VERSION}`;
 
@@ -97,9 +96,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cross-origin (e.g. Google Fonts): stale-while-revalidate with safe
-  // failure so we don't throw on opaque responses.
-  event.respondWith(staleWhileRevalidate(req));
+  // Cross-origin: pass through to the network untouched.
+  return;
 });
 
 async function networkFirstNavigation(req) {

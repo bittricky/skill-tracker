@@ -10,6 +10,9 @@ interface HeaderBarProps {
   subtitle?: string;
   icon?: IconName;
   iconSize?: number;
+  hidden?: string[];
+  onSetHidden?: (id: string, hidden: boolean) => void;
+  saveError?: boolean;
 }
 
 export function HeaderBar({
@@ -17,6 +20,9 @@ export function HeaderBar({
   subtitle,
   icon = "Sparkle",
   iconSize = 36,
+  hidden,
+  onSetHidden,
+  saveError,
 }: HeaderBarProps) {
   const { pathname } = useLocation();
   const isDashboard = pathname === "/" || pathname === "/dashboard";
@@ -71,7 +77,11 @@ export function HeaderBar({
           </Link>
         )}
         <ThemeToggleButton />
-        <SettingsButton />
+        <SettingsButton
+          hidden={hidden}
+          onSetHidden={onSetHidden}
+          saveError={saveError}
+        />
       </div>
     </div>
   );

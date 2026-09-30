@@ -1,11 +1,12 @@
-import { useMemo, useState, useCallback } from "react";
-import { useSearchParams } from "react-router";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { useLocation, useSearchParams } from "react-router";
 import type { Route } from "./+types/browser";
 import {
   DISCIPLINES,
   DISCIPLINE_BY_ID,
   KIND_META,
   KIND_ORDER,
+  SKILL_SECTION_BY_ID,
   type DisciplineKind,
 } from "~/data";
 import { iconForDiscipline, KIND_ICON } from "~/data/icons";
@@ -21,6 +22,7 @@ import { ProgressBar } from "~/components/ui/ProgressBar";
 import { SecondaryButton } from "~/components/ui/SecondaryButton";
 import { TierTag } from "~/components/ui/TierTag";
 import { DisciplineDepthStepper } from "~/components/browser/DisciplineDepthStepper";
+import { DisciplineSparkline } from "~/components/browser/DisciplineSparkline";
 import { LearningResources } from "~/components/browser/LearningResources";
 import { SectionBlock } from "~/components/browser/SectionBlock";
 import { Icon } from "~/components/ui/Icon";
@@ -77,14 +79,21 @@ export default function Browser() {
     progress,
     applied,
     pinned,
+    hidden,
+    events,
     loaded,
+    saveError,
     setStatus,
     setApplied,
     togglePinned,
+    setHidden,
   } = useProgress();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [filter, setFilter] = useState<Status | "all">("all");
   const [search, setSearch] = useState("");
+  const [showHidden, setShowHidden] = useState(true);
+  const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
     new Set(),
   );
@@ -156,6 +165,47 @@ export default function Browser() {
     [activeDiscipline],
   );
 
+  const hiddenSet = useMemo(() => new Set(hidden), [hidden]);
+  const appliedHash = useRef("");
+
+  // Deep link: #skill-<id> — switch to the skill's home discipline if needed,
+  // then reveal, expand and highlight the row.
+  useEffect(() => {
+    if (!loaded || !activeDiscipline) return;
+    const hash = location.hash;
+    if (hash === appliedHash.current) return;
+    const m = /^#skill-(.+)$/.exec(hash);
+    if (!m) {
+      appliedHash.current = hash;
+      return;
+    }
+    const id = decodeURIComponent(m[1]);
+    const loc = SKILL_SECTION_BY_ID[id];
+    if (!loc) {
+      appliedHash.current = hash;
+      return;
+    }
+    if (loc.disciplineId !== activeId) {
+      // Hash stays "unapplied" until the right discipline is active — the
+      // effect re-runs when activeId changes.
+      handleNavigate(loc.disciplineId);
+      return;
+    }
+    appliedHash.current = hash;
+    setExpandedSkillId(id);
+    setFilter("all");
+    setSearch("");
+    setCollapsedSections(new Set());
+    scrollToSkill(id);
+  }, [location.hash, loaded, activeId, activeDiscipline, handleNavigate]);
+
+  // Fade the deep-link highlight ring after 1.5s (the row stays expanded).
+  useEffect(() => {
+    if (!expandedSkillId) return;
+    const t = setTimeout(() => setExpandedSkillId(null), 1500);
+    return () => clearTimeout(t);
+  }, [expandedSkillId]);
+
   const filteredSections = useMemo(() => {
     if (!activeDiscipline) return [];
     const q = search.trim().toLowerCase();
@@ -210,6 +260,9 @@ export default function Browser() {
           }
           icon={iconForDiscipline(activeDiscipline.id, activeDiscipline.kind)}
           iconSize={44}
+          hidden={hidden}
+          onSetHidden={setHidden}
+          saveError={saveError}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-3.5">
@@ -256,67 +309,121 @@ export default function Browser() {
                   })}
                 </div>
                 {/* Discipline List */}
+                <div className="flex items-center justify-between mb-2 px-0.5">
+                  <Mono size={10} color="ink-dim">
+                    {DISCIPLINES.length - hidden.length} of {DISCIPLINES.length}{" "}
+                    tracked
+                  </Mono>
+                  <button
+                    type="button"
+                    onClick={() => setShowHidden((v) => !v)}
+                    className="font-display text-[10px] tracking-wider uppercase text-ink-dim hover:text-ink-muted cursor-pointer"
+                    aria-pressed={showHidden}
+                  >
+                    {showHidden ? "hide hidden" : "show hidden"}
+                  </button>
+                </div>
                 <div className="flex flex-col gap-1.5 max-h-65 lg:max-h-90 overflow-y-auto pr-1">
-                  {DISCIPLINES.filter((d) => d.kind === kindFilter).map((d) => {
-                    const isActive = d.id === activeId;
-                    const dStats = disciplineStats(d, progress);
-                    return (
-                      <button
-                        key={d.id}
-                        onClick={() => handleNavigate(d.id)}
-                        className={cn(
-                          "group flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all text-left border",
-                          isActive
-                            ? "bg-surface-panel border-accent-mustard/50 shadow-sm"
-                            : "bg-transparent border-transparent hover:bg-surface-panel/50 hover:border-surface-border",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "flex items-center justify-center w-10 h-10 rounded-lg transition-all shrink-0",
-                            isActive
-                              ? "bg-surface-inset"
-                              : "bg-surface-inset/50 group-hover:bg-surface-inset",
-                          )}
-                        >
-                          <Icon
-                            name={iconForDiscipline(d.id, d.kind)}
-                            size={20}
-                            color={kindColor}
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <Mono
-                              size={12}
-                              color={isActive ? "ink" : "ink-muted"}
-                              weight={isActive ? 700 : 500}
-                              className="truncate"
-                            >
-                              {d.label}
-                            </Mono>
-                            {isActive && (
-                              <span className="text-accent-mustard text-xs">
-                                ◄
-                              </span>
+                  {DISCIPLINES.filter((d) => d.kind === kindFilter)
+                    .filter((d) => showHidden || !hiddenSet.has(d.id))
+                    .slice()
+                    .sort(
+                      (a, b) =>
+                        Number(hiddenSet.has(a.id)) -
+                        Number(hiddenSet.has(b.id)),
+                    )
+                    .map((d) => {
+                      const isActive = d.id === activeId;
+                      const isHidden = hiddenSet.has(d.id);
+                      const dStats = disciplineStats(d, progress);
+                      return (
+                        <div key={d.id} className="relative group">
+                          <button
+                            onClick={() => handleNavigate(d.id)}
+                            className={cn(
+                              "flex w-full items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all text-left border",
+                              isHidden && "opacity-50",
+                              isActive
+                                ? "bg-surface-panel border-accent-mustard/50 shadow-sm"
+                                : "bg-transparent border-transparent hover:bg-surface-panel/50 hover:border-surface-border",
                             )}
-                          </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div className="flex-1">
-                              <ProgressBar
-                                pct={dStats.pct}
+                          >
+                            <div
+                              className={cn(
+                                "flex items-center justify-center w-10 h-10 rounded-lg transition-all shrink-0",
+                                isActive
+                                  ? "bg-surface-inset"
+                                  : "bg-surface-inset/50 group-hover:bg-surface-inset",
+                              )}
+                            >
+                              <Icon
+                                name={iconForDiscipline(d.id, d.kind)}
+                                size={20}
                                 color={kindColor}
-                                height={4}
                               />
                             </div>
-                            <Mono size={10} color="ink-dim">
-                              {dStats.pct}%
-                            </Mono>
-                          </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <Mono
+                                  size={12}
+                                  color={isActive ? "ink" : "ink-muted"}
+                                  weight={isActive ? 700 : 500}
+                                  className="truncate"
+                                >
+                                  {d.label}
+                                </Mono>
+                                {isActive && (
+                                  <span className="text-accent-mustard text-xs">
+                                    ◄
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className="flex-1">
+                                  <ProgressBar
+                                    pct={dStats.pct}
+                                    color={kindColor}
+                                    height={4}
+                                  />
+                                </div>
+                                <Mono size={10} color="ink-dim">
+                                  {dStats.pct}%
+                                </Mono>
+                              </div>
+                            </div>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setHidden(d.id, !isHidden);
+                            }}
+                            title={
+                              isHidden
+                                ? "Show on dashboard"
+                                : "Hide from dashboard"
+                            }
+                            aria-label={
+                              isHidden
+                                ? "Show on dashboard"
+                                : "Hide from dashboard"
+                            }
+                            aria-pressed={isHidden}
+                            className={cn(
+                              "absolute top-1.5 right-1.5 w-6 h-6 rounded flex items-center justify-center transition-opacity",
+                              isHidden
+                                ? "opacity-100 text-accent-mustard"
+                                : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 text-ink-muted hover:text-ink",
+                            )}
+                          >
+                            <Icon
+                              name={isHidden ? "EyeOff" : "Eye"}
+                              size={13}
+                            />
+                          </button>
                         </div>
-                      </button>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               </PanelBody>
             </Panel>
@@ -333,6 +440,10 @@ export default function Browser() {
                     tier={depth.tier}
                     donePct={depth.donePct}
                     appliedPct={depth.appliedPct}
+                  />
+                  <DisciplineSparkline
+                    discipline={activeDiscipline}
+                    events={events}
                   />
                 </PanelBody>
               </Panel>
@@ -396,6 +507,14 @@ export default function Browser() {
                 <TierTag tier={tier} />
               </PanelHeader>
               <PanelBody className="p-0">
+                {pinned.length === 0 && (
+                  <div className="px-4 py-2 border-b border-surface-divider/50">
+                    <Mono size={11} color="ink-dim">
+                      <span className="text-accent-mustard">★</span> Pin up to 3
+                      skills to see them on the dashboard
+                    </Mono>
+                  </div>
+                )}
                 {filteredSections.length === 0 ? (
                   <div className="py-16 text-center">
                     <Pixel size={13} color="ink-muted">
@@ -433,6 +552,7 @@ export default function Browser() {
                         web={WEB_DISCIPLINES.has(activeDiscipline.id)}
                         onNavigate={handleNavigate}
                         onRevealSkill={revealSkill}
+                        expandedSkillId={expandedSkillId ?? undefined}
                       />
                     ))}
                   </div>

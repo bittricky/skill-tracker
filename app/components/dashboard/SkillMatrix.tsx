@@ -27,19 +27,23 @@ import { ProgressBar } from "~/components/ui/ProgressBar";
 interface SkillMatrixProps {
   progress: ProgressMap;
   applied: AppliedMap;
+  hidden: string[];
 }
 
-export function SkillMatrix({ progress, applied }: SkillMatrixProps) {
+export function SkillMatrix({ progress, applied, hidden }: SkillMatrixProps) {
   const [filter, setFilter] = useState<DisciplineKind>("role");
+  const hiddenSet = useMemo(() => new Set(hidden), [hidden]);
 
   const rows = useMemo(
     () =>
-      DISCIPLINES.filter((d) => d.kind === filter).map((d) => ({
-        d,
-        stats: disciplineStats(d, progress, applied),
-        depth: calculateDepth(d, progress, applied),
-      })),
-    [filter, progress, applied],
+      DISCIPLINES.filter((d) => d.kind === filter && !hiddenSet.has(d.id)).map(
+        (d) => ({
+          d,
+          stats: disciplineStats(d, progress, applied),
+          depth: calculateDepth(d, progress, applied),
+        }),
+      ),
+    [filter, progress, applied, hiddenSet],
   );
 
   const data = useMemo(

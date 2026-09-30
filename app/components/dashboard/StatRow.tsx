@@ -1,17 +1,32 @@
 import { Pixel } from "~/components/ui/Pixel";
 import type { Stats } from "~/lib/progress";
+import type { ProgressEvent } from "~/lib/storage";
+import { deltaSince, streakDays, type SkillFilter } from "~/lib/activity";
 
 interface StatRowProps {
   stats: Stats;
+  events: ProgressEvent[];
+  filter?: SkillFilter;
 }
 
-export function StatRow({ stats }: StatRowProps) {
+export function StatRow({ stats, events, filter }: StatRowProps) {
+  const week = deltaSince(
+    events,
+    new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    filter,
+  );
+  const month = deltaSince(
+    events,
+    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    filter,
+  );
+  const streak = streakDays(events, new Date(), filter);
   const remaining = Math.max(0, stats.total - stats.done - stats.skipped);
   const cards = [
     {
       label: "Skills Done",
       value: String(stats.done),
-      sub: `${stats.pct}% of ${stats.total - stats.skipped} tracked`,
+      sub: `+${week.done} done · last 7 days`,
       color: "var(--color-accent-teal)",
       hero: false,
     },
@@ -25,14 +40,15 @@ export function StatRow({ stats }: StatRowProps) {
     {
       label: "Applied",
       value: String(stats.applied),
-      sub: "used in practice",
+      sub: `+${month.applied} applied · last 30 days`,
       color: "var(--color-accent-lavender)",
       hero: false,
     },
     {
       label: "Remaining",
       value: String(remaining),
-      sub: `${stats.skipped} skipped`,
+      sub:
+        streak.current > 0 ? `${streak.current}-day streak` : "no streak yet",
       color: "var(--color-accent-rose)",
       hero: false,
     },

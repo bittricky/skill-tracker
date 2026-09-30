@@ -17,138 +17,165 @@ data structure, and preserves stable skill ids across re-fetches.
 
 ## Layout semantics (read this before touching the parser)
 
-- Subtopics that belong together form vertical stacks: same x position,
-  roughly 53px y-step between consecutive nodes.
+- Subtopics that belong together form vertical stacks: same x position
+  (within 8px), 4–6px vertical gap between consecutive 49px-tall nodes.
 - A stack belongs to a topic in one of three ways:
   1. A direct edge from a topic node to a subtopic node in the stack.
-  2. A chain of subtopic-to-subtopic edges leading into a node that is
+  2. A chain of subtopic-to-subtopic edges leading into a stack that is
      already linked to a topic (for example: in the backend discipline,
      Redis stacks with Memcached, which edges into "Server Side," which is
      the actual topic — Redis is not directly linked to a topic).
-  3. Spatial proximity only, when no edge evidence exists.
-- Dense roadmaps (cyber-security, game-developer) use free-standing `label`
-  nodes as sub-headers, positioned directly above a stack. This skill's
-  parsing logic does NOT auto-detect these labels. Section-level fixes for
-  labeled sub-groups are made manually in disciplines.overrides.json — see
-  "Manual override workflow" below. Do not build automated label detection;
-  this was evaluated and rejected as unnecessary complexity for a
-  single-user tool.
+  3. Spatial proximity only, when no edge evidence exists. Edges cover only
+     ~20–50% of subtopics; in redis/cyber-security it is under 5%, so the
+     spatial fallback does most of the work there.
+- Stacks sit *beside* their topic, in the same row. A topic directly below
+  a stack is usually the *next* row's topic, not the owner. This is why the
+  spatial distance weights the vertical gap ×2 (`Y_WEIGHT`).
+- Dense roadmaps (cyber-security, computer-science, devops) use
+  free-standing `label` nodes as sub-headers above a stack. The parser does
+  NOT auto-detect these labels — that was evaluated and rejected as
+  unnecessary complexity for a single-user tool. Sub-groupings become
+  sections through `createSections` in `disciplines.overrides.json` (see
+  "Manual override workflow").
+- 11 disciplines have no layout JSON upstream at the pinned commit (html,
+  css, shell-bash, nextjs, docker, django, kotlin, scala, swift-ui,
+  network-engineer, elasticsearch). They are carried forward from the prior
+  payload and can only be improved by hand-authoring `app/data/custom/<id>.json`
+  like `golang`.
 
-## Assignment algorithm, in required order
+## Assignment algorithm (implemented in `scripts/transform/parseUpstreamRoadmap.mjs`)
 
-This is the target design — the current parser does NOT implement it yet.
-Today `transformUpstreamRoadmap` assigns each subtopic *individually*: a
-direct topic↔subtopic edge if one exists, else the nearest topic by
-center-to-center distance. There is no stack detection, no edge-chain BFS,
-and no box-to-box distance. Implement the algorithm below before relying on
-this section.
+`transformUpstreamRoadmap(raw, entry)`:
 
-Stop at the first method that produces an assignment. Do not skip ahead to
-a later method if an earlier one succeeds.
+1. Classify nodes: `topic` → section; `subtopic` (and unknown types with a
+   label) → skill; nodes with `data.href` dropped; decorative types ignored
+   (`title paragraph button vertical horizontal section label legend …`).
+2. `detectStacks(subtopics)` buckets by x (`STACK_X_TOLERANCE` 8px), sorts
+   each bucket by y, splits where the gap exceeds `STACK_MAX_GAP` 12px.
+   Returns `{ nodes, bbox }[]`.
+3. Assign each stack, three passes over all stacks (a stack placed in an
+   earlier pass is never revisited):
+   - **edge** — any member with a topic↔subtopic edge; majority vote among
+     members, tie → nearest topic by box distance.
+   - **chain** — BFS over subtopic↔subtopic edges from the stack, depth ≤
+     `CHAIN_DEPTH` 3, into a stack placed by *edge*.
+   - **spatial** — box-to-box distance (never centre-to-centre; wide topic
+     boxes distort that), dy weighted by `Y_WEIGHT` 2. Candidates are
+     topics whose box overlaps the stack's y-range ± `ROW_BAND` 400px; if
+     none, all topics.
+4. Sections are topics in reading order (y, then x); id is
+   `<disc>:sec:<topicNodeId>` (the legacy import used the same tail, so
+   old override targets still resolve). The topic itself is item 0. Stacks
+   within a section are ordered by (y, x).
+5. Every item carries `_assign: "topic" | "edge" | "chain" | "spatial"`.
+   `sync-disciplines.mjs` strips it (`stripAssign`) and records counts per
+   discipline under `sections` in the log. `audit-data.mjs` prints a
+   `low-confidence layout` note when > 50% of a discipline's subtopics were
+   placed spatially — check those disciplines by eye.
 
-1. Direct edge: any stack member with a direct topic edge assigns the whole
-   stack. Multiple different topics among stack members: assign by vote
-   count, tie-break by nearest.
-2. Edge chain: breadth-first search over subtopic-to-subtopic edges, depth
-   limit 3, looking for a node already assigned by method 1.
-3. Spatial fallback: box-to-box bounding box distance (never
-   center-to-center — wide topic boxes distort center-to-center distance).
-   Restrict candidates to topics whose y position falls inside the stack's
-   y-range expanded by 400px in both directions. If nothing qualifies,
-   fall back to the globally nearest topic by box-to-box distance.
+Tuning history: without `Y_WEIGHT` the nodejs frameworks stack (dx 206 to
+"Building & Consuming APIs", dy 167 to "Testing") went to Testing. Lone
+nodes remain ambiguous (frontend "Vitest" is 56px below Module Bundlers and
+207px left of Testing) — fix those with `moveSkills`, not by tuning.
 
-When implemented, record which method produced each assignment (1, 2, or 3)
-in the sync log — the parser currently emits no assignment provenance.
-`scripts/audit-data.mjs` does NOT flag low-confidence assignments today; it
-only reports tiny/huge sections, duplicate section labels, odd
-cross-discipline references, and skills with no resources. Add method-3
-flagging there if you implement the algorithm above.
+## Id preservation across re-fetch (`preserveIds` in `scripts/sync-disciplines.mjs`)
 
-## Id preservation across re-fetch
+Skill ids follow `<home-discipline>:<upstream-node-id>` and are the
+localStorage key, so they must survive a re-derivation. A cross-linked row
+(a skill shown in more than one discipline) carries the id of its home
+discipline (`homeDisciplineId`), `primary: false`, and membership in
+`sources[]`.
 
-Skill ids follow the pattern `<home-discipline>:<upstream-node-id>`, derived
-in `upgradeDiscipline` (`scripts/sync-disciplines.mjs`) by taking everything
-after the last `:` in `item.id` when `upstreamNodeId` isn't already set. A
-cross-linked row (a skill that appears in more than one discipline) carries
-the id from its home discipline (`homeDisciplineId`), not the discipline
-currently displaying it, and its membership is tracked via the `sources[]`
-array. Re-fetching upstream data without preserving ids breaks every
-cross-link.
+`preserveIds(next, prior)` runs inside the `fetchFromUpstream` branch of
+the `include` loop in `main()`, against `priorById.get(entry.id)` (the
+prior generated payload — do not add a second lookup). It matches each
+freshly parsed item to a prior row of the **same discipline only**
+(cross-discipline label matching is how false cross-links were minted in
+phase 1 — never do that again):
 
-This id-preservation step (`preserveIds`) does not exist in the codebase
-yet. To add it: build a map from normalized skill label to the prior row,
-scoped to a single discipline (matching labels across different disciplines
-caused false cross-links in an earlier version of this pipeline — do not do
-that again). For each newly parsed skill, if exactly one prior row in the
-same discipline has a matching normalized label, reuse that row's `id`,
-`homeDisciplineId`, `sources`, `prerequisites`, `related`, `resources` (only
-where the new row's value is empty), and `primary` flag. Zero or multiple
-matches: keep the freshly generated id.
+1. **Pass 1 — `upstreamNodeId`**, authoritative. Runs over all items before
+   any label matching because upstream has duplicate labels (two
+   "Validation" nodes in graphql, two "Next.js" in frontend); if label
+   matching ran first, the duplicate would steal the id and the real node
+   would collide with it.
+2. **Pass 2 — unique normalized label** (lowercase, whitespace collapsed,
+   trailing punctuation stripped). Restores reference rows, whose node id
+   belongs to another discipline. Ambiguous labels (2+ prior rows) never
+   match.
 
-Call `preserveIds` inside the `if (entry.fetchFromUpstream)` branch of the
-`for (const entry of include)` loop in `main()`, comparing against
-`priorById.get(entry.id)` — that map is already loaded earlier in `main()`
-from the prior generated payload. Do not add a second prior-data lookup.
+On match the item takes the prior `id`, `homeDisciplineId`, `sources`,
+`prerequisites`, `related`, `primary`, and `resources` if its own are
+empty; a reference row also takes the prior `upstreamNodeId`, a primary row
+keeps the freshly parsed node id. Section placement always comes from the
+new parse. Each prior row is used at most once; a fresh-id collision inside
+a discipline is printed as `! id collision`.
+
+Invariants to keep: re-running the sync on its own output must report
+`0 new ids`; no id present in the previous `disciplines.generated.json` may
+disappear (`git diff` the id set if in doubt).
 
 ## Sync log format
 
 `remap.log.json` is fully overwritten on every run of
 `scripts/sync-disciplines.mjs`, in a single `writeFile` call inside `main()`.
-It is not appended to and not merged. As of the current codebase it contains
-three top-level keys, assembled together right before that write:
+Top-level keys, assembled together right before that write:
 
 ```json
 {
-  "prereqs": { "rewritten": [...], "dropped": [...], "kept": <number> },
-  "overrides": { "dropped": [...], "moved": [...], "renamed": [...], "merged": [...], "unlinked": [...], "missing": [...] },
-  "resourceOverrides": { "applied": { "skills": <n>, "sections": <n>, "disciplines": <n> }, "missing": [...] }
+  "prereqs": { "rewritten": [...], "dropped": [...], "kept": <n> },
+  "overrides": { "dropped": [...], "droppedResources": [...], "moved": [...], "renamed": [...], "merged": [...], "created": [...], "unlinked": [...], "missing": [...] },
+  "resourceOverrides": { "applied": { "skills": <n>, "sections": <n>, "disciplines": <n> }, "missing": [...] },
+  "idPreservation": { "<discipline>": { "matched": <n>, "byNode": <n>, "byLabel": <n>, "newIds": ["<disc>:<nodeId>", "..."] } },
+  "sections": { "<discipline>": { "topic": <n>, "edge": <n>, "chain": <n>, "spatial": <n> } }
 }
 ```
 
-When id preservation is added, add a fourth top-level key,
-`idPreservation`, to the same object literal that is already being built in
-`main()` — do not write it to a separate file or with a separate
-`writeFile` call, since the existing call overwrites the whole file:
-
-```json
-{
-  "prereqs": { "...": "..." },
-  "overrides": { "...": "..." },
-  "resourceOverrides": { "...": "..." },
-  "idPreservation": {
-    "<discipline-id>": {
-      "matched": <number of skills that reused a prior id>,
-      "newIds": ["<discipline>:<nodeId>", "..."]
-    }
-  }
-}
-```
-
-Print the total unmatched count to the console after the sync script runs,
-the same way the existing override and prereq steps already do (see the
-`console.log` calls following `applyDisciplineOverrides` and
-`remapPrereqs` in `main()`).
+The console prints one summary line per stage; `id preservation: N kept,
+M new ids; S items placed spatially` is the one to watch after a re-fetch.
 
 ## Manual override workflow
 
-When the algorithm above places a skill in the wrong section (expected for
-dense roadmaps with label sub-headers), do not modify the parser. Instead,
-add an entry to `app/data/disciplines.overrides.json`. Confirmed supported
-operations, matching `applyDisciplineOverrides` in
-`scripts/transform/applyOverrides.mjs`: dropSkills, unlinkSkills,
-moveSkills, renameSections, mergeSections, dropSections,
-describeDisciplines. Only the first five record per-op entries in the
-`overrides` key of `remap.log.json`; dropSections and describeDisciplines
-appear there only when their target is missing. Keeping
-discipline-specific corrections in this one file, rather than in the
-parser, is what let phase 1's overrides survive the phase 2 re-derivation
-work.
+When the algorithm places a skill in the wrong section, do not modify the
+parser. Edit `app/data/disciplines.overrides.json` (schema in
+`scripts/transform/applyOverrides.mjs`), then run the sync. Operations, in
+the order they are applied:
+
+- `createSections` — `{ in, id, label, after, skills[] }` makes
+  `<in>:sec:<id>` after the section `after` (id or label) and moves the
+  listed skills into it. This is how upstream label sub-headers become
+  sections (cyber-security 6 → 37 sections). Runs first so `moveSkills`
+  can target the new label.
+- `unlinkSkills` — replace a wrongly cross-linked reference row with a
+  primary row of `in`, recovering the real upstream node by content slug.
+  Once the sync has run, the fix is baked into the generated payload and
+  preserved by `preserveIds`; the entry then reports `missing`, so remove
+  it (the phase-1 entries were removed this way — see the file's
+  `$comment`).
+- `dropSkills`, `dropResources` (strip a resource whose `label url` matches a
+  substring from every row of a skill), `moveSkills` (`toSection` = section id
+  or label within `in`), `renameSections`, `mergeSections`, `dropSections`,
+  `describeDisciplines`.
+
+`renameSections` should be rare now: topic labels come straight from
+upstream. Use it only for genuine upstream duplicates (game-developer has
+two "Game AI" topics; `data:check` errors on duplicate labels).
+
+To draft `createSections` entries for a dense roadmap, read the upstream
+JSON's `label` nodes and the stacks directly beneath them, resolve the
+node ids to current skill ids, then review and relabel by hand — several
+upstream labels are instructions ("Understand the following") rather than
+names, and a few sit closer to a neighbouring stack than their own.
 
 ## Validation steps to run after any change to this pipeline
 
-1. `pnpm run sync:disciplines`
-2. `pnpm run data:check`
-3. `pnpm run data:audit`
-4. Manually inspect: backend (Redis under Caching, GraphQL under APIs,
-   NestJS under nodejs), system-design (caching stack), frontend (Testing,
-   Module Bundlers).
+1. `pnpm run sync:disciplines` — expect `0 missing` overrides and, on a
+   second run, `0 new ids`.
+2. `pnpm run data:check` — must pass; duplicate section labels are errors,
+   > 40 sections / > 80 items are warnings.
+3. `pnpm run data:audit` — `odd reference` count (baseline after phase 2: 9)
+   and `low-confidence layout` notes.
+4. Manually inspect: backend (Redis under Caching, GraphQL under Learn
+   about APIs, CSP/OWASP under Web Security), nodejs (NestJS/Express/Hono
+   under Building & Consuming APIs), system-design (caching stack under
+   Caching), frontend (Jest/Vitest/Cypress under Testing; Vite/Webpack
+   under Module Bundlers), vue (v-* under Directives).

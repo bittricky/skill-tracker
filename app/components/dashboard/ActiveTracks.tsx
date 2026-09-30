@@ -10,13 +10,20 @@ import { DISCIPLINE_BY_ID, SKILL_BY_ID, SKILL_SECTION_BY_ID } from "~/data";
 import { iconForDiscipline } from "~/data/icons";
 import { calculateDepth, TIER_META } from "~/lib/depth";
 import { sectionStats } from "~/lib/progress";
-import { MAX_PINNED, type AppliedMap, type ProgressMap } from "~/lib/storage";
+import {
+  MAX_PINNED,
+  type AppliedMap,
+  type ProgressEvent,
+  type ProgressMap,
+} from "~/lib/storage";
+import { lastTouched, relativeTime } from "~/lib/activity";
 import { STATUS_META } from "~/components/browser/SkillRow";
 
 interface ActiveTracksProps {
   pinned: string[];
   progress: ProgressMap;
   applied: AppliedMap;
+  events: ProgressEvent[];
   onUnpin: (id: string) => void;
 }
 
@@ -29,6 +36,7 @@ export function ActiveTracks({
   pinned,
   progress,
   applied,
+  events,
   onUnpin,
 }: ActiveTracksProps) {
   const cards = pinned
@@ -71,7 +79,7 @@ export function ActiveTracks({
                   />
                   <div className="flex-1 min-w-0">
                     <Link
-                      to={`/browser?discipline=${discipline.id}`}
+                      to={`/browser?discipline=${discipline.id}#skill-${encodeURIComponent(skill.id)}`}
                       className="block hover:underline"
                     >
                       <Mono
@@ -86,14 +94,23 @@ export function ActiveTracks({
                     <Pixel color="ink-muted" size={12}>
                       {discipline.label} · {section.label}
                     </Pixel>
+                    {(() => {
+                      const at = lastTouched(events, [skill.id]);
+                      return at ? (
+                        <Pixel color="ink-dim" size={11}>
+                          touched {relativeTime(at)}
+                        </Pixel>
+                      ) : null;
+                    })()}
                   </div>
                   <button
                     type="button"
                     onClick={() => onUnpin(skill.id)}
-                    title="Unpin"
-                    className="text-accent-mustard hover:opacity-70 text-sm leading-none"
+                    title="Unpin from Active Tracks"
+                    aria-label="Unpin from Active Tracks"
+                    className="w-7 h-7 rounded-md border border-accent-mustard bg-accent-mustard/15 text-accent-mustard flex items-center justify-center hover:opacity-80 transition-opacity shrink-0"
                   >
-                    ★
+                    <Icon name="StarFilled" size={16} />
                   </button>
                 </div>
 
@@ -135,10 +152,10 @@ export function ActiveTracks({
                 className="flex flex-col items-center justify-center min-h-32.5 h-full hover:border-accent-mustard/50"
               >
                 <div
-                  className="w-9 h-9 rounded flex items-center justify-center mb-2.5"
+                  className="w-9 h-9 rounded flex items-center justify-center mb-2.5 text-ink-dim"
                   style={{ border: "1px dashed var(--color-surface-border)" }}
                 >
-                  <span className="text-xl text-ink-dim font-display">☆</span>
+                  <Icon name="Star" size={20} />
                 </div>
                 <Pixel color="ink-dim" size={13}>
                   Pin a skill in the browser

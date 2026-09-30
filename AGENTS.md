@@ -52,12 +52,16 @@ browser are the verification bar. If you add pure logic worth testing, a
 app/routes/            dashboard.tsx (/), browser.tsx (/browser?discipline=<id>)
 app/components/
   browser/             SectionBlock, SkillRow, ResourceLinks, LearningResources, DisciplineDepthStepper
-  dashboard/           HeaderBar, ActiveTracks (pinned skills), StatRow, SkillMatrix (radar)
+  dashboard/           HeaderBar, ActiveTracks (pinned skills), StatRow, SkillMatrix (radar),
+                       ActivityHeatmap, RecentActivity
   ui/                  Panel/PanelHeader/PanelBody, Pixel, Mono, ProgressBar, TierTag, Icon,
                        SecondaryButton/PrimaryButton, ItemSlot, Tooltip, Loader,
                        SettingsButton, SettingsModal, ThemeToggleButton
 app/lib/
-  storage.ts           localStorage shape (v2: progress, applied, pinned) + v1 migration
+  storage.ts           localStorage shape (v3: progress, applied, pinned, hidden, events) + v1/v2 migration;
+                       saveStorage returns boolean (false on quota/private-mode failure)
+  activity.ts          realEvents, dailyCounts, streakDays, deltaSince, lastTouched,
+                       weeklyCounts, relativeTime, yearsWithActivity — pure, no React
   progress.ts          section/discipline/global Stats
   depth.ts             tierFor / calculateDepth / TIER_META — the ONLY place tiers are computed
   configExport.ts      export / validate / import / reset
@@ -67,7 +71,7 @@ app/hooks/             useProgress (all mutations), useTheme
 app/data/
   disciplines.generated.json   GENERATED. Do not hand-edit. ~3.8 MB.
   disciplines.upstream.json    pinned repo/commit + include[] (fetchFromUpstream | source:"custom" | carried forward)
-  disciplines.overrides.json   hand corrections: dropSkills, unlinkSkills, moveSkills, renameSections, mergeSections, dropSections, describeDisciplines
+  disciplines.overrides.json   hand corrections: createSections, dropSkills, unlinkSkills, moveSkills, renameSections, mergeSections, dropSections, describeDisciplines
   resources.overrides.json     curated links keyed by skill id / section id / discipline id
   custom/<id>.json             hand-sectioned disciplines whose items are upstream content node ids
   index.ts                     types, DISCIPLINES, lookups (SKILL_BY_ID, SKILL_SECTION_BY_ID, …), KIND_META
@@ -106,6 +110,8 @@ public/                        manifest.webmanifest, sw.js (bump CACHE_VERSION w
 | You want to…                                   | Edit                                           | Then |
 | ---------------------------------------------- | ---------------------------------------------- | ---- |
 | move / drop / rename / merge a skill or section | `disciplines.overrides.json`                   | sync + data:check |
+| split a big section along upstream's label sub-headers | `disciplines.overrides.json` → `createSections` | sync + data:check |
+| change how sections are derived from the layout | `scripts/transform/parseUpstreamRoadmap.mjs` — read `.agents/skills/roadmap-section-assignment/SKILL.md` first | sync twice (2nd run must report `0 new ids`) + data:check |
 | fix a row wrongly linked to another discipline | `disciplines.overrides.json` → `unlinkSkills`  | sync (recovers the real node by content slug when possible) |
 | attach your own course/book/link to a topic    | `resources.overrides.json`                     | sync |
 | add a discipline that has upstream JSON        | `disciplines.upstream.json` with `fetchFromUpstream`, `upstreamPath`, optional `contentSlug` | sync |
@@ -113,6 +119,10 @@ public/                        manifest.webmanifest, sw.js (bump CACHE_VERSION w
 | find candidates for the above                  | `pnpm run data:audit`                          | — |
 
 Never edit `disciplines.generated.json` by hand; the next sync would erase it.
+The sync reads the *previous* generated file to preserve skill ids
+(`preserveIds`), so keep it committed and never delete it before a sync.
+`pnpm run data:check` errors on duplicate section labels within a
+discipline and warns above 40 sections / 80 items per section.
 
 ## Progress model
 
@@ -123,7 +133,7 @@ Never edit `disciplines.generated.json` by hand; the next sync would erase it.
   `fluent` (≥80 % / ≥60 %). `tierFor()` in `app/lib/depth.ts` is the single
   source of truth; do not reintroduce ad-hoc thresholds in components.
 - `pct` in `progress.ts` excludes skipped skills from the denominator.
-- localStorage keys: `skill-tracker:v2`, `skill-tracker:custom-disciplines`,
+- localStorage keys: `skill-tracker:v3`, `skill-tracker:custom-disciplines`,
   `skill-tracker:gist-sync`, `skill-tracker-theme`. Exports embed the
   catalogue only when it is custom or explicitly requested; importing the
   bundled catalogue must not pin it as custom (`isBuiltInCatalogue`).
@@ -151,8 +161,8 @@ Never edit `disciplines.generated.json` by hand; the next sync would erase it.
 ## Service worker / PWA
 
 - `public/sw.js` is registered from `root.tsx` only when *not* on
-  `localhost:<port>`. Bump `CACHE_VERSION` whenever cached assets or the SW
-  logic change.
+  `localhost:<port>`. Bump `CACHE_VERSION` (currently `v2`) whenever cached
+  assets or the SW logic change.
 
 ## Deploy
 

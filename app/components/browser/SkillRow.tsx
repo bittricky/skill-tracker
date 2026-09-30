@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Skill } from "~/data";
 import {
   DISCIPLINE_BY_ID,
@@ -9,6 +9,7 @@ import {
 import { STATUS_CYCLE, type Status } from "~/lib/storage";
 import { ResourceLinks } from "~/components/browser/ResourceLinks";
 import { Tooltip } from "~/components/ui/Tooltip";
+import { Icon } from "~/components/ui/Icon";
 import { cn } from "~/lib/cn";
 
 interface SkillRowProps {
@@ -23,6 +24,10 @@ interface SkillRowProps {
   web?: boolean;
   onNavigate?: (disciplineId: string, skillId?: string) => void;
   onRevealSkill?: (skillId: string) => boolean;
+  /** Open the row's details externally (deep links, prereq jumps). */
+  forceExpanded?: boolean;
+  /** Brief mustard ring when arriving via a deep link. */
+  highlighted?: boolean;
 }
 
 export const STATUS_META: Record<
@@ -65,9 +70,15 @@ export function SkillRow({
   web = false,
   onNavigate,
   onRevealSkill,
+  forceExpanded = false,
+  highlighted = false,
 }: SkillRowProps) {
   const [expanded, setExpanded] = useState(false);
   const meta = STATUS_META[status];
+
+  useEffect(() => {
+    if (forceExpanded) setExpanded(true);
+  }, [forceExpanded]);
 
   const rowBg =
     status === "learning"
@@ -101,7 +112,10 @@ export function SkillRow({
   return (
     <div
       id={`skill-${skill.id}`}
-      className="border-b border-surface-divider/30 last:border-b-0 scroll-mt-28"
+      className={cn(
+        "border-b border-surface-divider/30 last:border-b-0 scroll-mt-28 rounded transition-shadow",
+        highlighted && "ring-2 ring-accent-mustard",
+      )}
     >
       <div
         onClick={() => setExpanded(!expanded)}
@@ -221,16 +235,19 @@ export function SkillRow({
             e.stopPropagation();
             onTogglePinned();
           }}
-          title={isPinned ? "Unpin from dashboard" : "Pin to dashboard"}
+          title={isPinned ? "Unpin from Active Tracks" : "Pin to Active Tracks"}
+          aria-label={
+            isPinned ? "Unpin from Active Tracks" : "Pin to Active Tracks"
+          }
           aria-pressed={isPinned}
           className={cn(
-            "shrink-0 mt-0.5 w-7 h-7 rounded text-[12px] leading-none transition-colors border",
+            "shrink-0 mt-0.5 w-7 h-7 rounded-md transition-colors border flex items-center justify-center",
             isPinned
-              ? "text-accent-mustard border-accent-mustard/60 bg-accent-mustard/10"
-              : "text-ink-dim border-transparent hover:border-surface-border hover:text-ink-muted",
+              ? "text-accent-mustard border-accent-mustard bg-accent-mustard/15"
+              : "text-ink-muted border-surface-border hover:border-accent-mustard/60 hover:text-accent-mustard",
           )}
         >
-          {isPinned ? "★" : "☆"}
+          <Icon name={isPinned ? "StarFilled" : "Star"} size={16} />
         </button>
 
         {/* Applied button */}

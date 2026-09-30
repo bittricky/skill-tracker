@@ -26,6 +26,7 @@ interface SectionBlockProps {
   web?: boolean;
   onNavigate?: (disciplineId: string, skillId?: string) => void;
   onRevealSkill?: (skillId: string) => boolean;
+  expandedSkillId?: string;
 }
 
 export function SectionBlock({
@@ -44,6 +45,7 @@ export function SectionBlock({
   web,
   onNavigate,
   onRevealSkill,
+  expandedSkillId,
 }: SectionBlockProps) {
   const [showResources, setShowResources] = useState(false);
   const stats = sectionStats(section, progress);
@@ -120,6 +122,8 @@ export function SectionBlock({
               web={web}
               onNavigate={onNavigate}
               onRevealSkill={onRevealSkill}
+              forceExpanded={item.id === expandedSkillId}
+              highlighted={item.id === expandedSkillId}
             />
           ))}
         </div>

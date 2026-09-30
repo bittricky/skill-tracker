@@ -75,3 +75,4 @@ yarn-error.log
 
 # v7 build files
 .react-router
+build/

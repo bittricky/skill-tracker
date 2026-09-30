@@ -7,6 +7,8 @@
  *   - `progress`      : per-skill status map
  *   - `applied`       : per-skill applied flags
  *   - `pinned`        : skill ids pinned to the dashboard
+ *   - `hidden`        : discipline ids hidden from dashboard rollups
+ *   - `events`        : append-only progress history
  *
  * Hand-editing this JSON lets anyone repurpose the tracker for any skill
  * domain (design, music, research, etc.) — not just developer roadmaps.
@@ -30,12 +32,14 @@ import {
 } from "~/data";
 import {
   loadStorage,
+  normalizeStorage,
   saveStorage,
   type AppliedMap,
+  type ProgressEvent,
   type ProgressMap,
 } from "./storage";
 
-export const CONFIG_VERSION = 2;
+export const CONFIG_VERSION = 3;
 
 export interface ExportedConfig {
   version: number;
@@ -46,6 +50,8 @@ export interface ExportedConfig {
   progress?: ProgressMap;
   applied?: AppliedMap;
   pinned?: string[];
+  hidden?: string[];
+  events?: ProgressEvent[];
 }
 
 export interface ImportSummary {
@@ -74,6 +80,8 @@ export function buildExportConfig(opts: ExportOptions = {}): ExportedConfig {
     progress: storage.progress,
     applied: storage.applied,
     pinned: storage.pinned,
+    hidden: storage.hidden,
+    events: storage.events,
   };
   if (IS_CUSTOM_CATALOGUE || opts.includeCatalogue) {
     config.disciplines = {
@@ -153,8 +161,11 @@ function validateDisciplineCatalogue(value: unknown): string | null {
  */
 export function validateImport(input: unknown): string | null {
   if (!isRecord(input)) return "expected a JSON object";
-  if (input.version !== undefined && typeof input.version !== "number")
-    return "version: expected a number";
+  if (input.version !== undefined) {
+    if (typeof input.version !== "number") return "version: expected a number";
+    if (input.version < 1 || input.version > CONFIG_VERSION)
+      return `version: expected 1–${CONFIG_VERSION}`;
+  }
   if (input.disciplines !== undefined) {
     const err = validateDisciplineCatalogue(input.disciplines);
     if (err) return err;
@@ -165,6 +176,10 @@ export function validateImport(input: unknown): string | null {
     return "applied: expected an object";
   if (input.pinned !== undefined && !Array.isArray(input.pinned))
     return "pinned: expected an array";
+  if (input.hidden !== undefined && !Array.isArray(input.hidden))
+    return "hidden: expected an array";
+  if (input.events !== undefined && !Array.isArray(input.events))
+    return "events: expected an array";
   return null;
 }
 
@@ -204,12 +219,17 @@ export function applyImport(input: ExportedConfig): ImportSummary {
     }
   }
 
+  // normalizeStorage drops malformed entries instead of rejecting them.
   const current = loadStorage();
-  saveStorage({
-    progress: input.progress ?? current.progress,
-    applied: input.applied ?? current.applied,
-    pinned: input.pinned ?? current.pinned,
-  });
+  saveStorage(
+    normalizeStorage({
+      progress: input.progress ?? current.progress,
+      applied: input.applied ?? current.applied,
+      pinned: input.pinned ?? current.pinned,
+      hidden: input.hidden ?? current.hidden,
+      events: input.events ?? current.events,
+    }),
+  );
   summary.importedProgress = input.progress !== undefined;
   summary.importedApplied = input.applied !== undefined;
   summary.importedPinned = input.pinned !== undefined;
@@ -223,14 +243,17 @@ export function clearCustomDisciplines(): void {
   window.localStorage.removeItem(CUSTOM_DISCIPLINES_KEY);
 }
 
-/** Wipe progress only, keeping any custom catalogue. */
+/** Wipe progress only, keeping any custom catalogue and hidden disciplines. */
 export function resetProgressOnly(): void {
-  saveStorage({ progress: {}, applied: {}, pinned: [] });
+  saveStorage({
+    ...normalizeStorage(null),
+    hidden: loadStorage().hidden,
+  });
 }
 
-/** Wipe everything (progress + custom catalogue). */
+/** Wipe everything (progress + hidden + custom catalogue). */
 export function resetAll(): void {
-  resetProgressOnly();
+  saveStorage(normalizeStorage(null));
   clearCustomDisciplines();
 }
 

@@ -7,15 +7,25 @@
  * `app/data/disciplines.overrides.json`
  *   {
  *     "dropSkills":     ["<skillId>", { "id": "<skillId>", "in": "<disciplineId>" }],
+ *     "dropResources":  [{ "skill": "<skillId>", "match": "<substring>" }],
  *     "moveSkills":     [{ "id": "<skillId>", "in": "<disciplineId>", "toSection": "<sectionId | label>" }],
  *     "renameSections": [{ "id": "<sectionId>", "label": "New label" }],
  *     "mergeSections":  [{ "from": "<sectionId>", "into": "<sectionId>" }],
  *     "dropSections":   ["<sectionId>"],
+ *     "createSections": [{ "in": "<disciplineId>", "id": "<short>", "label": "New section",
+ *                          "after": "<sectionId | label>", "skills": ["<skillId>", ...] }],
  *     "describeDisciplines": { "<disciplineId>": "One-line description" }
  *   }
  *   - `dropSkills` as a bare string removes the skill from every discipline;
  *     with `in` only from that one (use for stray reference rows).
+ *   - `dropResources` removes resources whose `label url` contains `match`
+ *     (case-insensitive) from every row of `skill` — for one bad link inside
+ *     an otherwise-good upstream resource list.
  *   - `toSection` may be a full section id or a section label within `in`.
+ *   - `createSections` makes `<in>:sec:<id>` (inserted after `after`, else at
+ *     the end) and moves the listed skills into it. This is how sub-headings
+ *     that upstream draws as free-floating labels become sections; the parser
+ *     deliberately does not detect them.
  *
  * `app/data/resources.overrides.json`
  *   {
@@ -59,13 +69,67 @@ export function applyDisciplineOverrides(
 ) {
   const log = {
     dropped: [],
+    droppedResources: [],
     moved: [],
     renamed: [],
     merged: [],
+    created: [],
     unlinked: [],
     missing: [],
   };
   const byId = new Map(disciplines.map((d) => [d.id, d]));
+
+  for (const cs of overrides.createSections ?? []) {
+    const d = byId.get(cs.in);
+    if (!d || !cs.id || !cs.label) {
+      log.missing.push({ op: "createSections", in: cs.in, id: cs.id });
+      continue;
+    }
+    const secId = `${d.id}:sec:${cs.id}`;
+    if (d.sections.some((s) => s.id === secId)) {
+      log.missing.push({
+        op: "createSections",
+        in: cs.in,
+        id: cs.id,
+        reason: "exists",
+      });
+      continue;
+    }
+    const items = [];
+    const notFound = [];
+    for (const skillId of cs.skills ?? []) {
+      let item = null;
+      for (const sec of d.sections) {
+        const idx = sec.items.findIndex((it) => it.id === skillId);
+        if (idx >= 0) {
+          item = sec.items.splice(idx, 1)[0];
+          break;
+        }
+      }
+      if (item) items.push({ ...item, order: items.length });
+      else notFound.push(skillId);
+    }
+    if (items.length === 0) {
+      log.missing.push({
+        op: "createSections",
+        in: cs.in,
+        id: cs.id,
+        reason: "no skills found",
+      });
+      continue;
+    }
+    const section = {
+      id: secId,
+      label: cs.label,
+      description: cs.description,
+      order: 0,
+      items,
+    };
+    const anchor = cs.after ? findSection(d, cs.after) : null;
+    const at = anchor ? d.sections.indexOf(anchor) + 1 : d.sections.length;
+    d.sections.splice(at, 0, section);
+    log.created.push({ id: secId, in: d.id, count: items.length, notFound });
+  }
 
   // `unlinkSkills`: a row that was wrongly cross-linked by label (e.g. the
   // "Switch" network device pointing at React Native's <Switch>). Replace it
@@ -135,6 +199,33 @@ export function applyDisciplineOverrides(
       }
     }
     if (!hit) log.missing.push({ op: "dropSkills", id, in: only });
+  }
+
+  for (const dr of overrides.dropResources ?? []) {
+    const match = String(dr.match ?? "").toLowerCase();
+    if (!dr.skill || !match) {
+      log.missing.push({ op: "dropResources", ...dr });
+      continue;
+    }
+    let hit = false;
+    for (const d of disciplines)
+      for (const sec of d.sections)
+        for (const it of sec.items) {
+          if (it.id !== dr.skill || !it.resources?.length) continue;
+          const keep = it.resources.filter(
+            (r) => !`${r.label} ${r.url}`.toLowerCase().includes(match),
+          );
+          if (keep.length !== it.resources.length) {
+            log.droppedResources.push({
+              skill: it.id,
+              in: d.id,
+              count: it.resources.length - keep.length,
+            });
+            it.resources = keep;
+            hit = true;
+          }
+        }
+    if (!hit) log.missing.push({ op: "dropResources", ...dr });
   }
 
   for (const mv of overrides.moveSkills ?? []) {

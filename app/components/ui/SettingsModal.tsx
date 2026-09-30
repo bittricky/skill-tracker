@@ -26,11 +26,14 @@ import {
   swSkipWaiting,
   type GistSyncConfig,
 } from "~/lib/gistSync";
-import { IS_CUSTOM_CATALOGUE } from "~/data";
+import { DISCIPLINES, IS_CUSTOM_CATALOGUE } from "~/data";
 
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
+  hidden?: string[];
+  onSetHidden?: (id: string, hidden: boolean) => void;
+  saveError?: boolean;
 }
 
 type Banner =
@@ -50,7 +53,13 @@ const GLYPHS: Record<string, IconName> = {
   check: "Check",
 };
 
-export function SettingsModal({ open, onClose }: SettingsModalProps) {
+export function SettingsModal({
+  open,
+  onClose,
+  hidden = [],
+  onSetHidden,
+  saveError = false,
+}: SettingsModalProps) {
   const [mounted, setMounted] = useState(false);
   const [banner, setBanner] = useState<Banner>(null);
   const [confirmReset, setConfirmReset] = useState<"none" | "progress" | "all">(
@@ -281,6 +290,22 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
           className="max-h-[70vh] overflow-y-auto px-5 py-4 flex flex-col gap-4"
           style={{ background: "var(--color-surface-bg)" }}
         >
+          {/* Save error notice */}
+          {saveError && (
+            <div
+              className="rounded-md px-3 py-2 text-[12px]"
+              style={{
+                background: "rgba(232, 117, 85, 0.15)",
+                color: "var(--color-accent-coral)",
+                border: "1px solid rgba(232, 117, 85, 0.3)",
+              }}
+              role="alert"
+            >
+              Couldn&apos;t save to this browser&apos;s storage — changes may be
+              lost. Export a backup.
+            </div>
+          )}
+
           {/* Banner */}
           {banner && (
             <div
@@ -479,26 +504,69 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
             </PanelBody>
           </Panel>
 
+          {/* Focus Panel — hidden disciplines */}
+          {onSetHidden && (
+            <Panel>
+              <PanelHeader title="Focus" glyph="Eye" accentColor="teal" />
+              <PanelBody>
+                <Pixel size={12} color="ink-muted" className="mb-3">
+                  Hidden disciplines ({hidden.length}) stay browsable in the
+                  Browser but are excluded from dashboard stats, the radar and
+                  the activity views. Exports carry them across devices.
+                </Pixel>
+                <div className="flex flex-wrap gap-2">
+                  <ActionButton
+                    glyph={GLYPHS.check}
+                    onClick={() =>
+                      hidden.forEach((id) => onSetHidden(id, false))
+                    }
+                    variant="ghost"
+                    disabled={hidden.length === 0}
+                  >
+                    Reset
+                  </ActionButton>
+                  <ActionButton
+                    glyph={GLYPHS.close}
+                    onClick={() =>
+                      DISCIPLINES.filter((d) => d.kind === "role").forEach(
+                        (d) => onSetHidden(d.id, true),
+                      )
+                    }
+                    variant="ghost"
+                  >
+                    Hide all Roles
+                  </ActionButton>
+                </div>
+              </PanelBody>
+            </Panel>
+          )}
+
           {/* Reset Panel */}
           <Panel>
             <PanelHeader title="Reset" glyph="Cancel" accentColor="coral" />
             <PanelBody>
               {confirmReset === "none" ? (
-                <div className="flex flex-wrap gap-2">
-                  <ActionButton
-                    glyph={GLYPHS.trash}
-                    onClick={() => setConfirmReset("progress")}
-                    variant="danger"
-                  >
-                    Clear progress
-                  </ActionButton>
-                  <ActionButton
-                    glyph={GLYPHS.trash}
-                    onClick={() => setConfirmReset("all")}
-                    variant="danger"
-                  >
-                    Clear everything
-                  </ActionButton>
+                <div className="flex flex-col gap-2">
+                  <Pixel size={11} color="ink-dim">
+                    Clear progress keeps hidden disciplines; Clear everything
+                    resets those too.
+                  </Pixel>
+                  <div className="flex flex-wrap gap-2">
+                    <ActionButton
+                      glyph={GLYPHS.trash}
+                      onClick={() => setConfirmReset("progress")}
+                      variant="danger"
+                    >
+                      Clear progress
+                    </ActionButton>
+                    <ActionButton
+                      glyph={GLYPHS.trash}
+                      onClick={() => setConfirmReset("all")}
+                      variant="danger"
+                    >
+                      Clear everything
+                    </ActionButton>
+                  </div>
                 </div>
               ) : (
                 <div
@@ -510,8 +578,8 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                 >
                   <Pixel size={12} color="ink" className="mb-2">
                     {confirmReset === "progress"
-                      ? "Clear all progress, applied flags, and pins? Your custom catalogue will be kept."
-                      : "Clear progress AND revert to built-in disciplines? This cannot be undone."}
+                      ? "Clear all progress, applied flags, pins and history? Hidden disciplines and your custom catalogue are kept."
+                      : "Clear progress AND hidden disciplines AND revert to built-in disciplines? This cannot be undone."}
                   </Pixel>
                   <div className="flex gap-2">
                     <ActionButton
@@ -553,11 +621,13 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                 }}
               >
                 {`{
-  "version": 2,
+  "version": 3,
   "disciplines": { … },            // optional
   "progress": { "skill:id": "done" },
   "applied": { "skill:id": true },
-  "pinned": ["skill:id"]
+  "pinned": ["skill:id"],
+  "hidden": ["discipline:id"],
+  "events": [{ "kind": "status", "id", "to", "at" }]
 }`}
               </pre>
             </PanelBody>

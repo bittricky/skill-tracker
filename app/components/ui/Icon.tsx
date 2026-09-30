@@ -33,7 +33,11 @@ export type IconName =
   | "Unlink"
   | "CircuitBoard"
   | "Lightbulb"
-  | "LightbulbOff";
+  | "LightbulbOff"
+  | "Eye"
+  | "EyeOff"
+  | "Star"
+  | "StarFilled";
 
 // SVG path data extracted from pixelarticons v2.1.0
 const iconPaths: Record<IconName, string[]> = {
@@ -148,6 +152,20 @@ const iconPaths: Record<IconName, string[]> = {
   ],
   LightbulbOff: [
     "M9 3h6v2H9zM7 5h2v2H7zm8 0h2v2h-2zm-8 8h2v2H7zm8 0h2v2h-2zM5 7h2v6H5zm12 0h2v6h-2zm-8 8h6v2H9zm0 4h6v2H9zm0-2h2v2H9zm4 0h2v2h-2z",
+  ],
+  Eye: [
+    "M7 6h10v2H7zM5 8h2v2H5zm14 0h2v2h-2zM3 10h2v4H3zm18 0h2v4h-2zM5 14h2v2H5zm14 0h2v2h-2zM7 16h10v2H7z",
+    "M10 10h4v2h-4zm0 2h1v2h-1zm3 0h1v2h-1zm-3 2h4v-2h-4z",
+  ],
+  EyeOff: [
+    "M7 6h10v2H7zM5 8h2v2H5zm14 0h2v2h-2zM3 10h2v4H3zm18 0h2v4h-2zM5 14h2v2H5zm14 0h2v2h-2zM7 16h10v2H7z",
+    "M4 4h2v2H4zm2 2h2v2H6zm2 2h2v2H8zm2 2h2v2h-2zm2 2h2v2h-2zm2 2h2v2h-2zm2 2h2v2h-2z",
+  ],
+  Star: [
+    "M11 4h2v2h-2zM10 6h1v2h-1zm3 0h1v2h-1zM9 8h1v2H9zm5 0h1v2h-1zM3 10h5v2H3zm13 0h5v2h-5zM8 12h2v1H8zm6 0h2v1h-2zM9 13h1v2H9zm5 0h1v2h-1zM7 15h3v2H7zm7 0h3v2h-3zM6 17h4v2H6zm8 0h4v2h-4zM5 19h5v2H5zm9 0h5v2h-5zM4 21h6v1H4zm10 0h6v1h-6z",
+  ],
+  StarFilled: [
+    "M11 4h2v2h-2zM10 6h4v2h-4zM9 8h6v2H9zM3 10h18v2H3zM5 12h14v2H5zM7 14h10v2H7zM7 16h4v2H7zm6 0h4v2h-4zM6 18h4v2H6zm8 0h4v2h-4zM5 20h5v2H5zm9 0h5v2h-5z",
   ],
 };
 

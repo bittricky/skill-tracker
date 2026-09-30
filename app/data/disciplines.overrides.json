@@ -1,127 +1,944 @@
 {
-  "$comment": "Hand-maintained corrections applied by scripts/sync-disciplines.mjs after the upstream transform. See scripts/transform/applyOverrides.mjs for the schema. Skill ids never change here, so saved progress survives. Run `pnpm run data:audit` to find more candidates.",
-
-  "dropSkills": [
-    { "id": "html:Xy15NSxlS0QXYNzEvgocK", "in": "html" },
-    { "id": "html:Xy15NSxlS0QXYNzEvgocK", "in": "css" },
-    { "id": "css:9ZUXy6s9IAIEM5GHk_bXR", "in": "html" },
-    { "id": "html:b83npHc-R9M03hEGzA9Ha", "in": "css" },
-    { "id": "react-native:LRBHwYiT0Yyi18PwR49rc", "in": "backend" },
-    { "id": "react:10uL0r388lKh8pWYWqRZD", "in": "ai-engineer" },
-    { "id": "rust:PskCueCc9pSxfnSzfdX-u", "in": "game-developer" }
+  "$comment": "Hand-maintained corrections applied by scripts/sync-disciplines.mjs after the upstream transform. See scripts/transform/applyOverrides.mjs for the schema. Skill ids never change here, so saved progress survives. The phase-1 dropSkills/unlinkSkills entries were baked into disciplines.generated.json (commit c212278) and are preserved by the sync's id-preservation step, so they were removed from this file. The dropSkills entry removes upstream's shared \"Ruby\" language row everywhere (the ruby discipline itself is dropped via disciplines.upstream.json `removed`); dropResources strips a stray \"Arrays in Ruby\" video off the DSA Array row. createSections is how upstream's free-floating label sub-headers become sections (the parser does not detect them). Run `pnpm run data:audit` to find more candidates.",
+  "dropSkills": ["datastructures-and-algorithms:9h1mz0xAUvPrnRm9VndJF"],
+  "dropResources": [
+    {
+      "skill": "datastructures-and-algorithms:lxY3ErxJ_D3zkSAXIBUpv",
+      "match": "ruby"
+    }
   ],
-
-  "unlinkSkills": [
-    { "id": "react-native:ouNTekf4VpZv-Vja8_bfM", "in": "cyber-security", "label": "Switch" },
-    { "id": "html:Ufgy4-kC2drCov4MqEhjy", "in": "cyber-security", "label": "head" },
-    { "id": "rust:w8nxQDxmfoUHkFV66TKiq", "in": "cyber-security", "label": "ring" },
-    { "id": "css:lo6OuD5hsZ7_r01jp-u0U", "in": "game-developer", "label": "Color" },
-    { "id": "shell-bash:YyCvxYgFzobwF_vMQXunZ", "in": "nestjs", "label": "Pipes" },
-    { "id": "nextjs:gpZNwsh075wl5eH2gLKro", "in": "nestjs", "label": "Middleware" },
-    { "id": "mongodb:yRJ6jeysFXBpwLEqvrdKk", "in": "nestjs", "label": "Role-based Access Control" },
-    { "id": "javascript:sciU68E13mcfL577y6Vim", "in": "redis", "label": "Set" },
-    { "id": "html:v3Uf4LTfCbyasNJ-2Vfj9", "in": "redis", "label": "del" },
-    { "id": "graphql:UYwuUVTeurwODV4_Kdt_W", "in": "redis", "label": "Caching" },
-    { "id": "redis:wsuKH7YwGDV6GYQbdhA4o", "in": "kubernetes", "label": "Network Security" },
-    { "id": "redis:2p5RF4lVYfRvYTo1Ofm-a", "in": "backend", "label": "Monitoring" },
-    { "id": "mongodb:JAosQ9tFj7y70lGQ0vHzC", "in": "backend", "label": "Kafka" },
-    { "id": "nextjs:mTh5PZNpzJNKPqpu5PVL6", "in": "devops", "label": "OpenTelemetry" },
-    { "id": "nextjs:DHqdXJFhVZWaNa5zSX8Wk", "in": "system-design", "label": "Instrumentation" },
-    { "id": "kubernetes:Qelo1YvAcUoX5PA-RYbNp", "in": "computer-science", "label": "Load Balancing" },
-    { "id": "graphql:UYwuUVTeurwODV4_Kdt_W", "in": "computer-science", "label": "Caching" },
-    { "id": "linux:Rib7h9lh_ndiXkwNbftz_", "in": "computer-science", "label": "Process Forking" },
-    { "id": "redis:xF0wQYmtwXYkrzvWg5gOO", "in": "computer-science", "label": "Memory Management" },
-    { "id": "typescript:YbDuIo1BbZKEAZwmXlCdZ", "in": "computer-science", "label": "Array" },
-    { "id": "rust:B-S1hE-ofNTutnkc2hJBf", "in": "computer-science", "label": "Stack" },
-    { "id": "rust:fq2NMV-QV9ayJl82ZWzov", "in": "computer-science", "label": "Queue" },
-    { "id": "typescript:YbDuIo1BbZKEAZwmXlCdZ", "in": "datastructures-and-algorithms", "label": "Array" },
-    { "id": "python:0-m8jVuDKE8hX1QorKGTM", "in": "datastructures-and-algorithms", "label": "Hash Tables" },
-    { "id": "python:uJIqgsqUbE62Tyo3K75Qx", "in": "datastructures-and-algorithms", "label": "Binary Search Trees" },
-    { "id": "javascript:YJGhhFuWmFvhRKOg6nwON", "in": "datastructures-and-algorithms", "label": "Recursion" },
-    { "id": "python:S0FLE70szSVUPI0CDEQK7", "in": "software-design-architecture", "label": "Inheritance" },
-    { "id": "typescript:tZFWeWHdOUJcCEtHfXH9p", "in": "software-design-architecture", "label": "Abstract Classes" },
-    { "id": "graphql:tc_rjJZrr2x3bp8mcoQ0F", "in": "software-design-architecture", "label": "Interfaces" },
-    { "id": "linux:2oQiuQ2j02SCt9t5eV6hg", "in": "software-design-architecture", "label": "Repositories" },
-    { "id": "javascript:1RcwBHU3jzx0YxxUGZic4", "in": "typescript", "label": "String" },
-    { "id": "javascript:ZLs0NKM0lrnOy5ATDhlk0", "in": "typescript", "label": "undefined" },
-    { "id": "javascript:b1HvkoWA2t4kt8mS6FySm", "in": "rust", "label": "boolean" },
-    { "id": "javascript:1RcwBHU3jzx0YxxUGZic4", "in": "rust", "label": "String" },
-    { "id": "typescript:jq-GD0DLyzrEXQKUmt5kv", "in": "rust", "label": "Tuple" },
-    { "id": "typescript:YbDuIo1BbZKEAZwmXlCdZ", "in": "rust", "label": "Array" },
-    { "id": "javascript:YJGhhFuWmFvhRKOg6nwON", "in": "python", "label": "Recursion" },
-    { "id": "javascript:F_Lrj0F7UXriqJ0mhwxCy", "in": "python", "label": "Classes" },
-    { "id": "javascript:NZedBxG9B9TRVOf2QE2yL", "in": "shell-bash", "label": "Arrays" },
-    { "id": "css:UKUulhLMTcmwi-jDDoGTp", "in": "shell-bash", "label": "Comments" },
-    { "id": "python:NP1kjSk0ujU0Gx-ajNHlR", "in": "shell-bash", "label": "Conditionals" },
-    { "id": "vue:dxwKfBxd5KYVkfEPMdHp-", "in": "shell-bash", "label": "Debugging" },
-    { "id": "python:-DJgS6l2qngfwurExlmmT", "in": "shell-bash", "label": "Functions" },
-    { "id": "nextjs:tcDL4OEbZplbjNa8VTLpv", "in": "shell-bash", "label": "Introduction" },
-    { "id": "kubernetes:r3fzAN5DzratAKnnT8hzb", "in": "shell-bash", "label": "Jobs" },
-    { "id": "linux:-pW7R76yNIeGf7TQoX4QL", "in": "shell-bash", "label": "Literals" },
-    { "id": "python:Dvy7BnNzK55qbh_SgOk8m", "in": "shell-bash", "label": "Loops" },
-    { "id": "javascript:c38b6t5f17Zg2O2yg3eFP", "in": "shell-bash", "label": "String Operators" },
-    { "id": "react:Nex2HcTOYIbfqUzXyxSMY", "in": "vue", "label": "Events" },
-    { "id": "react:aE6XBgH23135_9QmD4ff2", "in": "vue", "label": "Conditional Rendering" },
-    { "id": "vue:raEfI4GLMW2fOucka07VE", "in": "react-native", "label": "Props" },
-    { "id": "html:YHoag7UR40OeIVUjfhQg_", "in": "react-native", "label": "Accessibility" },
-    { "id": "python:l7k0qTYe42wYBTlT2-1cy", "in": "nodejs", "label": "Custom Modules" },
-    { "id": "python:dEFLBGpiH6nbSMeR7ecaT", "in": "graphql", "label": "Variables" },
-    { "id": "rust:FswpjWqqt8-BzUTsDDjel", "in": "graphql", "label": "Enums" },
-    { "id": "css:XuySIveFuvA_FvqDnNPRL", "in": "graphql", "label": "Lists" },
-    { "id": "javascript:1RcwBHU3jzx0YxxUGZic4", "in": "mongodb", "label": "String" },
-    { "id": "typescript:YbDuIo1BbZKEAZwmXlCdZ", "in": "mongodb", "label": "Array" },
-    { "id": "javascript:xe8HZ8Mt1fK8yJMcDPYHJ", "in": "mongodb", "label": "Object" },
-    { "id": "javascript:ZLs0NKM0lrnOy5ATDhlk0", "in": "mongodb", "label": "undefined" },
-    { "id": "javascript:b1HvkoWA2t4kt8mS6FySm", "in": "mongodb", "label": "boolean" },
-    { "id": "sql:Ivqo2wa-_NhGU3vGd0pUI", "in": "mongodb", "label": "Date" },
-    { "id": "javascript:CxyNyFMuTLS3owtRMgClD", "in": "mongodb", "label": "null" },
-    { "id": "javascript:R6ICrk6vjoBxx5nRGo4Jg", "in": "mongodb", "label": "Symbol" },
-    { "id": "sql:7hEqkoxkdAWmakGZsMJx-", "in": "mongodb", "label": "Timestamp" },
-    { "id": "sql:Ps9Yv2s-bKvEegGAbPsiA", "in": "mongodb", "label": "Query Optimization" },
-    { "id": "nextjs:iv6rWEqjh07d0n2kAQedO", "in": "linux", "label": "Environment Variables" },
-    { "id": "python:dEFLBGpiH6nbSMeR7ecaT", "in": "linux", "label": "Variables" },
-    { "id": "python:Dvy7BnNzK55qbh_SgOk8m", "in": "linux", "label": "Loops" },
-    { "id": "python:NP1kjSk0ujU0Gx-ajNHlR", "in": "linux", "label": "Conditionals" },
-    { "id": "vue:dxwKfBxd5KYVkfEPMdHp-", "in": "linux", "label": "Debugging" },
-    { "id": "javascript:ghjNJW67Wj5L5QK46xwL-", "in": "computer-science", "label": "Bitwise Operators" }
+  "unlinkSkills": [],
+  "createSections": [
+    {
+      "in": "cyber-security",
+      "id": "ctfs-capture-the-flag",
+      "label": "CTFs (Capture the Flag)",
+      "after": "Fundamental IT Skills",
+      "skills": [
+        "cyber-security:wkuE_cChPZT2MHyGjUuU4",
+        "cyber-security:kht-L7_v-DbglMYUHuchp",
+        "cyber-security:W94wY_otBuvVW_-EFlKA6",
+        "cyber-security:pou5xHwnz9Zsy5J6lNlKq",
+        "cyber-security:WCeJrvWl837m1BIjuA1Mu"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "operating-system-skills",
+      "label": "Operating System Skills",
+      "after": "Operating Systems",
+      "skills": [
+        "cyber-security:02aaEP9E5tlefeGBxf_Rj",
+        "cyber-security:yXOGqlufAZ69uiBzKFfh6",
+        "cyber-security:MGitS_eJBoY99zOR-W3F4",
+        "cyber-security:bTfL7cPOmBBFl-eHxUJI6",
+        "cyber-security:Ot3LGpM-CT_nKsNqIKIye",
+        "cyber-security:zRXyoJMap9irOYo3AdHE8",
+        "cyber-security:xeRWOX1fWQDLNLWMAFTEe",
+        "cyber-security:WDrSO7wBNn-2jB8mcyT7j"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "ip-terminology",
+      "label": "IP Terminology",
+      "after": "Operating Systems",
+      "skills": [
+        "cyber-security:0TWwox-4pSwuXojI8ixFO",
+        "cyber-security:f-v8qtweWXFY_Ryo3oYUF",
+        "cyber-security:5rKaFtjYx0n2iF8uTLs8X",
+        "cyber-security:W_oloLu2Euz5zRSy7v_T8"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "virtualization-basics",
+      "label": "Virtualization Basics",
+      "after": "Networking Knowledge",
+      "skills": [
+        "cyber-security:CIoLaRv5I3sCr9tBnZHEi",
+        "cyber-security:p7w3C94xjLwSMm5qA8XlL",
+        "cyber-security:LocGETHz6ANYinNd5ZLsS",
+        "cyber-security:251sxqoHggQ4sZ676iX5w"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "networking-terminology",
+      "label": "Networking Terminology",
+      "after": "Networking Knowledge",
+      "skills": [
+        "cyber-security:d5Cv3EXf6OXW19yPJ4x6e",
+        "cyber-security:T4312p70FqRBkzVfWKMaR",
+        "cyber-security:gfpvDQz61I3zTB7tGu7vp",
+        "cyber-security:ORIdKG8H97VkBUYpiDtXf",
+        "cyber-security:M52V7hmG4ORf4TIVw3W3J",
+        "cyber-security:Kkd3f_0OYNCdpDgrJ-_Ju",
+        "cyber-security:ZTC5bLWEIQcdmowc7sk_E",
+        "cyber-security:FdoqB2---uDAyz6xZjk_u"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "troubleshooting-tools",
+      "label": "Troubleshooting Tools",
+      "after": "Networking Knowledge",
+      "skills": [
+        "cyber-security:u-6xuZUyOrogh1bU4cwER",
+        "cyber-security:xFuWk7M-Vctk_xb7bHbWs",
+        "cyber-security:cSz9Qx3PGwmhq3SSKYKfg",
+        "cyber-security:k6UX0BJho5arjGD2RWPgH",
+        "cyber-security:iJRQHzh5HXADuWpCouwxv",
+        "cyber-security:K05mEAsjImyPge0hDtsU0",
+        "cyber-security:D2YYv1iTRGken75sHO0Gt",
+        "linux:yrxNYMluJ9OAQCKuM5W1u"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "network-services",
+      "label": "Network Services",
+      "after": "Networking Knowledge",
+      "skills": [
+        "cyber-security:tf0TymdPHbplDHvuVIIh4",
+        "cyber-security:hN8p5YBcSaPm-byQUIz8L"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "network-topologies",
+      "label": "Network Topologies",
+      "after": "Networking Knowledge",
+      "skills": [
+        "cyber-security:P0ZhAXd_H-mTOMr13Ag31",
+        "cyber-security:9vEUVJ8NTh0wKyIE6-diY",
+        "cyber-security:PYeF15e7iVB9seFrrO7W6",
+        "cyber-security:0DWh4WmLK_ENDuqQmQcu4"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "authentication-methodologies",
+      "label": "Authentication Methodologies",
+      "after": "Networking Knowledge",
+      "skills": [
+        "cyber-security:lG6afUOx3jSQFxbH92otL",
+        "cyber-security:WXRaVCYwuGQsjJ5wyvbea",
+        "cyber-security:tH3RLnJseqOzRIbZMklHD",
+        "cyber-security:lV3swvD6QGLmD9iVfbKIF",
+        "cyber-security:xL32OqDKm6O043TYgVV1r"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "common-protocols",
+      "label": "Common Protocols",
+      "after": "Networking Knowledge",
+      "skills": [
+        "linux:uk6UMuI8Uhf02TBAGVeLS",
+        "cyber-security:3Awm221OJHxXNLiL9yxfd",
+        "cyber-security:Ia6M1FKPNpqLDiWx7CwDh",
+        "cyber-security:ftYYMxRpVer-jgSswHLNa",
+        "cyber-security:YEy6o-clTBKZp1yOkLwNb"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "basics-of-cryptography",
+      "label": "Basics of Cryptography",
+      "after": "Security Skills and Knowledge",
+      "skills": [
+        "cyber-security:jqWhR6oTyX6yolUBv71VC",
+        "cyber-security:7svh9qaaPp0Hz23yinIye",
+        "cyber-security:fxyJxrf3mnFTa3wXk1MCW",
+        "cyber-security:0UZmAECMnfioi-VeXcvg8",
+        "cyber-security:rmR6HJqEhHDgX55Xy5BAW"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "attack-types-and-differences",
+      "label": "Attack Types and Differences",
+      "after": "Security Skills and Knowledge",
+      "skills": [
+        "cyber-security:7obusm5UtHwWMcMMEB3lt",
+        "cyber-security:d4U6Jq-CUB1nNN2OCFoum",
+        "cyber-security:FD0bkmxNpPXiUB_NevEUf",
+        "cyber-security:Iu0Qtk13RjrhHpSlm0uyh",
+        "cyber-security:v9njgIxZyabJZ5iND3JGc",
+        "cyber-security:O1VceThdxRlgQ6DcGyY7Y",
+        "cyber-security:UU_inxa8Y2lLP2BRhdLDT",
+        "cyber-security:dcvuKHq0nHgHLcLwtl4IJ",
+        "cyber-security:cO70zHvHgBAH29khF-hBW",
+        "cyber-security:0LeDwj_tMaXjQBBOUJ5CL",
+        "cyber-security:Q0i-plPQkb_NIvOQBVaDd",
+        "cyber-security:M65fCl72qlF0VTbGNT6du",
+        "cyber-security:KSwl6sX2W47vUmytpm8LH"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "tools-for-incident-response-and-discovery",
+      "label": "Tools for Incident Response and Discovery",
+      "after": "Security Skills and Knowledge",
+      "skills": [
+        "cyber-security:XyaWZZ45axJMKXoWwsyFj",
+        "cyber-security:762Wf_Eh-3zq69CZZiIjR",
+        "cyber-security:jJtS0mgCYc0wbjuXssDRO",
+        "shell-bash:ZWMGvUxnohv6-dzsaSHuB",
+        "cyber-security:_jJhL1RtaqHJmlcWrd-Ak",
+        "cyber-security:Hoou7kWyfB2wx_yFHug_H",
+        "cyber-security:Cclbt4bNfkHwFwZOvJuLK",
+        "cyber-security:yfTpp-ePuDB931FnvNB-Y",
+        "cyber-security:VNmrb5Dm4UKUgL8JBfhnE",
+        "cyber-security:fzdZF-nzIL69kaA7kwOCn",
+        "shell-bash:Zom0OpBLi153i8hkoYLj5",
+        "cyber-security:OUarb1oS1-PX_3OXNR0rV",
+        "cyber-security:9xbU_hrEOUtMm-Q09Fe6t"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "attack-frameworks",
+      "label": "Attack Frameworks",
+      "after": "Security Skills and Knowledge",
+      "skills": [
+        "cyber-security:AY-hoPGnAZSd1ExaYX8LR",
+        "cyber-security:7Bmp4x6gbvWMuVDdGRUGj"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "compliance-standards",
+      "label": "Compliance Standards",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:oRssaVG-K-JwlL6TAHhXw",
+        "cyber-security:SOkJUTd1NUKSwYMIprv4m",
+        "cyber-security:fjEdufrZAfW4Rl6yDU8Hk"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "hacking-distros",
+      "label": "Hacking Distros",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:zR6djXnfTSFVEfvJonQjf",
+        "cyber-security:w6wXkoLrv0_d-Ah0txUHd"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "security-operations-tooling",
+      "label": "Security Operations Tooling",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:c2kY3wZVFKZYxMARhLIwO",
+        "cyber-security:i0ulrA-GJrNhIVmzdWDrn"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "using-tools-for-unintended-purposes",
+      "label": "Using tools for Unintended Purposes",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:10qbxX8DCrfyH7tgYexxQ",
+        "cyber-security:Jd9t8e9r29dHRsN40dDOk",
+        "cyber-security:Rnpx7VkhrBkSQTni6UuTR"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "secure-vs-unsecure-protocols",
+      "label": "Secure vs Unsecure Protocols",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:9Z6HPHPj4escSVDWftFEx",
+        "cyber-security:LLGXONul7JfZGUahnK0AZ",
+        "cyber-security:6ILPXeUDDmmYRiA_gNTSr",
+        "cyber-security:gNFVtBxSYP5Uw3o3tlJ0M"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "logs-captures",
+      "label": "Logs & Captures",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:KbFwL--xF-eYjGy8PZdrM",
+        "cyber-security:TIxEkfBrN6EXQ3IKP1B7u",
+        "cyber-security:7oFwRkmoZom8exMDtMslX",
+        "cyber-security:xXz-SwvXA2cLfdCd-hLtW"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "common-attacks",
+      "label": "Common Attacks",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:IF5H0ZJ72XnqXti3jRWYF",
+        "cyber-security:LteSouUtAj3JWWOzcjQPl",
+        "cyber-security:O1fY2n40yjZtJUEeoItKr",
+        "cyber-security:ODlVT6MhV-RVUbRMG0mHi"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "defensive-technologies",
+      "label": "Defensive Technologies",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:3140n5prZYySsuBHjqGOJ",
+        "cyber-security:tWDo5R3KU5KOjDdtv801x",
+        "cyber-security:7w9qj16OD4pUzq-ItdxeK",
+        "cyber-security:1jwtExZzR9ABKvD_S9zFG",
+        "cyber-security:MBnDE0VyVh2u2p-r90jVk",
+        "cyber-security:9QtY1hMJ7NKLFztYK-mHY",
+        "cyber-security:QvHWrmMzO8IvNQ234E_wf",
+        "cyber-security:l5EnhOCnkN-RKvgrS9ylH",
+        "cyber-security:SLKwuLHHpC7D1FqrpPRAe"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "hardening-concepts",
+      "label": "Hardening Concepts",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:OAukNfV5T0KTnIF9jKYRF",
+        "cyber-security:W7bcydXdwlubXF2PHKOuq",
+        "cyber-security:oFgyQYL3Ws-l7B5AF-bTR",
+        "cyber-security:UF3BV1sEEOrqh5ilnfM1B",
+        "cyber-security:6oAzYfwsHQYNVbi7c2Tly"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "threat-intel-tools",
+      "label": "Threat Intel Tools",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:rxzcAzHjzIc9lkWSw0fef",
+        "cyber-security:h__KxKa0Q74_egY7GOe-L",
+        "cyber-security:lMiW2q-b72KUl-2S7M6Vb",
+        "cyber-security:lFt1k1Q-NlWWqyDA3gWD1",
+        "cyber-security:GZHFR43UzN0WIIxGKZOdX",
+        "cyber-security:-RnlvUltJ9IDtH0HEnMbN"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "incident-response-process",
+      "label": "Incident Response Process",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:w6V4JOtXKCMPAkKIQxvMg",
+        "cyber-security:N17xAIo7sgbB0nrIDMWju",
+        "cyber-security:XsRoldaBXUSiGbvY1TjQd",
+        "cyber-security:l7WnKuR2HTD4Vf9U2TxkK"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "reporting-audience",
+      "label": "Reporting Audience",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:lv6fI3WeJawuCbwKtMRIh",
+        "cyber-security:05Gbgy6aawYlYIx38u8DE",
+        "cyber-security:05tH6WhToC615JTFN-TPc",
+        "cyber-security:C5bCIdPi0gGkY_r4qqoXZ"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "threat-classification",
+      "label": "Threat Classification",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:zqRaMmqcLfx400kJ-h0LO",
+        "cyber-security:HPlPGKs7NLqmBidHJkOZg",
+        "shell-bash:nfyh2co43xfR9DJbNnM_Y"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "cloud-service-models",
+      "label": "Cloud Service Models",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:sVw5KVNxPEatBRKb2ZbS_",
+        "cyber-security:PQ_np6O-4PK2V-r5lywQg",
+        "cyber-security:1nPifNUm-udLChIqLC_uK"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "cloud-deployment-models",
+      "label": "Cloud Deployment Models",
+      "after": "Cloud Skills and Knowledge",
+      "skills": [
+        "cyber-security:ecpMKP1cQXXsfKETDUrSf",
+        "cyber-security:ZDj7KBuyZsKyEMZViMoXW",
+        "cyber-security:ywRlTuTfh5-NHnv4ZyW1t"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "common-cloud-environments",
+      "label": "Common Cloud Environments",
+      "after": "Programming Skills",
+      "skills": [
+        "devops:1ieK6B_oqW8qOC6bdmiJe",
+        "cyber-security:tOLA5QPKi6LHl1ljsOMwX",
+        "devops:ctor79Vd7EXDMdrLyUcu_"
+      ]
+    },
+    {
+      "in": "cyber-security",
+      "id": "common-cloud-storage",
+      "label": "Common Cloud Storage",
+      "after": "Programming Skills",
+      "skills": [
+        "full-stack:n2Xp_ijJ2OS8xhE7xMWxk",
+        "cyber-security:4Man3Bd-ySLFlAdxbLOHw",
+        "cyber-security:fTZ4PqH-AMhYA_65w4wFO",
+        "cyber-security:9OastXVfiG1YRMm68ecnn",
+        "cyber-security:MWqnhDKm9jXvDDjkeVNxm",
+        "cyber-security:Wqy6ki13hP5c0VhGYEhHj"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "common-runtimes",
+      "label": "Common Runtimes",
+      "after": "Asymptotic Notation",
+      "skills": [
+        "computer-science:3F_QBv_sU39ehOxpurF88",
+        "computer-science:nnlMNkQn1HU4U9yPbV9kQ",
+        "computer-science:jymhjv8GiFALQpox6aZeu",
+        "computer-science:sVFvpsAO1_ZH9aliEj9aF",
+        "computer-science:5mMLr6tWbiSZuox1lx0_B",
+        "computer-science:m0umGQNdvg95UiNpQZsQN"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "graph-representation",
+      "label": "Graph Representation",
+      "after": "Common Algorithms",
+      "skills": [
+        "computer-science:rTnKJcPniUtqvfOyC88N0",
+        "computer-science:HZ1kk0TQ13FLC9t13BZl5"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "sorting-algorithms",
+      "label": "Sorting Algorithms",
+      "after": "Common Algorithms",
+      "skills": [
+        "computer-science:4wGBYFZpcdTt97WTbSazx",
+        "computer-science:rOsHFXQm5jNz0RyZQ5ZGs",
+        "computer-science:ujDCW6zZE8dV_fpNf-oIl",
+        "computer-science:CovrRsBY-sYW_xSegcN6N",
+        "computer-science:be0Q8GW9ZX1JbPrBvbMji",
+        "computer-science:Bh-whDbcCjl3m6mRm9w02"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "recursion",
+      "label": "Recursion",
+      "after": "Asymptotic Notation",
+      "skills": [
+        "computer-science:0_qNhprnXU3i8koW3XTdD",
+        "computer-science:iLEOuQgUgU5Jc38iXDpp5"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "graph-algorithms",
+      "label": "Graph Algorithms",
+      "after": "Asymptotic Notation",
+      "skills": [
+        "computer-science:vcV6TEM_PqXxtThdfMKGw",
+        "computer-science:Yf5gOIe7oiL19MjEVcpdw",
+        "computer-science:eY4nK2lPYsrR-a_8y2sao",
+        "computer-science:oJstm-8c-4seWbIWcNgDv",
+        "computer-science:Yrk2PLUa-_FAPlhCkMl3e"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "tree-traversal",
+      "label": "Tree Traversal",
+      "after": "Asymptotic Notation",
+      "skills": [
+        "computer-science:psTN5N66xoFHFopgd5faW",
+        "computer-science:KTrgf14Q6rg2f0v4dqq2s",
+        "computer-science:4_oGXwjzSY5cX9n7L4iAA",
+        "computer-science:Ke_ch4fnuKIiGAXUM_LPP",
+        "computer-science:chzP5_t2gMi6MstxEzCi5"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "search-algorithms",
+      "label": "Search Algorithms",
+      "after": "Asymptotic Notation",
+      "skills": [
+        "computer-science:8kTg4O9MrTHRUrp6U-ctA",
+        "computer-science:XwyqBK9rgP1MMcJrdIzm5"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "greedy-algorithms",
+      "label": "Greedy Algorithms",
+      "after": "Endianess",
+      "skills": [
+        "computer-science:l3X9UrEYTWs5kBXI1NNCf",
+        "computer-science:QrcijPiVT3bgqfkF-6ssi",
+        "computer-science:Wqhg7E-lOz1oNcRXjUej8",
+        "computer-science:Hqw2eGtgfbVggqXBnIOdI",
+        "computer-science:znpFIKwMJlepKJ8dH3kvC"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "backtracking",
+      "label": "Backtracking",
+      "after": "Floating Point Math",
+      "skills": [
+        "computer-science:aBjBHpq_OajgQjxdCobXD",
+        "computer-science:HlAmTY1udqDT2mTfBU9P-",
+        "computer-science:nODFT-i2YsxUVsgwWkIWn",
+        "computer-science:NcKW_3vJWL_rVlDBB_Qjs"
+      ]
+    },
+    {
+      "in": "computer-science",
+      "id": "cache-algorithms",
+      "label": "Cache Algorithms",
+      "after": "Floating Point Math",
+      "skills": [
+        "computer-science:hna0HLu0l4NTNNpyGqlW5",
+        "computer-science:cEsboPT8nLvo0Zt0_oBq6",
+        "computer-science:n11ujPI3of-52l2KW2CDQ"
+      ]
+    },
+    {
+      "in": "devops",
+      "id": "scripting-languages",
+      "label": "Scripting Languages",
+      "after": "Terminal Knowledge",
+      "skills": ["devops:syBIAL1mHbJLnTBoSxXI7", "devops:z6IBekR8Xl-6f8WEb05Nw"]
+    },
+    {
+      "in": "devops",
+      "id": "linux",
+      "label": "Linux",
+      "after": "Version Control Systems",
+      "skills": [
+        "devops:cTqVab0VbVcn3W7i0wBrX",
+        "devops:zhNUK953p6tjREndk3yQZ",
+        "devops:7mS6Y_BOAHNgM3OjyFtZ9"
+      ]
+    },
+    {
+      "in": "devops",
+      "id": "unix",
+      "label": "Unix",
+      "after": "Version Control Systems",
+      "skills": [
+        "devops:PiPHFimToormOPl1EtEe8",
+        "devops:97cJYKqv7CPPUXkKNwM4x",
+        "devops:haiYSwNt3rjiiwCDszPk1"
+      ]
+    },
+    {
+      "in": "vue",
+      "id": "testing",
+      "label": "Testing",
+      "after": "SSR",
+      "skills": [
+        "react:LULjhsPNONyI5912DKzPw",
+        "vue:p5bUvgr_3H-A55ZnEExk8",
+        "react:zN7Ps1puD-YpHbKi1pHH8",
+        "react:g39P0c6M2sHNoUPs0m8tr"
+      ]
+    },
+    {
+      "in": "vue",
+      "id": "ui-libraries",
+      "label": "UI Libraries",
+      "after": "State Management",
+      "skills": [
+        "react:KO3viVIJJREtxXxsocN7j",
+        "vue:VNclt_QQthWb2u4xWI_uY",
+        "vue:NMIh8rqLM5P-Uk65uHATn"
+      ]
+    },
+    {
+      "in": "vue",
+      "id": "reusability",
+      "label": "Reusability",
+      "after": "Components",
+      "skills": ["vue:br1r8KIf5KInY5mk2xhA6", "vue:_Nc8ivQrdpKuf8MwaV-K7"]
+    },
+    {
+      "in": "graphql",
+      "id": "frontend-implementations",
+      "label": "Frontend Implementations",
+      "after": "Serving over Internet",
+      "skills": [
+        "react:cLfM342sZfsCwmPPxQpEI",
+        "graphql:D5O7ky5eXwm_Ys1IcFNaq",
+        "react:9M5jRu0pj8KMvg9f-2oqZ"
+      ]
+    },
+    {
+      "in": "graphql",
+      "id": "backend-implementations",
+      "label": "Backend Implementations",
+      "after": "Frontend Implementations",
+      "skills": [
+        "graphql:9nVo95gRNGHGIbaJQPH1x",
+        "graphql:jCzrMElTo-c9xGcpPOOPl",
+        "graphql:7szipojhVb2VoL3VcS619",
+        "graphql:N-vsu-wvOikuoTbzdgX3X",
+        "graphql:Gotb1xtxySCVC5MrnkPSs",
+        "graphql:o_VkyoN6DmUUkfl0u0cro",
+        "graphql:iTV2H8clmRTOksul4v38p",
+        "graphql:datKo3vPDwXoyVskcrdkc"
+      ]
+    },
+    {
+      "in": "react-native",
+      "id": "react-basics",
+      "label": "React Basics",
+      "after": "Learn the Pre-requisites",
+      "skills": [
+        "react:WREBxWSNQDD_6fzpHL6CE",
+        "react-native:k9_hVOBd9ZmC4HLuAf46v",
+        "react-native:0gH7vI_Hy7s9hO2TF6hR3",
+        "react-native:V7r1Hqk9IXTfjkjAg7-BT"
+      ]
+    }
   ],
-
   "moveSkills": [
-    { "id": "backend:g8GjkJAhvnSxXTZks0V1g", "in": "backend", "toSection": "Caching" },
-    { "id": "backend:zp3bq38tMnutT2N0tktOW", "in": "backend", "toSection": "Learn about APIs" },
-    { "id": "backend:CWwh2abwqx4hAxpAGvhIx", "in": "backend", "toSection": "Pick a Language" },
-    { "id": "backend:28U6q_X-NTYf7OSKHjoWH", "in": "backend", "toSection": "NoSQL Databases" },
-    { "id": "backend:zp3bq38tMnutT2N0tktOW", "in": "computer-science", "toSection": "System Design" },
-    { "id": "backend:zp3bq38tMnutT2N0tktOW", "in": "system-design", "toSection": "Communication" },
-    { "id": "nodejs:tGD8XLHnfspfv8CbguGwV", "in": "nodejs", "toSection": "Building & Consuming APIs" },
-    { "id": "system-design:Kisvxlrjb7XnKFCOdxRtb", "in": "system-design", "toSection": "Caching" },
-    { "id": "system-design:o532nPnL-d2vXJn9k6vMl", "in": "system-design", "toSection": "Caching" },
-    { "id": "system-design:I_nR6EwjNXSG7_hw-_VhX", "in": "devops", "toSection": "Networking & Protocols" },
-    { "id": "frontend:uum7vOhOUR38vLuGZy8Oa", "in": "devops", "toSection": "Networking & Protocols" },
-    { "id": "html:0Q41Bm_TZqsC7X-MH8uFe", "in": "devops", "toSection": "Networking & Protocols" },
-    { "id": "frontend:uum7vOhOUR38vLuGZy8Oa", "in": "frontend", "toSection": "Web Security Basics" },
-    { "id": "python:JDDG4KfhtIlw1rkNCzUli", "in": "python", "toSection": "python:sec:GISOFMKvnBys0O0IMpz2J" }
+    {
+      "id": "backend:g8GjkJAhvnSxXTZks0V1g",
+      "in": "backend",
+      "toSection": "Caching"
+    },
+    {
+      "id": "backend:zp3bq38tMnutT2N0tktOW",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:CWwh2abwqx4hAxpAGvhIx",
+      "in": "backend",
+      "toSection": "Pick a Language"
+    },
+    {
+      "id": "backend:28U6q_X-NTYf7OSKHjoWH",
+      "in": "backend",
+      "toSection": "NoSQL Databases"
+    },
+    {
+      "id": "backend:zp3bq38tMnutT2N0tktOW",
+      "in": "computer-science",
+      "toSection": "System Design"
+    },
+    {
+      "id": "backend:zp3bq38tMnutT2N0tktOW",
+      "in": "system-design",
+      "toSection": "Communication"
+    },
+    {
+      "id": "nodejs:tGD8XLHnfspfv8CbguGwV",
+      "in": "nodejs",
+      "toSection": "Building & Consuming APIs"
+    },
+    {
+      "id": "system-design:Kisvxlrjb7XnKFCOdxRtb",
+      "in": "system-design",
+      "toSection": "Caching"
+    },
+    {
+      "id": "system-design:o532nPnL-d2vXJn9k6vMl",
+      "in": "system-design",
+      "toSection": "Caching"
+    },
+    {
+      "id": "system-design:I_nR6EwjNXSG7_hw-_VhX",
+      "in": "devops",
+      "toSection": "Networking & Protocols"
+    },
+    {
+      "id": "frontend:uum7vOhOUR38vLuGZy8Oa",
+      "in": "devops",
+      "toSection": "Networking & Protocols"
+    },
+    {
+      "id": "html:0Q41Bm_TZqsC7X-MH8uFe",
+      "in": "devops",
+      "toSection": "Networking & Protocols"
+    },
+    {
+      "id": "frontend:uum7vOhOUR38vLuGZy8Oa",
+      "in": "frontend",
+      "toSection": "Web Security Basics"
+    },
+    {
+      "id": "python:JDDG4KfhtIlw1rkNCzUli",
+      "in": "python",
+      "toSection": "python:sec:GISOFMKvnBys0O0IMpz2J"
+    },
+    {
+      "id": "backend:HgQBde1zLUFtlwB66PR6_",
+      "in": "backend",
+      "toSection": "Web Security"
+    },
+    {
+      "id": "backend:AAgciyxuDvS2B_c6FRMvT",
+      "in": "backend",
+      "toSection": "Web Security"
+    },
+    {
+      "id": "frontend:uum7vOhOUR38vLuGZy8Oa",
+      "in": "backend",
+      "toSection": "Web Security"
+    },
+    {
+      "id": "frontend:AfH2zCbqzw0Nisg1yyISS",
+      "in": "backend",
+      "toSection": "Web Security"
+    },
+    {
+      "id": "backend:UCHtaePVxS-0kpqlYxbfC",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "computer-science:M4vdwAbjLPrLjWUsG_P1I",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "frontend:iUxXq7beg55y76dkwhM13",
+      "in": "frontend",
+      "toSection": "Static Site Generators"
+    },
+    {
+      "id": "react:LULjhsPNONyI5912DKzPw",
+      "in": "frontend",
+      "toSection": "Testing"
+    },
+    {
+      "id": "vue:tU4Umtnfu01t9gLlnlK6b",
+      "in": "vue",
+      "toSection": "Templates"
+    },
+    {
+      "id": "vue:ftqDoGpwqqWQnu4NQSsMk",
+      "in": "vue",
+      "toSection": "Templates"
+    },
+    {
+      "id": "vue:NCIzs3jbQTv1xXhAaGfZN",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:cuM9q9vYy8JpZPGeBffd1",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:bZxtIBeIfeUcR32LZWrPW",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:cxu2Wbt306SxM4JKQQqnL",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:_TlbGTKFCMO0wdLbC6xHX",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:xHj3W9Ig3MVuVlGyXchaP",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:a9caVhderJaVo0v14w8WB",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:0CtAZQcFJexMiJfZ-mofv",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:3ftwRjQ9e1-qDT9BV53zr",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:hVuRmhXVP65IPtuHTORjJ",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:m9pQ3daR3KiwRATcQysHA",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:RrSekP8Ub01coegMwLP6a",
+      "in": "vue",
+      "toSection": "Directives"
+    },
+    {
+      "id": "vue:Re7tv1U0LxYqE5ShFxQSf",
+      "in": "vue",
+      "toSection": "Components"
+    },
+    {
+      "id": "vue:SGsd08ZTu4H76s8cfbCKe",
+      "in": "vue",
+      "toSection": "Components"
+    },
+    {
+      "id": "vue:xwVbhOpQMPPB4G-lhro0B",
+      "in": "vue",
+      "toSection": "Components"
+    },
+    {
+      "id": "vue:jkX66izOHVWqtyd6KZ0K6",
+      "in": "vue",
+      "toSection": "Components"
+    },
+    {
+      "id": "vue:kdlXhbw_a81xdZtyK-pVa",
+      "in": "vue",
+      "toSection": "Computed Properties"
+    },
+    {
+      "id": "react:opa61u9gYgSpoPtxp58wu",
+      "in": "react-native",
+      "toSection": "Testing"
+    },
+    {
+      "id": "react-native:vZMsm-MtsqmQMD-MG6zJY",
+      "in": "react-native",
+      "toSection": "Storage"
+    },
+    {
+      "id": "react-native:yN283SRWoALOEZh9iTn-L",
+      "in": "react-native",
+      "toSection": "Core Components"
+    },
+    {
+      "id": "react-native:h3ypxGxeHDCTxURHg6D2d",
+      "in": "react-native",
+      "toSection": "Core Components"
+    },
+    {
+      "id": "react-native:CYqLNGyOe9f9hVhbyUnTX",
+      "in": "react-native",
+      "toSection": "Core Components"
+    },
+    {
+      "id": "react-native:gLJMD9X7chy8OxdALht8g",
+      "in": "react-native",
+      "toSection": "Core Components"
+    },
+    {
+      "id": "react-native:m8Nu71Y61Ha_fLxdtWTkn",
+      "in": "react-native",
+      "toSection": "Core Components"
+    },
+    {
+      "id": "react-native:ouNTekf4VpZv-Vja8_bfM",
+      "in": "react-native",
+      "toSection": "Core Components"
+    },
+    {
+      "id": "react-native:QOOZs9qtz49agfZwi6k1B",
+      "in": "react-native",
+      "toSection": "Core Components"
+    },
+    {
+      "id": "react-native:4BgVq-cZYEXgqktvlNnet",
+      "in": "react-native",
+      "toSection": "Core Components"
+    },
+    {
+      "id": "system-design:RHNRb6QWiGvCK3KQOPK3u",
+      "in": "system-design",
+      "toSection": "Caching"
+    },
+    {
+      "id": "system-design:BeIg4jzbij2cwc_a_VpYG",
+      "in": "system-design",
+      "toSection": "Caching"
+    },
+    {
+      "id": "system-design:5Ux_JBDOkflCaIm4tVBgO",
+      "in": "system-design",
+      "toSection": "Caching"
+    }
   ],
-
   "renameSections": [
-    { "id": "system-design:sec:3pRi8M4xQXsehkdfUNtYL", "label": "Caching Layers" },
-    { "id": "computer-science:sec:C1eNsPjiQo8INbvL2Lt7L", "label": "Trees & Search Structures" },
-    { "id": "backend:sec:STQQbPa7PE3gbjMdL6P-t", "label": "API Protocols & Auth" },
-    { "id": "game-developer:sec:Hpf_CPmLpCSP8Qo07Kq1X", "label": "Computer Graphics" }
+    {
+      "id": "game-developer:sec:Hpk8eOaOepERMmOvUgkxa",
+      "label": "Game AI · Board Games & Search"
+    }
   ],
-
   "mergeSections": [
-    { "from": "python:sec:aWHgAk959DPUZL46CeRiI", "into": "python:sec:GISOFMKvnBys0O0IMpz2J" },
-    { "from": "python:sec:pIluLJkySqn_gI_GykV6G", "into": "python:sec:GISOFMKvnBys0O0IMpz2J" },
-    { "from": "python:sec:aB1LSQjDEQb_BxueOcnxU", "into": "python:sec:GISOFMKvnBys0O0IMpz2J" },
-    { "from": "python:sec:4gtmtYWYRWqwLdZRL0XMg", "into": "python:sec:GISOFMKvnBys0O0IMpz2J" },
-    { "from": "python:sec:jnLIVRrWxcX3yq3Op91Vr", "into": "python:sec:GISOFMKvnBys0O0IMpz2J" },
-    { "from": "python:sec:KAXF2kUAOvtBZhY8G9rkI", "into": "python:sec:GISOFMKvnBys0O0IMpz2J" },
-    { "from": "frontend:sec:i9z0stM4uKu27Cz6NIgNX", "into": "frontend:sec:hkSc_1x09m7-7BO7WzlDT" }
+    {
+      "from": "python:sec:aWHgAk959DPUZL46CeRiI",
+      "into": "python:sec:GISOFMKvnBys0O0IMpz2J"
+    },
+    {
+      "from": "python:sec:pIluLJkySqn_gI_GykV6G",
+      "into": "python:sec:GISOFMKvnBys0O0IMpz2J"
+    },
+    {
+      "from": "python:sec:aB1LSQjDEQb_BxueOcnxU",
+      "into": "python:sec:GISOFMKvnBys0O0IMpz2J"
+    },
+    {
+      "from": "python:sec:4gtmtYWYRWqwLdZRL0XMg",
+      "into": "python:sec:GISOFMKvnBys0O0IMpz2J"
+    },
+    {
+      "from": "python:sec:jnLIVRrWxcX3yq3Op91Vr",
+      "into": "python:sec:GISOFMKvnBys0O0IMpz2J"
+    },
+    {
+      "from": "python:sec:KAXF2kUAOvtBZhY8G9rkI",
+      "into": "python:sec:GISOFMKvnBys0O0IMpz2J"
+    },
+    {
+      "from": "frontend:sec:i9z0stM4uKu27Cz6NIgNX",
+      "into": "frontend:sec:hkSc_1x09m7-7BO7WzlDT"
+    }
   ],
-
   "dropSections": [],
-
   "describeDisciplines": {
     "frontend": "Everything between the browser and the user",
     "backend": "Servers, APIs, data and the systems behind them",
