@@ -9,9 +9,10 @@ services:
       - .:/app
       - /app/node_modules
     working_dir: /app
-    command: pnpm run dev -- --host 0.0.0.0
+    command: sh -c "pnpm install --frozen-lockfile && pnpm run dev --host 0.0.0.0"
     environment:
       - NODE_ENV=development
+      - CI=true
 
   prod:
     build:
