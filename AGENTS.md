@@ -73,8 +73,9 @@ app/data/
   disciplines.upstream.json    pinned content commit + layoutBaseUrl/contentRoot + include[]
                                (fetchFromUpstream → <layoutBaseUrl>/<upstreamId ?? id>.json;
                                upstreamPath optional, legacy repo file | source:"custom" | carried forward)
-  disciplines.overrides.json   hand corrections: createSections, dropSkills, dropResources, unlinkSkills,
-                               moveSkills, renameSections, mergeSections, dropSections, describeDisciplines
+  disciplines.overrides.json   hand corrections: createSections, addSkills, dropSkills, dropResources,
+                               unlinkSkills, moveSkills, renameSections, mergeSections, dropSections,
+                               describeDisciplines
   resources.overrides.json     curated links keyed by skill id / section id / discipline id
   custom/<id>.json             hand-sectioned disciplines whose items are upstream content node ids
   index.ts                     types, DISCIPLINES, lookups (SKILL_BY_ID, SKILL_SECTION_BY_ID, …), KIND_META
@@ -114,6 +115,7 @@ public/                        manifest.webmanifest, sw.js (bump CACHE_VERSION w
 | ---------------------------------------------- | ---------------------------------------------- | ---- |
 | move / drop / rename / merge a skill or section | `disciplines.overrides.json`                   | sync + data:check |
 | split a big section along upstream's label sub-headers | `disciplines.overrides.json` → `createSections` | sync + data:check |
+| add a skill row upstream doesn't carry (e.g. the Open Source LLMs list) | `disciplines.overrides.json` → `addSkills` | sync + data:check |
 | change how sections are derived from the layout | `scripts/transform/parseUpstreamRoadmap.mjs` — read `.agents/skills/roadmap-section-assignment/SKILL.md` first | sync twice (2nd run must report `0 new ids`) + data:check |
 | fix a row wrongly linked to another discipline | `disciplines.overrides.json` → `unlinkSkills`  | sync (recovers the real node by content slug when possible) |
 | attach your own course/book/link to a topic    | `resources.overrides.json`                     | sync |

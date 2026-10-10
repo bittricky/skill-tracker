@@ -170,6 +170,11 @@ the order they are applied:
   listed skills into it. This is how upstream label sub-headers become
   sections (cyber-security 6 → 37 sections). Runs first so `moveSkills`
   can target the new label.
+- `addSkills` — `{ in, section, skills[] }` appends hand-authored rows
+  upstream doesn't carry; each gets a stable `<in>:<slug>` id (or an
+  explicit `id`) and `section` accepts an id or label, so it can target a
+  `createSections` section from the same file (used for Prompt
+  Engineering's "Open Source LLMs").
 - `unlinkSkills` — replace a wrongly cross-linked reference row with a
   primary row of `in`, recovering the real upstream node by content slug.
   Once the sync has run, the fix is baked into the generated payload and
