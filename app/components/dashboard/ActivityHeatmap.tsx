@@ -113,15 +113,13 @@ export function ActivityHeatmap({ events, filter }: ActivityHeatmapProps) {
     return cols;
   }, [events, filter, year]);
 
-  // Month labels: a label sits on the first column whose first in-year day
-  // falls within the 1st–7th of a month.
+  // Month labels: a label sits on the column containing the 1st of a month —
+  // exactly one column per month, so labels can never duplicate.
   const monthLabels = useMemo(
     () =>
       weeks.map((col) => {
-        const firstInYear = col.find((c) => c.date !== null);
-        if (firstInYear?.date && firstInYear.date.getDate() <= 7)
-          return MONTHS[firstInYear.date.getMonth()];
-        return "";
+        const first = col.find((c) => c.date?.getDate() === 1);
+        return first?.date ? MONTHS[first.date.getMonth()] : "";
       }),
     [weeks],
   );
