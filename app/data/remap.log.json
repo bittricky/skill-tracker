@@ -821,7 +821,13 @@
       {
         "id": "prompt-engineering:sec:model-providers",
         "in": "prompt-engineering",
-        "count": 5,
+        "count": 4,
+        "notFound": []
+      },
+      {
+        "id": "prompt-engineering:sec:open-source-llms",
+        "in": "prompt-engineering",
+        "count": 1,
         "notFound": []
       },
       {
@@ -832,6 +838,58 @@
       }
     ],
     "unlinked": [],
+    "added": [
+      {
+        "id": "prompt-engineering:kimi",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      },
+      {
+        "id": "prompt-engineering:glm",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      },
+      {
+        "id": "prompt-engineering:deepseek",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      },
+      {
+        "id": "prompt-engineering:qwen",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      },
+      {
+        "id": "prompt-engineering:mimo",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      },
+      {
+        "id": "prompt-engineering:minimax",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      },
+      {
+        "id": "prompt-engineering:hunyuan",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      },
+      {
+        "id": "prompt-engineering:mistral",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      },
+      {
+        "id": "prompt-engineering:gemma",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      },
+      {
+        "id": "prompt-engineering:gpt-oss",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:open-source-llms"
+      }
+    ],
     "missing": []
   },
   "resourceOverrides": {

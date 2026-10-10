@@ -719,14 +719,23 @@
     {
       "in": "prompt-engineering",
       "id": "model-providers",
-      "label": "Model Providers",
+      "label": "Commercial Model Providers",
       "after": "Introduction",
       "skills": [
         "prompt-engineering:Yb5cQiV2ETxPbBYCLOpt2",
         "prompt-engineering:o-6UKLZ6oCRbAKgRjH2uI",
         "prompt-engineering:V8pDOwrRKKcHBTd4qlSsH",
-        "prompt-engineering:Td2YzDFT4LPGDw8JMmQSQ",
         "prompt-engineering:3wshuH7_DXgbhxsLzzI4D"
+      ]
+    },
+    {
+      "in": "prompt-engineering",
+      "id": "open-source-llms",
+      "label": "Open Source LLMs",
+      "description": "Open-weight model families you can download, fine-tune, and self-host.",
+      "after": "Commercial Model Providers",
+      "skills": [
+        "prompt-engineering:Td2YzDFT4LPGDw8JMmQSQ"
       ]
     },
     {
@@ -746,6 +755,191 @@
         "prompt-engineering:ob9D0W9B9145Da64nbi1M",
         "prompt-engineering:8Ks6txRSUfMK7VotSQ4sC",
         "prompt-engineering:VjuUq6nEz3Wyx5NJWNaxr"
+      ]
+    }
+  ],
+  "addSkills": [
+    {
+      "in": "prompt-engineering",
+      "section": "Open Source LLMs",
+      "before": "prompt-engineering:Td2YzDFT4LPGDw8JMmQSQ",
+      "skills": [
+        {
+          "id": "prompt-engineering:kimi",
+          "label": "Kimi (Moonshot AI)",
+          "resources": [
+            {
+              "kind": "official",
+              "label": "Kimi",
+              "url": "https://www.kimi.com/"
+            },
+            {
+              "kind": "opensource",
+              "label": "Moonshot AI models (Hugging Face)",
+              "url": "https://huggingface.co/moonshotai"
+            }
+          ]
+        },
+        {
+          "id": "prompt-engineering:glm",
+          "label": "GLM (Z.ai)",
+          "resources": [
+            {
+              "kind": "official",
+              "label": "Z.ai",
+              "url": "https://z.ai/"
+            },
+            {
+              "kind": "opensource",
+              "label": "Z.ai models (Hugging Face)",
+              "url": "https://huggingface.co/zai-org"
+            }
+          ]
+        },
+        {
+          "label": "DeepSeek",
+          "resources": [
+            {
+              "kind": "official",
+              "label": "DeepSeek",
+              "url": "https://www.deepseek.com/"
+            },
+            {
+              "kind": "opensource",
+              "label": "DeepSeek models (Hugging Face)",
+              "url": "https://huggingface.co/deepseek-ai"
+            },
+            {
+              "kind": "opensource",
+              "label": "DeepSeek AI (GitHub)",
+              "url": "https://github.com/deepseek-ai"
+            }
+          ]
+        },
+        {
+          "label": "Qwen",
+          "resources": [
+            {
+              "kind": "official",
+              "label": "Qwen",
+              "url": "https://qwen.ai/"
+            },
+            {
+              "kind": "opensource",
+              "label": "Qwen (GitHub)",
+              "url": "https://github.com/QwenLM"
+            },
+            {
+              "kind": "opensource",
+              "label": "Qwen models (Hugging Face)",
+              "url": "https://huggingface.co/Qwen"
+            }
+          ]
+        },
+        {
+          "id": "prompt-engineering:mimo",
+          "label": "MiMo (Xiaomi)",
+          "resources": [
+            {
+              "kind": "opensource",
+              "label": "XiaomiMiMo (GitHub)",
+              "url": "https://github.com/XiaomiMiMo"
+            },
+            {
+              "kind": "opensource",
+              "label": "XiaomiMiMo models (Hugging Face)",
+              "url": "https://huggingface.co/XiaomiMiMo"
+            }
+          ]
+        },
+        {
+          "id": "prompt-engineering:minimax",
+          "label": "MiniMax",
+          "resources": [
+            {
+              "kind": "official",
+              "label": "MiniMax",
+              "url": "https://www.minimax.io/"
+            },
+            {
+              "kind": "opensource",
+              "label": "MiniMax models (Hugging Face)",
+              "url": "https://huggingface.co/MiniMaxAI"
+            }
+          ]
+        },
+        {
+          "id": "prompt-engineering:hunyuan",
+          "label": "Hunyuan (Tencent)",
+          "resources": [
+            {
+              "kind": "opensource",
+              "label": "Tencent models (Hugging Face)",
+              "url": "https://huggingface.co/tencent"
+            },
+            {
+              "kind": "opensource",
+              "label": "Tencent Hunyuan (GitHub)",
+              "url": "https://github.com/Tencent-Hunyuan"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "in": "prompt-engineering",
+      "section": "Open Source LLMs",
+      "skills": [
+        {
+          "label": "Mistral",
+          "resources": [
+            {
+              "kind": "official",
+              "label": "Mistral AI",
+              "url": "https://mistral.ai/"
+            },
+            {
+              "kind": "opensource",
+              "label": "Mistral models (Hugging Face)",
+              "url": "https://huggingface.co/mistralai"
+            }
+          ]
+        },
+        {
+          "label": "Gemma",
+          "resources": [
+            {
+              "kind": "official",
+              "label": "Gemma (Google AI for Developers)",
+              "url": "https://ai.google.dev/gemma"
+            },
+            {
+              "kind": "opensource",
+              "label": "Gemma (GitHub)",
+              "url": "https://github.com/google-deepmind/gemma"
+            }
+          ]
+        },
+        {
+          "label": "gpt-oss",
+          "resources": [
+            {
+              "kind": "official",
+              "label": "Introducing gpt-oss (OpenAI)",
+              "url": "https://openai.com/index/introducing-gpt-oss/"
+            },
+            {
+              "kind": "opensource",
+              "label": "gpt-oss (GitHub)",
+              "url": "https://github.com/openai/gpt-oss"
+            },
+            {
+              "kind": "opensource",
+              "label": "gpt-oss-120b (Hugging Face)",
+              "url": "https://huggingface.co/openai/gpt-oss-120b"
+            }
+          ]
+        }
       ]
     }
   ],

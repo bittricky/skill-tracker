@@ -535,7 +535,7 @@ async function main() {
   fixed = applyLinkingFixes(ov.disciplines); // sources[] changed by drop/unlink
   const rv = applyResourceOverrides(fixed, resourceOverrides);
   console.log(
-    `  overrides: ${ov.log.dropped.length} dropped, ${ov.log.droppedResources.length} res-dropped, ${ov.log.unlinked.length} unlinked, ${ov.log.moved.length} moved, ${ov.log.renamed.length} renamed, ${ov.log.merged.length} merged, ${ov.log.created.length} created, ${ov.log.missing.length} missing`,
+    `  overrides: ${ov.log.dropped.length} dropped, ${ov.log.droppedResources.length} res-dropped, ${ov.log.unlinked.length} unlinked, ${ov.log.added.length} added, ${ov.log.moved.length} moved, ${ov.log.renamed.length} renamed, ${ov.log.merged.length} merged, ${ov.log.created.length} created, ${ov.log.missing.length} missing`,
   );
   console.log(
     `  resource overrides: ${rv.log.applied.skills} skills, ${rv.log.applied.sections} sections, ${rv.log.applied.disciplines} disciplines, ${rv.log.missing.length} unmatched`,

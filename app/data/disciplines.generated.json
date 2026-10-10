@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-10T20:07:31.341Z",
+  "generatedAt": "2026-10-10T22:46:15.236Z",
   "upstreamCommit": "813811a8c726a68552e60c01f81f3bb54989148a",
   "upstreamRepo": "nilbuild/developer-roadmap",
   "disciplines": [
@@ -38996,7 +38996,7 @@
         },
         {
           "id": "prompt-engineering:sec:model-providers",
-          "label": "Model Providers",
+          "label": "Commercial Model Providers",
           "order": 1,
           "items": [
             {
@@ -39080,31 +39080,6 @@
               "order": 2
             },
             {
-              "id": "prompt-engineering:Td2YzDFT4LPGDw8JMmQSQ",
-              "label": "Meta",
-              "resources": [
-                {
-                  "kind": "official",
-                  "label": "Llama",
-                  "url": "https://www.llama.com/"
-                },
-                {
-                  "kind": "opensource",
-                  "label": "Llama Models (GitHub)",
-                  "url": "https://github.com/meta-llama/llama-models"
-                }
-              ],
-              "sources": [
-                "prompt-engineering"
-              ],
-              "prerequisites": [],
-              "related": [],
-              "primary": true,
-              "homeDisciplineId": "prompt-engineering",
-              "upstreamNodeId": "Td2YzDFT4LPGDw8JMmQSQ",
-              "order": 3
-            },
-            {
               "id": "prompt-engineering:3wshuH7_DXgbhxsLzzI4D",
               "label": "xAI",
               "resources": [
@@ -39127,14 +39102,302 @@
               "primary": true,
               "homeDisciplineId": "prompt-engineering",
               "upstreamNodeId": "3wshuH7_DXgbhxsLzzI4D",
+              "order": 3
+            }
+          ]
+        },
+        {
+          "id": "prompt-engineering:sec:open-source-llms",
+          "label": "Open Source LLMs",
+          "description": "Open-weight model families you can download, fine-tune, and self-host for free.",
+          "order": 2,
+          "items": [
+            {
+              "id": "prompt-engineering:kimi",
+              "label": "Kimi (Moonshot AI)",
+              "resources": [
+                {
+                  "kind": "official",
+                  "label": "Kimi",
+                  "url": "https://www.kimi.com/"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "Moonshot AI models (Hugging Face)",
+                  "url": "https://huggingface.co/moonshotai"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "order": 0
+            },
+            {
+              "id": "prompt-engineering:glm",
+              "label": "GLM (Z.ai)",
+              "resources": [
+                {
+                  "kind": "official",
+                  "label": "Z.ai",
+                  "url": "https://z.ai/"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "Z.ai models (Hugging Face)",
+                  "url": "https://huggingface.co/zai-org"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "order": 1
+            },
+            {
+              "id": "prompt-engineering:deepseek",
+              "label": "DeepSeek",
+              "resources": [
+                {
+                  "kind": "official",
+                  "label": "DeepSeek",
+                  "url": "https://www.deepseek.com/"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "DeepSeek models (Hugging Face)",
+                  "url": "https://huggingface.co/deepseek-ai"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "DeepSeek AI (GitHub)",
+                  "url": "https://github.com/deepseek-ai"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "order": 2
+            },
+            {
+              "id": "prompt-engineering:qwen",
+              "label": "Qwen",
+              "resources": [
+                {
+                  "kind": "official",
+                  "label": "Qwen",
+                  "url": "https://qwen.ai/"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "Qwen (GitHub)",
+                  "url": "https://github.com/QwenLM"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "Qwen models (Hugging Face)",
+                  "url": "https://huggingface.co/Qwen"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "order": 3
+            },
+            {
+              "id": "prompt-engineering:mimo",
+              "label": "MiMo (Xiaomi)",
+              "resources": [
+                {
+                  "kind": "opensource",
+                  "label": "XiaomiMiMo (GitHub)",
+                  "url": "https://github.com/XiaomiMiMo"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "XiaomiMiMo models (Hugging Face)",
+                  "url": "https://huggingface.co/XiaomiMiMo"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
               "order": 4
+            },
+            {
+              "id": "prompt-engineering:minimax",
+              "label": "MiniMax",
+              "resources": [
+                {
+                  "kind": "official",
+                  "label": "MiniMax",
+                  "url": "https://www.minimax.io/"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "MiniMax models (Hugging Face)",
+                  "url": "https://huggingface.co/MiniMaxAI"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "order": 5
+            },
+            {
+              "id": "prompt-engineering:hunyuan",
+              "label": "Hunyuan (Tencent)",
+              "resources": [
+                {
+                  "kind": "opensource",
+                  "label": "Tencent models (Hugging Face)",
+                  "url": "https://huggingface.co/tencent"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "Tencent Hunyuan (GitHub)",
+                  "url": "https://github.com/Tencent-Hunyuan"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "order": 6
+            },
+            {
+              "id": "prompt-engineering:Td2YzDFT4LPGDw8JMmQSQ",
+              "label": "Meta",
+              "resources": [
+                {
+                  "kind": "official",
+                  "label": "Llama",
+                  "url": "https://www.llama.com/"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "Llama Models (GitHub)",
+                  "url": "https://github.com/meta-llama/llama-models"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "upstreamNodeId": "Td2YzDFT4LPGDw8JMmQSQ",
+              "order": 7
+            },
+            {
+              "id": "prompt-engineering:mistral",
+              "label": "Mistral",
+              "resources": [
+                {
+                  "kind": "official",
+                  "label": "Mistral AI",
+                  "url": "https://mistral.ai/"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "Mistral models (Hugging Face)",
+                  "url": "https://huggingface.co/mistralai"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "order": 8
+            },
+            {
+              "id": "prompt-engineering:gemma",
+              "label": "Gemma",
+              "resources": [
+                {
+                  "kind": "official",
+                  "label": "Gemma (Google AI for Developers)",
+                  "url": "https://ai.google.dev/gemma"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "Gemma (GitHub)",
+                  "url": "https://github.com/google-deepmind/gemma"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "order": 9
+            },
+            {
+              "id": "prompt-engineering:gpt-oss",
+              "label": "gpt-oss",
+              "resources": [
+                {
+                  "kind": "official",
+                  "label": "Introducing gpt-oss (OpenAI)",
+                  "url": "https://openai.com/index/introducing-gpt-oss/"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "gpt-oss (GitHub)",
+                  "url": "https://github.com/openai/gpt-oss"
+                },
+                {
+                  "kind": "opensource",
+                  "label": "gpt-oss-120b (Hugging Face)",
+                  "url": "https://huggingface.co/openai/gpt-oss-120b"
+                }
+              ],
+              "sources": [
+                "prompt-engineering"
+              ],
+              "prerequisites": [],
+              "related": [],
+              "primary": true,
+              "homeDisciplineId": "prompt-engineering",
+              "order": 10
             }
           ]
         },
         {
           "id": "prompt-engineering:sec:JgigM7HvmNOuKnp60v1Ce",
           "label": "Sampling Parameters",
-          "order": 2,
+          "order": 3,
           "items": [
             {
               "id": "prompt-engineering:JgigM7HvmNOuKnp60v1Ce",
@@ -39281,7 +39544,7 @@
         {
           "id": "prompt-engineering:sec:wSf7Zr8ZYBuKWX0GQX6J3",
           "label": "Output Control",
-          "order": 3,
+          "order": 4,
           "items": [
             {
               "id": "prompt-engineering:wSf7Zr8ZYBuKWX0GQX6J3",
@@ -39313,7 +39576,7 @@
         {
           "id": "prompt-engineering:sec:j-PWO-ZmF9Oi9A5bwMRto",
           "label": "Structured Outputs",
-          "order": 4,
+          "order": 5,
           "items": [
             {
               "id": "prompt-engineering:j-PWO-ZmF9Oi9A5bwMRto",
@@ -39355,7 +39618,7 @@
         {
           "id": "prompt-engineering:sec:g8ylIg4Zh567u-E3yVVY4",
           "label": "Repetition Penalties",
-          "order": 5,
+          "order": 6,
           "items": [
             {
               "id": "prompt-engineering:g8ylIg4Zh567u-E3yVVY4",
@@ -39422,7 +39685,7 @@
         {
           "id": "prompt-engineering:sec:prompting-techniques",
           "label": "Prompting Techniques",
-          "order": 6,
+          "order": 7,
           "items": [
             {
               "id": "prompt-engineering:GRerL9UXN73TwpCW2eTIE",
@@ -39713,7 +39976,7 @@
         {
           "id": "prompt-engineering:sec:diHNCiuKHeMVgvJ4OMwVh",
           "label": "Automatic Prompt Engineering",
-          "order": 7,
+          "order": 8,
           "items": [
             {
               "id": "prompt-engineering:diHNCiuKHeMVgvJ4OMwVh",
@@ -39740,7 +40003,7 @@
         {
           "id": "prompt-engineering:sec:Wvu9Q_kNhH1_JlOgxAjP6",
           "label": "AI Red Teaming",
-          "order": 8,
+          "order": 9,
           "items": [
             {
               "id": "prompt-engineering:Wvu9Q_kNhH1_JlOgxAjP6",

@@ -14,6 +14,9 @@
  *     "dropSections":   ["<sectionId>"],
  *     "createSections": [{ "in": "<disciplineId>", "id": "<short>", "label": "New section",
  *                          "after": "<sectionId | label>", "skills": ["<skillId>", ...] }],
+ *     "addSkills":      [{ "in": "<disciplineId>", "section": "<sectionId | label>",
+ *                          "before": "<skillId>"?,
+ *                          "skills": ["<label>" | { "label", "id"?, "resources"? }, ...] }],
  *     "describeDisciplines": { "<disciplineId>": "One-line description" }
  *   }
  *   - `dropSkills` as a bare string removes the skill from every discipline;
@@ -26,6 +29,11 @@
  *     the end) and moves the listed skills into it. This is how sub-headings
  *     that upstream draws as free-floating labels become sections; the parser
  *     deliberately does not detect them.
+ *   - `addSkills` appends hand-authored rows upstream doesn't have. Each gets
+ *     a stable `<in>:<slug>` id (or an explicit `id`) so it never collides
+ *     with upstream node ids; runs after `createSections`, so `section` may
+ *     name a section created in the same file. `before` inserts the rows
+ *     ahead of an existing item instead of appending.
  *
  * `app/data/resources.overrides.json`
  *   {
@@ -75,6 +83,7 @@ export function applyDisciplineOverrides(
     merged: [],
     created: [],
     unlinked: [],
+    added: [],
     missing: [],
   };
   const byId = new Map(disciplines.map((d) => [d.id, d]));
@@ -129,6 +138,43 @@ export function applyDisciplineOverrides(
     const at = anchor ? d.sections.indexOf(anchor) + 1 : d.sections.length;
     d.sections.splice(at, 0, section);
     log.created.push({ id: secId, in: d.id, count: items.length, notFound });
+  }
+
+  // `addSkills`: hand-authored rows upstream doesn't carry (e.g. a curated
+  // open-source model list under Prompt Engineering's provider sections).
+  for (const ad of overrides.addSkills ?? []) {
+    const d = byId.get(ad.in);
+    const target = d ? findSection(d, ad.section) : null;
+    if (!d || !target || !Array.isArray(ad.skills)) {
+      log.missing.push({ op: "addSkills", ...ad });
+      continue;
+    }
+    for (const spec of ad.skills) {
+      const label = spec.label ?? spec;
+      const id = spec.id ?? `${d.id}:${slugify(label)}`;
+      if (d.sections.some((s) => s.items.some((it) => it.id === id))) {
+        log.missing.push({ op: "addSkills", in: d.id, id, reason: "exists" });
+        continue;
+      }
+      const item = {
+        id,
+        label,
+        resources: spec.resources ?? [],
+        sources: [d.id],
+        prerequisites: [],
+        related: [],
+        primary: true,
+        homeDisciplineId: d.id,
+        order: 0,
+      };
+      const at = ad.before
+        ? target.items.findIndex((it) => it.id === ad.before)
+        : -1;
+      if (at >= 0) target.items.splice(at, 0, item);
+      else target.items.push(item);
+      target.items.forEach((it, i) => (it.order = i));
+      log.added.push({ id, in: d.id, to: target.id });
+    }
   }
 
   // `unlinkSkills`: a row that was wrongly cross-linked by label (e.g. the
