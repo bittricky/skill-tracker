@@ -17,6 +17,7 @@ export const DISCIPLINE_ICON: Record<string, IconName> = {
   devops: "SettingsCog",
   "ai-engineer": "UserPlus",
   "ai-agents": "Sparkle",
+  "prompt-engineering": "Sparkle",
   "api-design": "Link",
   "game-developer": "Trophy",
   "cyber-security": "SettingsCog",

@@ -2,48 +2,37 @@
   "prereqs": {
     "rewritten": [],
     "dropped": [],
-    "kept": 471
+    "kept": 443
   },
   "overrides": {
     "dropped": [
       {
         "id": "datastructures-and-algorithms:9h1mz0xAUvPrnRm9VndJF",
+        "in": "datastructures-and-algorithms",
+        "section": "datastructures-and-algorithms:sec:Z4uVzAoNzcAkyjd-lp3_M"
+      },
+      {
+        "id": "backend:SlH0Rl07yURDko2nDPfFy",
         "in": "backend",
         "section": "backend:sec:2f0ZO6GJElfZ2Eis28Hzg"
       },
       {
-        "id": "datastructures-and-algorithms:9h1mz0xAUvPrnRm9VndJF",
+        "id": "devops:PuXAPYA0bsMgwcnlwJxQn",
         "in": "devops",
         "section": "devops:sec:v5FGKQc-_7NYEsWjmTEuq"
-      },
-      {
-        "id": "datastructures-and-algorithms:9h1mz0xAUvPrnRm9VndJF",
-        "in": "datastructures-and-algorithms",
-        "section": "datastructures-and-algorithms:sec:Z4uVzAoNzcAkyjd-lp3_M"
       }
     ],
-    "droppedResources": [
-      {
-        "skill": "datastructures-and-algorithms:lxY3ErxJ_D3zkSAXIBUpv",
-        "in": "datastructures-and-algorithms",
-        "count": 1
-      }
-    ],
+    "droppedResources": [],
     "moved": [
       {
         "id": "backend:g8GjkJAhvnSxXTZks0V1g",
         "in": "backend",
-        "to": "backend:sec:ELj8af7Mi38kUbaPJfCUR"
+        "to": "backend:sec:uPjCrDGA2MHylWXbZvMBM"
       },
       {
         "id": "backend:zp3bq38tMnutT2N0tktOW",
         "in": "backend",
         "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
-      },
-      {
-        "id": "backend:CWwh2abwqx4hAxpAGvhIx",
-        "in": "backend",
-        "to": "backend:sec:2f0ZO6GJElfZ2Eis28Hzg"
       },
       {
         "id": "backend:28U6q_X-NTYf7OSKHjoWH",
@@ -91,36 +80,6 @@
         "to": "devops:sec:w5d24Sf8GDkLDLGUPxzS9"
       },
       {
-        "id": "frontend:uum7vOhOUR38vLuGZy8Oa",
-        "in": "frontend",
-        "to": "frontend:sec:RDWbG3Iui6IPgp0shvXtg"
-      },
-      {
-        "id": "python:JDDG4KfhtIlw1rkNCzUli",
-        "in": "python",
-        "to": "python:sec:GISOFMKvnBys0O0IMpz2J"
-      },
-      {
-        "id": "backend:HgQBde1zLUFtlwB66PR6_",
-        "in": "backend",
-        "to": "backend:sec:RBrIP5KbVQ2F0ly7kMfTo"
-      },
-      {
-        "id": "backend:AAgciyxuDvS2B_c6FRMvT",
-        "in": "backend",
-        "to": "backend:sec:RBrIP5KbVQ2F0ly7kMfTo"
-      },
-      {
-        "id": "frontend:uum7vOhOUR38vLuGZy8Oa",
-        "in": "backend",
-        "to": "backend:sec:RBrIP5KbVQ2F0ly7kMfTo"
-      },
-      {
-        "id": "frontend:AfH2zCbqzw0Nisg1yyISS",
-        "in": "backend",
-        "to": "backend:sec:RBrIP5KbVQ2F0ly7kMfTo"
-      },
-      {
         "id": "backend:UCHtaePVxS-0kpqlYxbfC",
         "in": "backend",
         "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
@@ -129,11 +88,6 @@
         "id": "computer-science:M4vdwAbjLPrLjWUsG_P1I",
         "in": "backend",
         "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
-      },
-      {
-        "id": "frontend:iUxXq7beg55y76dkwhM13",
-        "in": "frontend",
-        "to": "frontend:sec:n0q32YhWEIAUwbGXexoqV"
       },
       {
         "id": "react:LULjhsPNONyI5912DKzPw",
@@ -299,6 +253,176 @@
         "id": "system-design:5Ux_JBDOkflCaIm4tVBgO",
         "in": "system-design",
         "to": "system-design:sec:-X4g8kljgVBOBcf1DDzgi"
+      },
+      {
+        "id": "computer-science:Kvz3Sn7L8CxP5ZXO1hlcU",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:sNceS4MpSIjRkWhNDmrFg",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:sSNf93azjuyMzQqIHE0Rh",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:PY9G7KQy8bF6eIdr1ydHf",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:UxS_mzVUjLigEwKrXnEeB",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:vp-muizdICcmU0gN8zmkS",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:yRiJgjjv2s1uV9vgo3n8m",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:0rGj7FThLJZouSQUhnqGW",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:ffzsh8_5yRq85trFt9Xhk",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "backend:z3EJBpgGm0_Uj3ymhypbX",
+        "in": "backend",
+        "to": "backend:sec:EwvLPSI6AlZ4TnNIJTZA4"
+      },
+      {
+        "id": "frontend:qmTVMJDsEhNIkiwE_UTYu",
+        "in": "backend",
+        "to": "backend:sec:NvUcSDWBhzJZ31nzT4UlE"
+      },
+      {
+        "id": "backend:M0iaSSdVPWaCUpyTG50Vf",
+        "in": "backend",
+        "to": "backend:sec:F8frGuv1dunOdcVJ_IiGs"
+      },
+      {
+        "id": "backend:dwfEHInbX2eFiafM-nRMX",
+        "in": "backend",
+        "to": "backend:sec:F8frGuv1dunOdcVJ_IiGs"
+      },
+      {
+        "id": "backend:BTNJfWemFKEeNeTyENXui",
+        "in": "backend",
+        "to": "backend:sec:F8frGuv1dunOdcVJ_IiGs"
+      },
+      {
+        "id": "backend:5xy66yQrz1P1w7n6PcAFq",
+        "in": "backend",
+        "to": "backend:sec:F8frGuv1dunOdcVJ_IiGs"
+      },
+      {
+        "id": "backend:GKrcTsUi5XWj_pP1TOK0S",
+        "in": "backend",
+        "to": "backend:sec:F8frGuv1dunOdcVJ_IiGs"
+      },
+      {
+        "id": "backend:XbM4TDImSH-56NsITjyHK",
+        "in": "backend",
+        "to": "backend:sec:F8frGuv1dunOdcVJ_IiGs"
+      },
+      {
+        "id": "backend:WiAK70I0z-_bzbWNwiHUd",
+        "in": "backend",
+        "to": "backend:sec:F8frGuv1dunOdcVJ_IiGs"
+      },
+      {
+        "id": "frontend:o8GstE5gxcGByh-D7lwqT",
+        "in": "frontend",
+        "to": "frontend:sec:A1ZUy16cVRYqmHxoCtUb0"
+      },
+      {
+        "id": "blockchain:JYHK95Xr0R1MVCda1Epl6",
+        "in": "blockchain",
+        "to": "blockchain:sec:EQgb4LqXnyq3gOX7Fb85s"
+      },
+      {
+        "id": "blockchain:wypJdjTW4jHm9FCqv7Lhb",
+        "in": "blockchain",
+        "to": "blockchain:sec:snQA5_4H2dDkT1pENgaYD"
+      },
+      {
+        "id": "blockchain:GxD-KybtmkwT3wqDzIfHp",
+        "in": "blockchain",
+        "to": "blockchain:sec:snQA5_4H2dDkT1pENgaYD"
+      },
+      {
+        "id": "blockchain:f60P5RNNdgCbrhDDzkY25",
+        "in": "blockchain",
+        "to": "blockchain:sec:snQA5_4H2dDkT1pENgaYD"
+      },
+      {
+        "id": "frontend:tG5v3O4lNIFc2uCnacPak",
+        "in": "blockchain",
+        "to": "blockchain:sec:YR-U2njkUrEMO0JxCU1PH"
+      },
+      {
+        "id": "frontend:-bHFIiXnoUQSov64WI9yo",
+        "in": "blockchain",
+        "to": "blockchain:sec:YR-U2njkUrEMO0JxCU1PH"
+      },
+      {
+        "id": "blockchain:Ke97bMHGfb-8hB_xSwMbk",
+        "in": "blockchain",
+        "to": "blockchain:sec:YR-U2njkUrEMO0JxCU1PH"
+      },
+      {
+        "id": "blockchain:jwuMeo9TwaQviGIMO13Jf",
+        "in": "blockchain",
+        "to": "blockchain:sec:vZiDpX9pEB9gfueSKZiQL"
+      },
+      {
+        "id": "blockchain:RFgetmTvKvpV2PG6Vfev7",
+        "in": "blockchain",
+        "to": "blockchain:sec:vZiDpX9pEB9gfueSKZiQL"
+      },
+      {
+        "id": "blockchain:i-ltfXPTCu3WaBo-xaN05",
+        "in": "blockchain",
+        "to": "blockchain:sec:vZiDpX9pEB9gfueSKZiQL"
+      },
+      {
+        "id": "prompt-engineering:iMwg-I76-Tg5dhu8DGO6U",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:JgigM7HvmNOuKnp60v1Ce"
+      },
+      {
+        "id": "prompt-engineering:FF8ai1v5GDzxXLQhpwuPj",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:JgigM7HvmNOuKnp60v1Ce"
+      },
+      {
+        "id": "prompt-engineering:-G1U1jDN5st1fTUtQmMl1",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:JgigM7HvmNOuKnp60v1Ce"
+      },
+      {
+        "id": "prompt-engineering:vK9Gf8dGu2UvvJJhhuHG9",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:JgigM7HvmNOuKnp60v1Ce"
+      },
+      {
+        "id": "prompt-engineering:v3CylRlojeltcwnE76j8Q",
+        "in": "prompt-engineering",
+        "to": "prompt-engineering:sec:JgigM7HvmNOuKnp60v1Ce"
       }
     ],
     "renamed": [
@@ -340,9 +464,19 @@
         "count": 1
       },
       {
-        "from": "frontend:sec:i9z0stM4uKu27Cz6NIgNX",
-        "into": "frontend:sec:hkSc_1x09m7-7BO7WzlDT",
-        "count": 1
+        "from": "frontend:sec:SGDf_rbfmFSHlxI-Czzlz",
+        "into": "frontend:sec:Cxspmb14_0i1tfw-ZLxEu",
+        "count": 2
+      },
+      {
+        "from": "frontend:sec:3TE_iYvbklXK0be-5f2M7",
+        "into": "frontend:sec:Cxspmb14_0i1tfw-ZLxEu",
+        "count": 6
+      },
+      {
+        "from": "frontend:sec:P4st_telfCwKLSAU2WsQP",
+        "into": "frontend:sec:Cxspmb14_0i1tfw-ZLxEu",
+        "count": 2
       }
     ],
     "created": [
@@ -647,6 +781,54 @@
         "in": "react-native",
         "count": 4,
         "notFound": []
+      },
+      {
+        "id": "backend:sec:web-security",
+        "in": "backend",
+        "count": 11,
+        "notFound": []
+      },
+      {
+        "id": "backend:sec:containerization",
+        "in": "backend",
+        "count": 1,
+        "notFound": []
+      },
+      {
+        "id": "blockchain:sec:smart-contract-frameworks",
+        "in": "blockchain",
+        "count": 4,
+        "notFound": []
+      },
+      {
+        "id": "blockchain:sec:version-control-and-hosting",
+        "in": "blockchain",
+        "count": 4,
+        "notFound": []
+      },
+      {
+        "id": "blockchain:sec:smart-contract-testing",
+        "in": "blockchain",
+        "count": 6,
+        "notFound": []
+      },
+      {
+        "id": "blockchain:sec:management-platforms",
+        "in": "blockchain",
+        "count": 8,
+        "notFound": []
+      },
+      {
+        "id": "prompt-engineering:sec:model-providers",
+        "in": "prompt-engineering",
+        "count": 5,
+        "notFound": []
+      },
+      {
+        "id": "prompt-engineering:sec:prompting-techniques",
+        "in": "prompt-engineering",
+        "count": 11,
+        "notFound": []
       }
     ],
     "unlinked": [],
@@ -662,293 +844,379 @@
   },
   "idPreservation": {
     "frontend": {
-      "matched": 115,
-      "byNode": 95,
-      "byLabel": 20,
+      "matched": 120,
+      "byNode": 107,
+      "byOldId": 0,
+      "byLabel": 13,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "backend": {
-      "matched": 137,
-      "byNode": 108,
-      "byLabel": 29,
-      "newIds": []
+      "matched": 154,
+      "byNode": 133,
+      "byOldId": 0,
+      "byLabel": 21,
+      "byOldIdPairs": [],
+      "newIds": [
+        "backend:SlH0Rl07yURDko2nDPfFy"
+      ]
     },
     "devops": {
-      "matched": 134,
-      "byNode": 116,
-      "byLabel": 18,
-      "newIds": []
+      "matched": 138,
+      "byNode": 121,
+      "byOldId": 0,
+      "byLabel": 17,
+      "byOldIdPairs": [],
+      "newIds": [
+        "devops:PuXAPYA0bsMgwcnlwJxQn"
+      ]
     },
     "game-developer": {
       "matched": 144,
       "byNode": 142,
+      "byOldId": 0,
       "byLabel": 2,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "cyber-security": {
       "matched": 301,
       "byNode": 288,
+      "byOldId": 0,
       "byLabel": 13,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "blockchain": {
-      "matched": 124,
-      "byNode": 117,
-      "byLabel": 7,
+      "matched": 127,
+      "byNode": 121,
+      "byOldId": 0,
+      "byLabel": 6,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "ai-engineer": {
-      "matched": 116,
-      "byNode": 116,
+      "matched": 189,
+      "byNode": 189,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "ai-agents": {
-      "matched": 97,
-      "byNode": 95,
+      "matched": 101,
+      "byNode": 99,
+      "byOldId": 0,
       "byLabel": 2,
+      "byOldIdPairs": [],
+      "newIds": []
+    },
+    "prompt-engineering": {
+      "matched": 47,
+      "byNode": 47,
+      "byOldId": 0,
+      "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "computer-science": {
-      "matched": 187,
-      "byNode": 183,
+      "matched": 188,
+      "byNode": 184,
+      "byOldId": 0,
       "byLabel": 4,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "datastructures-and-algorithms": {
-      "matched": 107,
-      "byNode": 72,
+      "matched": 106,
+      "byNode": 71,
+      "byOldId": 0,
       "byLabel": 35,
-      "newIds": []
+      "byOldIdPairs": [],
+      "newIds": [
+        "datastructures-and-algorithms:9h1mz0xAUvPrnRm9VndJF"
+      ]
     },
     "system-design": {
       "matched": 147,
       "byNode": 141,
+      "byOldId": 0,
       "byLabel": 6,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "software-design-architecture": {
-      "matched": 95,
-      "byNode": 91,
+      "matched": 94,
+      "byNode": 90,
+      "byOldId": 0,
       "byLabel": 4,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "api-design": {
-      "matched": 84,
-      "byNode": 84,
+      "matched": 97,
+      "byNode": 97,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "javascript": {
       "matched": 126,
       "byNode": 126,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "typescript": {
       "matched": 93,
       "byNode": 93,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "python": {
-      "matched": 84,
-      "byNode": 84,
+      "matched": 87,
+      "byNode": 87,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "rust": {
-      "matched": 120,
-      "byNode": 120,
+      "matched": 122,
+      "byNode": 122,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "sql": {
-      "matched": 112,
-      "byNode": 112,
+      "matched": 113,
+      "byNode": 113,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "cpp": {
       "matched": 127,
       "byNode": 127,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "react": {
-      "matched": 80,
-      "byNode": 76,
+      "matched": 81,
+      "byNode": 77,
+      "byOldId": 0,
       "byLabel": 4,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "vue": {
       "matched": 84,
       "byNode": 75,
+      "byOldId": 0,
       "byLabel": 9,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "react-native": {
-      "matched": 94,
-      "byNode": 89,
+      "matched": 95,
+      "byNode": 90,
+      "byOldId": 0,
       "byLabel": 5,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "flutter": {
       "matched": 108,
       "byNode": 108,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "nodejs": {
       "matched": 113,
       "byNode": 100,
+      "byOldId": 0,
       "byLabel": 13,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "graphql": {
-      "matched": 65,
-      "byNode": 63,
+      "matched": 66,
+      "byNode": 64,
+      "byOldId": 0,
       "byLabel": 2,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "redis": {
       "matched": 162,
       "byNode": 162,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "mongodb": {
       "matched": 106,
       "byNode": 105,
+      "byOldId": 0,
       "byLabel": 1,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "kubernetes": {
       "matched": 67,
       "byNode": 66,
+      "byOldId": 0,
       "byLabel": 1,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "linux": {
       "matched": 102,
       "byNode": 100,
+      "byOldId": 0,
       "byLabel": 2,
+      "byOldIdPairs": [],
       "newIds": []
     },
     "git": {
-      "matched": 155,
-      "byNode": 155,
+      "matched": 156,
+      "byNode": 156,
+      "byOldId": 0,
       "byLabel": 0,
+      "byOldIdPairs": [],
       "newIds": []
     }
   },
   "sections": {
     "frontend": {
-      "topic": 25,
-      "edge": 78,
-      "spatial": 7,
-      "chain": 5
+      "topic": 37,
+      "edge": 69,
+      "spatial": 11,
+      "chain": 3
     },
     "backend": {
-      "topic": 21,
-      "edge": 67,
-      "spatial": 47,
-      "chain": 2
+      "topic": 23,
+      "edge": 72,
+      "spatial": 54,
+      "chain": 6
     },
     "devops": {
       "topic": 22,
-      "edge": 60,
-      "spatial": 52
+      "edge": 75,
+      "spatial": 42
     },
     "game-developer": {
       "topic": 15,
-      "edge": 29,
-      "spatial": 89,
+      "edge": 46,
+      "spatial": 72,
       "chain": 11
     },
     "cyber-security": {
       "topic": 6,
-      "spatial": 280,
-      "edge": 15
+      "spatial": 262,
+      "edge": 28,
+      "chain": 5
     },
     "blockchain": {
-      "topic": 18,
-      "edge": 30,
-      "spatial": 76
+      "topic": 14,
+      "edge": 75,
+      "spatial": 38
     },
     "ai-engineer": {
-      "topic": 16,
-      "chain": 2,
-      "edge": 14,
-      "spatial": 84
+      "topic": 22,
+      "edge": 161,
+      "spatial": 6
     },
     "ai-agents": {
       "topic": 34,
-      "spatial": 53,
-      "edge": 10
+      "spatial": 18,
+      "edge": 42,
+      "chain": 7
+    },
+    "prompt-engineering": {
+      "topic": 7,
+      "edge": 22,
+      "spatial": 16,
+      "chain": 2
     },
     "computer-science": {
-      "topic": 24,
-      "edge": 53,
-      "spatial": 110
+      "topic": 22,
+      "edge": 100,
+      "spatial": 63,
+      "chain": 3
     },
     "datastructures-and-algorithms": {
       "topic": 15,
-      "edge": 40,
-      "spatial": 52
+      "edge": 67,
+      "spatial": 25
     },
     "system-design": {
       "topic": 27,
-      "edge": 28,
-      "spatial": 91,
+      "edge": 50,
+      "spatial": 69,
       "chain": 1
     },
     "software-design-architecture": {
       "topic": 13,
-      "spatial": 58,
-      "edge": 24
+      "spatial": 22,
+      "edge": 59
     },
     "api-design": {
-      "topic": 14,
-      "edge": 17,
-      "spatial": 53
+      "topic": 15,
+      "edge": 73,
+      "spatial": 7,
+      "chain": 2
     },
     "javascript": {
       "topic": 20,
-      "spatial": 41,
-      "edge": 50,
-      "chain": 15
+      "edge": 58,
+      "chain": 31,
+      "spatial": 17
     },
     "typescript": {
       "topic": 15,
-      "spatial": 35,
-      "edge": 43
+      "chain": 5,
+      "edge": 68,
+      "spatial": 5
     },
     "python": {
-      "topic": 20,
-      "edge": 43,
-      "spatial": 21
+      "topic": 22,
+      "edge": 54,
+      "spatial": 11
     },
     "rust": {
       "topic": 23,
-      "spatial": 78,
-      "edge": 19
+      "edge": 92,
+      "spatial": 4,
+      "chain": 3
     },
     "sql": {
       "topic": 16,
-      "edge": 21,
-      "spatial": 75
+      "edge": 56,
+      "spatial": 36,
+      "chain": 5
     },
     "cpp": {
       "topic": 20,
-      "edge": 45,
+      "edge": 74,
       "chain": 1,
-      "spatial": 61
+      "spatial": 32
     },
     "react": {
       "topic": 20,
-      "edge": 31,
-      "spatial": 29
+      "edge": 57,
+      "spatial": 4
     },
     "vue": {
       "topic": 16,
@@ -957,49 +1225,53 @@
     },
     "react-native": {
       "topic": 17,
-      "edge": 34,
-      "spatial": 43
+      "edge": 50,
+      "spatial": 24,
+      "chain": 4
     },
     "flutter": {
       "topic": 20,
-      "edge": 48,
-      "spatial": 40
+      "edge": 76,
+      "spatial": 12
     },
     "nodejs": {
       "topic": 18,
-      "edge": 27,
-      "spatial": 67,
+      "edge": 52,
+      "spatial": 42,
       "chain": 1
     },
     "graphql": {
       "topic": 9,
-      "edge": 19,
-      "spatial": 37
+      "edge": 31,
+      "chain": 4,
+      "spatial": 22
     },
     "redis": {
       "topic": 29,
-      "spatial": 129,
-      "edge": 4
+      "spatial": 93,
+      "edge": 36,
+      "chain": 4
     },
     "mongodb": {
       "topic": 11,
-      "spatial": 70,
-      "edge": 25
+      "spatial": 61,
+      "edge": 34
     },
     "kubernetes": {
       "topic": 14,
-      "edge": 30,
-      "spatial": 23
+      "edge": 45,
+      "spatial": 4,
+      "chain": 4
     },
     "linux": {
       "topic": 16,
-      "edge": 47,
-      "spatial": 39
+      "edge": 59,
+      "spatial": 27
     },
     "git": {
       "topic": 34,
-      "edge": 56,
-      "spatial": 60,
+      "edge": 89,
+      "spatial": 28,
       "chain": 5
     }
   }

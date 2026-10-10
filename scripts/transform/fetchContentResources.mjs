@@ -2,17 +2,15 @@
  * fetchContentResources.mjs
  *
  * roadmap.sh keeps one markdown file per node under
- * `src/data/roadmaps/<slug>/content/<topic-slug>@<nodeId>.md`. At the pinned
- * commit these end with a resource list of the form:
+ * `<contentRoot>/<slug>/content/<topic-slug>@<nodeId>.md` (`roadmaps/` today;
+ * `src/data/roadmaps/` before the 2026 repo restructure). Each ends with a
+ * resource list of the form:
  *
  *     - [@article@Some Title](https://example.com)
  *     - [@video@Some Video](https://youtube.com/…)
  *
  * We list the directory once (GitHub contents API, cached), fetch each file
  * (raw.githubusercontent.com, cached), and return `Map<nodeId, Resource[]>`.
- *
- * Newer upstream commits stripped these lists, which is why the sync stays
- * pinned to the commit recorded in `disciplines.upstream.json`.
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
@@ -71,9 +69,10 @@ export async function listContentFiles({
   repo,
   commit,
   contentSlug,
+  contentRoot = "roadmaps",
   cacheDir,
 }) {
-  const dir = `src/data/roadmaps/${contentSlug}/content`;
+  const dir = `${contentRoot}/${contentSlug}/content`;
   const cachePath = join(cacheDir, commit, `${dir}.listing.json`);
   const raw = await cachedText(cachePath, async () => {
     const url = `https://api.github.com/repos/${repo}/contents/${dir}?ref=${commit}`;
@@ -112,10 +111,17 @@ export async function fetchContentResources({
   repo,
   commit,
   contentSlug,
+  contentRoot = "roadmaps",
   cacheDir,
   concurrency = 8,
 }) {
-  const files = await listContentFiles({ repo, commit, contentSlug, cacheDir });
+  const files = await listContentFiles({
+    repo,
+    commit,
+    contentSlug,
+    contentRoot,
+    cacheDir,
+  });
   const byNodeId = new Map();
   let fetched = 0;
 
@@ -126,7 +132,7 @@ export async function fetchContentResources({
       const cachePath = join(
         cacheDir,
         commit,
-        "src/data/roadmaps",
+        contentRoot,
         contentSlug,
         "content",
         f.name,

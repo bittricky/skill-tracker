@@ -6,9 +6,11 @@
  *
  *   1. Load `disciplines.upstream.json` (pinned repo/commit + include list).
  *   2. For each include entry:
- *        - `fetchFromUpstream: true`  → fetch the React Flow JSON at
- *          `upstreamPath` and transform (topic → section, subtopic → skill),
- *          then `preserveIds` against the prior payload so skill ids (the
+ *        - `fetchFromUpstream: true`  → fetch the React Flow JSON — from the
+ *          live site (`<layoutBaseUrl>/<slug>.json`, the default since the
+ *          repo stopped publishing layouts) or from the repo at `upstreamPath`
+ *          when set — and transform (topic → section, subtopic → skill), then
+ *          `preserveIds` against the prior payload so skill ids (the
  *          localStorage key) survive the re-derivation.
  *        - `source: "custom"`         → load the hand-authored file at
  *          `customPath` (sections of `{ nodeId, label? }`).
@@ -24,7 +26,9 @@
  * Side outputs:
  *   - `app/data/remap.log.json`     — prereq rewrites, override log, id
  *                                     preservation, section-assignment counts.
- *   - `.cache/upstream/<commit>/…`  — cached raw upstream files.
+ *   - `.cache/upstream/<commit>/…`  — cached raw upstream files. Site layouts
+ *     are not versioned upstream, so the copy under `site/` is the record of
+ *     what this commit's catalogue was derived from.
  *
  * License: the upstream repository is CC BY-SA 4.0. See NOTICE.md.
  */
@@ -82,6 +86,26 @@ async function fetchCached(commit, upstreamPath, repo) {
   const url = `https://raw.githubusercontent.com/${repo}/${commit}/${upstreamPath}`;
   process.stdout.write(`  fetch ${url}\n`);
   const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`fetch failed: ${res.status} ${url}`);
+  }
+  const body = await res.text();
+  await mkdir(dirname(cached), { recursive: true });
+  await writeFile(cached, body, "utf8");
+  return JSON.parse(body);
+}
+
+/** Live layout JSON served by roadmap.sh; cached per pinned commit. */
+async function fetchSiteLayout(commit, slug, baseUrl) {
+  const cached = join(CACHE_DIR, commit, "site", `${slug}.json`);
+  if (existsSync(cached)) {
+    return JSON.parse(await readFile(cached, "utf8"));
+  }
+  const url = `${baseUrl.replace(/\/$/, "")}/${slug}.json`;
+  process.stdout.write(`  fetch ${url}\n`);
+  const res = await fetch(url, {
+    headers: { "User-Agent": "skill-tracker-sync" },
+  });
   if (!res.ok) {
     throw new Error(`fetch failed: ${res.status} ${url}`);
   }
@@ -154,14 +178,30 @@ function normalizeLabel(label) {
 /**
  * Keep skill ids stable across a re-derivation. For every freshly parsed row,
  * look for the same row in the *prior* version of this discipline — by
- * `upstreamNodeId` first, then by a unique normalized label — and reuse its
- * identity (id/home/sources/prereqs/related/primary; resources only when the
- * new row has none). Section placement always comes from the new parse.
+ * `upstreamNodeId` first, then by the node's upstream `oldId`, then by a
+ * unique normalized label — and reuse its identity (id/home/sources/prereqs/
+ * related/primary; resources only when the new row has none). Section
+ * placement always comes from the new parse.
+ *
+ * `oldId` is set by the roadmap.sh editor when a node is *duplicated*, so it
+ * only counts when the node-id pass left that prior row unclaimed (i.e. the
+ * original is gone and this is effectively a rename) AND the labels still
+ * describe the same thing (one normalized label contains the other) — a
+ * duplicated-then-repurposed node ("Writing Prompts" → "ReAct") must not
+ * inherit the original's progress. Each match is listed in `byOldIdPairs`.
+ *
  * Never matches across disciplines: that is how false cross-links were minted
  * in the first place.
  */
 export function preserveIds(next, prior) {
-  const log = { matched: 0, byNode: 0, byLabel: 0, newIds: [] };
+  const log = {
+    matched: 0,
+    byNode: 0,
+    byOldId: 0,
+    byLabel: 0,
+    byOldIdPairs: [],
+    newIds: [],
+  };
   if (!prior) {
     for (const s of next.sections)
       for (const it of s.items) log.newIds.push(it.id);
@@ -217,9 +257,27 @@ export function preserveIds(next, prior) {
     if (row && !used.has(row.id)) adopt(it, row, "byNode");
     else pending.push(it);
   }
-  // Pass 2 — unique label within this discipline, for rows whose node id
-  // changed (reference rows, slug-minted unlink rows).
+  // Pass 2 — upstream `oldId`, only onto a prior row nobody else claimed.
+  const pending2 = [];
+  const similar = (a, b) => {
+    const x = normalizeLabel(a).replace(/[^a-z0-9 ]/g, "");
+    const y = normalizeLabel(b).replace(/[^a-z0-9 ]/g, "");
+    return Boolean(x && y && (x.includes(y) || y.includes(x)));
+  };
   for (const it of pending) {
+    const row = it._oldId ? byNode.get(it._oldId) : undefined;
+    if (row && !used.has(row.id) && similar(it.label, row.label)) {
+      log.byOldIdPairs.push({
+        id: row.id,
+        label: it.label,
+        priorLabel: row.label,
+      });
+      adopt(it, row, "byOldId");
+    } else pending2.push(it);
+  }
+  // Pass 3 — unique label within this discipline, for rows whose node id
+  // changed (reference rows, slug-minted unlink rows).
+  for (const it of pending2) {
     const row = byLabel.get(normalizeLabel(it.label)) ?? null;
     if (row && !used.has(row.id)) adopt(it, row, "byLabel");
     else log.newIds.push(it.id);
@@ -247,6 +305,12 @@ function stripAssign(discipline) {
       delete it._assign;
     }
   return counts;
+}
+
+/** Pull the parser-only `_oldId` hint off every item (after preserveIds). */
+function stripOldId(discipline) {
+  for (const sec of discipline.sections)
+    for (const it of sec.items) delete it._oldId;
 }
 
 function upgradeDiscipline(rm, config) {
@@ -319,7 +383,14 @@ function fillFromContent(discipline, content, stats) {
 
 async function main() {
   const config = await readJSON(CONFIG_PATH);
-  const { repo, commit, include = [], removed = [] } = config;
+  const {
+    repo,
+    commit,
+    include = [],
+    removed = [],
+    layoutBaseUrl = "https://roadmap.sh",
+    contentRoot = "roadmaps",
+  } = config;
 
   console.log(`→ syncing disciplines (pinned ${repo}@${commit.slice(0, 7)})`);
 
@@ -338,10 +409,17 @@ async function main() {
     if (removedSet.has(entry.id)) continue;
 
     if (entry.fetchFromUpstream) {
-      const raw = await fetchCached(commit, entry.upstreamPath, repo);
+      const raw = entry.upstreamPath
+        ? await fetchCached(commit, entry.upstreamPath, repo)
+        : await fetchSiteLayout(
+            commit,
+            entry.upstreamId ?? entry.id,
+            layoutBaseUrl,
+          );
       const parsed = transformUpstreamRoadmap(raw, entry);
       sectionAssign[entry.id] = stripAssign(parsed);
       idPreservation[entry.id] = preserveIds(parsed, priorById.get(entry.id));
+      stripOldId(parsed);
       disciplines.push(upgradeDiscipline(parsed, config));
       fetched.push(entry.id);
       continue;
@@ -390,15 +468,19 @@ async function main() {
   console.log(`  removed: ${[...removedSet].join(", ") || "(none)"}`);
   {
     const tot = Object.values(idPreservation).reduce(
-      (a, l) => ({ m: a.m + l.matched, n: a.n + l.newIds.length }),
-      { m: 0, n: 0 },
+      (a, l) => ({
+        m: a.m + l.matched,
+        o: a.o + l.byOldId,
+        n: a.n + l.newIds.length,
+      }),
+      { m: 0, o: 0, n: 0 },
     );
     const spatial = Object.values(sectionAssign).reduce(
       (a, c) => a + (c.spatial ?? 0),
       0,
     );
     console.log(
-      `  id preservation: ${tot.m} kept, ${tot.n} new ids; ${spatial} items placed spatially`,
+      `  id preservation: ${tot.m} kept (${tot.o} via oldId), ${tot.n} new ids; ${spatial} items placed spatially`,
     );
   }
 
@@ -415,6 +497,7 @@ async function main() {
         repo,
         commit,
         contentSlug,
+        contentRoot,
         cacheDir: CACHE_DIR,
       });
       if (byNodeId.size) contentByDiscipline.set(entry.id, byNodeId);

@@ -1,12 +1,11 @@
 {
-  "$comment": "Hand-maintained corrections applied by scripts/sync-disciplines.mjs after the upstream transform. See scripts/transform/applyOverrides.mjs for the schema. Skill ids never change here, so saved progress survives. The phase-1 dropSkills/unlinkSkills entries were baked into disciplines.generated.json (commit c212278) and are preserved by the sync's id-preservation step, so they were removed from this file. The dropSkills entry removes upstream's shared \"Ruby\" language row everywhere (the ruby discipline itself is dropped via disciplines.upstream.json `removed`); dropResources strips a stray \"Arrays in Ruby\" video off the DSA Array row. createSections is how upstream's free-floating label sub-headers become sections (the parser does not detect them). Run `pnpm run data:audit` to find more candidates.",
-  "dropSkills": ["datastructures-and-algorithms:9h1mz0xAUvPrnRm9VndJF"],
-  "dropResources": [
-    {
-      "skill": "datastructures-and-algorithms:lxY3ErxJ_D3zkSAXIBUpv",
-      "match": "ruby"
-    }
+  "$comment": "Hand-maintained corrections applied by scripts/sync-disciplines.mjs after the upstream transform. See scripts/transform/applyOverrides.mjs for the schema. Skill ids never change here, so saved progress survives. The phase-1 dropSkills/unlinkSkills entries were baked into disciplines.generated.json (commit c212278) and are preserved by the sync's id-preservation step, so they were removed from this file. The dropSkills entries remove upstream's \"Ruby\" language rows everywhere (the ruby discipline itself is dropped via disciplines.upstream.json `removed`). The backend/frontend/blockchain createSections+moveSkills entries restore groupings that the 2026-10 upstream redesign demoted from topics to label headings or frames. createSections is how upstream's free-floating label sub-headers become sections (the parser does not detect them). Run `pnpm run data:audit` to find more candidates.",
+  "dropSkills": [
+    "datastructures-and-algorithms:9h1mz0xAUvPrnRm9VndJF",
+    "backend:SlH0Rl07yURDko2nDPfFy",
+    "devops:PuXAPYA0bsMgwcnlwJxQn"
   ],
+  "dropResources": [],
   "unlinkSkills": [],
   "createSections": [
     {
@@ -536,7 +535,10 @@
       "id": "scripting-languages",
       "label": "Scripting Languages",
       "after": "Terminal Knowledge",
-      "skills": ["devops:syBIAL1mHbJLnTBoSxXI7", "devops:z6IBekR8Xl-6f8WEb05Nw"]
+      "skills": [
+        "devops:syBIAL1mHbJLnTBoSxXI7",
+        "devops:z6IBekR8Xl-6f8WEb05Nw"
+      ]
     },
     {
       "in": "devops",
@@ -588,7 +590,10 @@
       "id": "reusability",
       "label": "Reusability",
       "after": "Components",
-      "skills": ["vue:br1r8KIf5KInY5mk2xhA6", "vue:_Nc8ivQrdpKuf8MwaV-K7"]
+      "skills": [
+        "vue:br1r8KIf5KInY5mk2xhA6",
+        "vue:_Nc8ivQrdpKuf8MwaV-K7"
+      ]
     },
     {
       "in": "graphql",
@@ -628,6 +633,120 @@
         "react-native:0gH7vI_Hy7s9hO2TF6hR3",
         "react-native:V7r1Hqk9IXTfjkjAg7-BT"
       ]
+    },
+    {
+      "in": "backend",
+      "id": "web-security",
+      "label": "Web Security",
+      "after": "Learn about APIs",
+      "skills": [
+        "backend:RBrIP5KbVQ2F0ly7kMfTo",
+        "backend:AAgciyxuDvS2B_c6FRMvT",
+        "frontend:uum7vOhOUR38vLuGZy8Oa",
+        "backend:0v3OsaghJEGHeXX0c5kqn",
+        "frontend:AfH2zCbqzw0Nisg1yyISS",
+        "backend:TZ0BWOENPv6pQm8qYB8Ow",
+        "backend:HgQBde1zLUFtlwB66PR6_",
+        "backend:jWwA6yX4Zjx-r_KpDaD3c",
+        "backend:JVN38r5jENoteia3YeIQ3",
+        "backend:kGTALrvCpxyVCXHRmkI7s",
+        "backend:dlG1bVkDmjI3PEGpkm1xH"
+      ]
+    },
+    {
+      "in": "backend",
+      "id": "containerization",
+      "label": "Containerization",
+      "after": "Message Brokers",
+      "skills": [
+        "backend:31ZlpfIPr9-5vYZqvjUeL"
+      ]
+    },
+    {
+      "in": "blockchain",
+      "id": "smart-contract-frameworks",
+      "label": "Smart Contract Frameworks",
+      "after": "Smart Contracts",
+      "skills": [
+        "blockchain:F1EUAxODBJ3GEoh7cqM-K",
+        "blockchain:l110d4NqTQt9lfEoxqXMX",
+        "blockchain:Vl9XHtc22HnqaCnF9yJv9",
+        "blockchain:Q64AbQlvYPiqJl8BtoJj9"
+      ]
+    },
+    {
+      "in": "blockchain",
+      "id": "version-control-and-hosting",
+      "label": "Version Control & Repo Hosting",
+      "after": "Smart Contract Frameworks",
+      "skills": [
+        "frontend:R_I4SGYqLk5zze5I1zS_E",
+        "frontend:qmTVMJDsEhNIkiwE_UTYu",
+        "frontend:zIoSJMX3cuzCgDYHjgbEh",
+        "frontend:DILBiQp7WWgSZ5hhtDW6A"
+      ]
+    },
+    {
+      "in": "blockchain",
+      "id": "smart-contract-testing",
+      "label": "Testing & Analysis",
+      "after": "Version Control & Repo Hosting",
+      "skills": [
+        "blockchain:IXs4nUzy_A5vBjI_44kaT",
+        "blockchain:QNfnbUGkT3N-pj5epnHcM",
+        "blockchain:4V-dj9x9hSAAGCxpBWsbE",
+        "blockchain:YA3-7EZBRW-T-8HuVI7lk",
+        "blockchain:U4H62lVac8wIgxNJ3N3ga",
+        "blockchain:twR3UdzUNSztjpwbAUT4F"
+      ]
+    },
+    {
+      "in": "blockchain",
+      "id": "management-platforms",
+      "label": "Management Platforms",
+      "after": "Testing & Analysis",
+      "skills": [
+        "blockchain:qox-x_q-Q7aWcNFWD7RkT",
+        "blockchain:7goaYnedUlfgfl5qApoO2",
+        "blockchain:H3jNM_0sJrB7ZbYzrVhF7",
+        "blockchain:OotJnHgm622NQJc2WRI7c",
+        "blockchain:bjUuL7WALETzgFxL6-ivU",
+        "blockchain:SM8Wt3iNM_nncLj69KCuy",
+        "blockchain:S68IUKs0k_FFHEH97xxs7",
+        "blockchain:tvk1Wh04BcFbAAwYWMx27"
+      ]
+    },
+    {
+      "in": "prompt-engineering",
+      "id": "model-providers",
+      "label": "Model Providers",
+      "after": "Introduction",
+      "skills": [
+        "prompt-engineering:Yb5cQiV2ETxPbBYCLOpt2",
+        "prompt-engineering:o-6UKLZ6oCRbAKgRjH2uI",
+        "prompt-engineering:V8pDOwrRKKcHBTd4qlSsH",
+        "prompt-engineering:Td2YzDFT4LPGDw8JMmQSQ",
+        "prompt-engineering:3wshuH7_DXgbhxsLzzI4D"
+      ]
+    },
+    {
+      "in": "prompt-engineering",
+      "id": "prompting-techniques",
+      "label": "Prompting Techniques",
+      "after": "Repetition Penalties",
+      "skills": [
+        "prompt-engineering:GRerL9UXN73TwpCW2eTIE",
+        "prompt-engineering:Iufv_LsgUNls-Alx_Btlh",
+        "prompt-engineering:fWo39-hehRgwmx7CF36mM",
+        "prompt-engineering:XHWKGaSRBYT4MsCHwV-iR",
+        "prompt-engineering:5TNK1KcSzh9GTKiEJnM-y",
+        "prompt-engineering:2MboHh8ugkoH8dSd9d4Mk",
+        "prompt-engineering:weRaJxEplhKDyFWSMeoyI",
+        "prompt-engineering:1EzqCoplXPiHjp9Z-vqn-",
+        "prompt-engineering:ob9D0W9B9145Da64nbi1M",
+        "prompt-engineering:8Ks6txRSUfMK7VotSQ4sC",
+        "prompt-engineering:VjuUq6nEz3Wyx5NJWNaxr"
+      ]
     }
   ],
   "moveSkills": [
@@ -640,11 +759,6 @@
       "id": "backend:zp3bq38tMnutT2N0tktOW",
       "in": "backend",
       "toSection": "Learn about APIs"
-    },
-    {
-      "id": "backend:CWwh2abwqx4hAxpAGvhIx",
-      "in": "backend",
-      "toSection": "Pick a Language"
     },
     {
       "id": "backend:28U6q_X-NTYf7OSKHjoWH",
@@ -692,36 +806,6 @@
       "toSection": "Networking & Protocols"
     },
     {
-      "id": "frontend:uum7vOhOUR38vLuGZy8Oa",
-      "in": "frontend",
-      "toSection": "Web Security Basics"
-    },
-    {
-      "id": "python:JDDG4KfhtIlw1rkNCzUli",
-      "in": "python",
-      "toSection": "python:sec:GISOFMKvnBys0O0IMpz2J"
-    },
-    {
-      "id": "backend:HgQBde1zLUFtlwB66PR6_",
-      "in": "backend",
-      "toSection": "Web Security"
-    },
-    {
-      "id": "backend:AAgciyxuDvS2B_c6FRMvT",
-      "in": "backend",
-      "toSection": "Web Security"
-    },
-    {
-      "id": "frontend:uum7vOhOUR38vLuGZy8Oa",
-      "in": "backend",
-      "toSection": "Web Security"
-    },
-    {
-      "id": "frontend:AfH2zCbqzw0Nisg1yyISS",
-      "in": "backend",
-      "toSection": "Web Security"
-    },
-    {
       "id": "backend:UCHtaePVxS-0kpqlYxbfC",
       "in": "backend",
       "toSection": "Learn about APIs"
@@ -730,11 +814,6 @@
       "id": "computer-science:M4vdwAbjLPrLjWUsG_P1I",
       "in": "backend",
       "toSection": "Learn about APIs"
-    },
-    {
-      "id": "frontend:iUxXq7beg55y76dkwhM13",
-      "in": "frontend",
-      "toSection": "Static Site Generators"
     },
     {
       "id": "react:LULjhsPNONyI5912DKzPw",
@@ -900,6 +979,176 @@
       "id": "system-design:5Ux_JBDOkflCaIm4tVBgO",
       "in": "system-design",
       "toSection": "Caching"
+    },
+    {
+      "id": "computer-science:Kvz3Sn7L8CxP5ZXO1hlcU",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:sNceS4MpSIjRkWhNDmrFg",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:sSNf93azjuyMzQqIHE0Rh",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:PY9G7KQy8bF6eIdr1ydHf",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:UxS_mzVUjLigEwKrXnEeB",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:vp-muizdICcmU0gN8zmkS",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:yRiJgjjv2s1uV9vgo3n8m",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:0rGj7FThLJZouSQUhnqGW",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:ffzsh8_5yRq85trFt9Xhk",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "backend:z3EJBpgGm0_Uj3ymhypbX",
+      "in": "backend",
+      "toSection": "Learn about APIs"
+    },
+    {
+      "id": "frontend:qmTVMJDsEhNIkiwE_UTYu",
+      "in": "backend",
+      "toSection": "Repo Hosting Services"
+    },
+    {
+      "id": "backend:M0iaSSdVPWaCUpyTG50Vf",
+      "in": "backend",
+      "toSection": "NoSQL Databases"
+    },
+    {
+      "id": "backend:dwfEHInbX2eFiafM-nRMX",
+      "in": "backend",
+      "toSection": "NoSQL Databases"
+    },
+    {
+      "id": "backend:BTNJfWemFKEeNeTyENXui",
+      "in": "backend",
+      "toSection": "NoSQL Databases"
+    },
+    {
+      "id": "backend:5xy66yQrz1P1w7n6PcAFq",
+      "in": "backend",
+      "toSection": "NoSQL Databases"
+    },
+    {
+      "id": "backend:GKrcTsUi5XWj_pP1TOK0S",
+      "in": "backend",
+      "toSection": "NoSQL Databases"
+    },
+    {
+      "id": "backend:XbM4TDImSH-56NsITjyHK",
+      "in": "backend",
+      "toSection": "NoSQL Databases"
+    },
+    {
+      "id": "backend:WiAK70I0z-_bzbWNwiHUd",
+      "in": "backend",
+      "toSection": "NoSQL Databases"
+    },
+    {
+      "id": "frontend:o8GstE5gxcGByh-D7lwqT",
+      "in": "frontend",
+      "toSection": "Deployment"
+    },
+    {
+      "id": "blockchain:JYHK95Xr0R1MVCda1Epl6",
+      "in": "blockchain",
+      "toSection": "Types of Blockchains"
+    },
+    {
+      "id": "blockchain:wypJdjTW4jHm9FCqv7Lhb",
+      "in": "blockchain",
+      "toSection": "Security"
+    },
+    {
+      "id": "blockchain:GxD-KybtmkwT3wqDzIfHp",
+      "in": "blockchain",
+      "toSection": "Security"
+    },
+    {
+      "id": "blockchain:f60P5RNNdgCbrhDDzkY25",
+      "in": "blockchain",
+      "toSection": "Security"
+    },
+    {
+      "id": "frontend:tG5v3O4lNIFc2uCnacPak",
+      "in": "blockchain",
+      "toSection": "Frontend Frameworks"
+    },
+    {
+      "id": "frontend:-bHFIiXnoUQSov64WI9yo",
+      "in": "blockchain",
+      "toSection": "Frontend Frameworks"
+    },
+    {
+      "id": "blockchain:Ke97bMHGfb-8hB_xSwMbk",
+      "in": "blockchain",
+      "toSection": "Frontend Frameworks"
+    },
+    {
+      "id": "blockchain:jwuMeo9TwaQviGIMO13Jf",
+      "in": "blockchain",
+      "toSection": "Client Libraries"
+    },
+    {
+      "id": "blockchain:RFgetmTvKvpV2PG6Vfev7",
+      "in": "blockchain",
+      "toSection": "Client Libraries"
+    },
+    {
+      "id": "blockchain:i-ltfXPTCu3WaBo-xaN05",
+      "in": "blockchain",
+      "toSection": "Client Libraries"
+    },
+    {
+      "id": "prompt-engineering:iMwg-I76-Tg5dhu8DGO6U",
+      "in": "prompt-engineering",
+      "toSection": "Sampling Parameters"
+    },
+    {
+      "id": "prompt-engineering:FF8ai1v5GDzxXLQhpwuPj",
+      "in": "prompt-engineering",
+      "toSection": "Sampling Parameters"
+    },
+    {
+      "id": "prompt-engineering:-G1U1jDN5st1fTUtQmMl1",
+      "in": "prompt-engineering",
+      "toSection": "Sampling Parameters"
+    },
+    {
+      "id": "prompt-engineering:vK9Gf8dGu2UvvJJhhuHG9",
+      "in": "prompt-engineering",
+      "toSection": "Sampling Parameters"
+    },
+    {
+      "id": "prompt-engineering:v3CylRlojeltcwnE76j8Q",
+      "in": "prompt-engineering",
+      "toSection": "Sampling Parameters"
     }
   ],
   "renameSections": [
@@ -934,8 +1183,16 @@
       "into": "python:sec:GISOFMKvnBys0O0IMpz2J"
     },
     {
-      "from": "frontend:sec:i9z0stM4uKu27Cz6NIgNX",
-      "into": "frontend:sec:hkSc_1x09m7-7BO7WzlDT"
+      "from": "frontend:sec:SGDf_rbfmFSHlxI-Czzlz",
+      "into": "frontend:sec:Cxspmb14_0i1tfw-ZLxEu"
+    },
+    {
+      "from": "frontend:sec:3TE_iYvbklXK0be-5f2M7",
+      "into": "frontend:sec:Cxspmb14_0i1tfw-ZLxEu"
+    },
+    {
+      "from": "frontend:sec:P4st_telfCwKLSAU2WsQP",
+      "into": "frontend:sec:Cxspmb14_0i1tfw-ZLxEu"
     }
   ],
   "dropSections": [],

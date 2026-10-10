@@ -157,6 +157,12 @@ for (const d of payload.disciplines)
         if (!allSkillIds.has(p))
           err(`${it.id}: prerequisite ${p} does not exist`);
 
+// Discipline-level prerequisites must name included disciplines.
+for (const d of payload.disciplines)
+  for (const p of d.prerequisiteDisciplineIds ?? [])
+    if (!disciplineIds.has(p))
+      err(`${d.id}: prerequisite discipline "${p}" does not exist`);
+
 const uniqueSkills = occurrences.size;
 console.log(
   `checked ${payload.disciplines.length} disciplines, ${sectionIds.size} sections, ${uniqueSkills} unique skills`,

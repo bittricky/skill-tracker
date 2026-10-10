@@ -8,18 +8,25 @@
  *   - `topic` nodes become sections (id tail = the topic node id, which is
  *     what the legacy import used, so hand overrides keep resolving). The
  *     topic itself is the first item so the header is trackable too.
- *   - `subtopic` nodes are grouped into vertical *stacks* (same x, touching
- *     vertically). A whole stack is assigned to one topic, trying in order:
+ *   - `subtopic` nodes are grouped into *stacks*: everything drawn inside one
+ *     upstream `section` frame, else same x and touching vertically. A whole
+ *     stack is assigned to one topic, trying in order:
  *       1. edge    — a direct topic↔subtopic edge on any member (majority vote)
  *       2. chain   — BFS over subtopic↔subtopic edges (depth ≤ 3) into a
  *                    stack already placed by (1)
  *       3. spatial — nearest topic by box-to-box distance, preferring topics
  *                    in the same horizontal band (± ROW_BAND px)
+ *     Edges come from `edges[]` *and* from `vertical` / `horizontal` connector
+ *     nodes: the current roadmap.sh editor draws most topic↔stack links as
+ *     line nodes, so each connector whose two ends touch a topic/subtopic (or
+ *     a section frame, resolved to its members) is synthesised into an edge.
  *   - Every item carries `_assign: "topic" | "edge" | "chain" | "spatial"`;
  *     the sync strips it from the catalogue and summarises it in the log.
- *   - `title`, `paragraph`, `button`, `vertical`, `horizontal`, `section`,
- *     `label`, `legend`, … are decorative and ignored. Label nodes are NOT used
- *     as sub-headers; fix sub-groupings in `disciplines.overrides.json`.
+ *   - `title`, `paragraph`, `button`, `label`, `legend`, … are decorative and
+ *     ignored. Label nodes are NOT used as sub-headers; fix sub-groupings in
+ *     `disciplines.overrides.json`.
+ *   - Node geometry uses `position` (absolute; no node has a parent). The
+ *     live site JSON carries stale `positionAbsolute` values on moved nodes.
  *
  * Resources are left empty here; `fetchContentResources` fills them from the
  * per-node `content/*.md` files.
@@ -27,12 +34,11 @@
 
 const TOPIC_TYPES = new Set(["topic"]);
 const SUBTOPIC_TYPES = new Set(["subtopic"]);
+const CONNECTOR_TYPES = new Set(["vertical", "horizontal"]);
 const IGNORED_TYPES = new Set([
   "title",
   "paragraph",
   "button",
-  "vertical",
-  "horizontal",
   "section",
   "label",
   "legend",
@@ -51,6 +57,8 @@ const STACK_MAX_GAP = 12;
 const CHAIN_DEPTH = 3;
 /** Spatial fallback: prefer topics whose y lies within the stack's y-range ± this. */
 const ROW_BAND = 400;
+/** A connector line end "touches" a node when within this many px of its box. */
+const CONNECTOR_TOUCH = 30;
 /**
  * Stacks sit beside their topic (same row), so vertical separation is a
  * stronger "not mine" signal than horizontal. dy is scaled by this factor.
@@ -58,9 +66,11 @@ const ROW_BAND = 400;
 const Y_WEIGHT = 2;
 
 function box(n) {
-  const pos = n.positionAbsolute ?? n.position ?? { x: 0, y: 0 };
-  const w = n.width ?? n.style?.width ?? 0;
-  const h = n.height ?? n.style?.height ?? 0;
+  // `position` is already absolute (no node has a parent); `positionAbsolute`
+  // is a stale editor leftover on moved nodes in the live site JSON.
+  const pos = n.position ?? n.positionAbsolute ?? { x: 0, y: 0 };
+  const w = n.width ?? n.measured?.width ?? n.style?.width ?? 0;
+  const h = n.height ?? n.measured?.height ?? n.style?.height ?? 0;
   return { x: pos.x, y: pos.y, w, h, x2: pos.x + w, y2: pos.y + h };
 }
 
@@ -79,6 +89,56 @@ function boxDist(a, b) {
   return Math.hypot(dx, dy * Y_WEIGHT);
 }
 
+/**
+ * Turn `vertical` / `horizontal` connector nodes into `{ source, target }`
+ * edges between the topic/subtopic nodes their two ends touch. An end that
+ * lands on a section frame resolves to every subtopic inside that frame (the
+ * line is pointing at the group). Ends touching nothing, or only one side
+ * resolving, produce no edge.
+ */
+export function edgesFromConnectors(connectors, topics, subtopics, frames) {
+  const targets = [...topics, ...subtopics].map((n) => ({ n, b: box(n) }));
+  const frameMembers = frames.map((fb) => ({
+    fb,
+    ids: subtopics
+      .filter((s) => {
+        const b = box(s);
+        const cx = (b.x + b.x2) / 2;
+        const cy = (b.y + b.y2) / 2;
+        return cx >= fb.x && cx <= fb.x2 && cy >= fb.y && cy <= fb.y2;
+      })
+      .map((s) => s.id),
+  }));
+  const touches = (b, px, py) =>
+    px >= b.x - CONNECTOR_TOUCH &&
+    px <= b.x2 + CONNECTOR_TOUCH &&
+    py >= b.y - CONNECTOR_TOUCH &&
+    py <= b.y2 + CONNECTOR_TOUCH;
+  const resolve = (px, py) => {
+    const direct = targets
+      .filter(({ b }) => touches(b, px, py))
+      .map(({ n }) => n.id);
+    if (direct.length) return direct;
+    return frameMembers
+      .filter(({ fb }) => touches(fb, px, py))
+      .flatMap(({ ids }) => ids);
+  };
+  const out = [];
+  for (const c of connectors) {
+    const b = box(c);
+    const cx = (b.x + b.x2) / 2;
+    const cy = (b.y + b.y2) / 2;
+    const [a, z] =
+      c.type === "horizontal"
+        ? [resolve(b.x, cy), resolve(b.x2, cy)]
+        : [resolve(cx, b.y), resolve(cx, b.y2)];
+    if (!a.length || !z.length) continue;
+    for (const s of a)
+      for (const t of z) if (s !== t) out.push({ source: s, target: t });
+  }
+  return out;
+}
+
 function slugify(label, fallback) {
   const s = String(label ?? "")
     .toLowerCase()
@@ -88,12 +148,31 @@ function slugify(label, fallback) {
 }
 
 /**
- * Group subtopics into vertical stacks: bucket by x (within tolerance), sort
- * each bucket by y, split where the gap to the previous node exceeds
- * STACK_MAX_GAP.
+ * Group subtopics into stacks. Subtopics drawn inside the same upstream
+ * `section` box (the editor's visual grouping frame) form one stack whatever
+ * their x alignment; the rest are bucketed by x (within tolerance), sorted by
+ * y, and split where the gap to the previous node exceeds STACK_MAX_GAP.
  */
-export function detectStacks(subtopics) {
+export function detectStacks(subtopics, sectionBoxes = []) {
+  const stacks = [];
+  const grouped = new Set();
+  for (const sb of sectionBoxes) {
+    const members = subtopics
+      .map((n) => ({ n, b: box(n) }))
+      .filter(({ n, b }) => {
+        if (grouped.has(n.id)) return false;
+        const cx = (b.x + b.x2) / 2;
+        const cy = (b.y + b.y2) / 2;
+        return cx >= sb.x && cx <= sb.x2 && cy >= sb.y && cy <= sb.y2;
+      })
+      .sort((p, q) => p.b.y - q.b.y || p.b.x - q.b.x);
+    if (members.length < 2) continue;
+    members.forEach(({ n }) => grouped.add(n.id));
+    stacks.push({ members, last: null });
+  }
+
   const withBox = subtopics
+    .filter((n) => !grouped.has(n.id))
     .map((n) => ({ n, b: box(n) }))
     .sort((p, q) => p.b.x - q.b.x || p.b.y - q.b.y);
 
@@ -106,7 +185,6 @@ export function detectStacks(subtopics) {
     else columns.push({ x: item.b.x, items: [item] });
   }
 
-  const stacks = [];
   for (const col of columns) {
     col.items.sort((p, q) => p.b.y - q.b.y);
     let cur = null;
@@ -134,9 +212,19 @@ export function transformUpstreamRoadmap(raw, entry) {
 
   const topics = [];
   const subtopics = [];
+  const sectionBoxes = [];
+  const connectors = [];
 
   for (const n of nodes) {
     const t = n.type;
+    if (t === "section") {
+      sectionBoxes.push(box(n));
+      continue;
+    }
+    if (CONNECTOR_TYPES.has(t)) {
+      connectors.push(n);
+      continue;
+    }
     // Link buttons / external jump nodes are navigation, not skills.
     if (n?.data?.href) continue;
     if (TOPIC_TYPES.has(t)) topics.push(n);
@@ -170,6 +258,10 @@ export function transformUpstreamRoadmap(raw, entry) {
   const topicIds = new Set(topics.map((t) => t.id));
   const subIds = new Set(subtopics.map((s) => s.id));
   const topicBox = new Map(topics.map((t) => [t.id, box(t)]));
+  const allEdges = [
+    ...edges,
+    ...edgesFromConnectors(connectors, topics, subtopics, sectionBoxes),
+  ];
 
   // Edge indexes.
   const topicEdgesForSub = new Map(); // subId -> topicId[]
@@ -178,7 +270,7 @@ export function transformUpstreamRoadmap(raw, entry) {
     if (!subAdjacency.has(a)) subAdjacency.set(a, new Set());
     subAdjacency.get(a).add(b);
   };
-  for (const e of edges) {
+  for (const e of allEdges) {
     const s = e.source;
     const t = e.target;
     if (topicIds.has(s) && subIds.has(t))
@@ -191,7 +283,7 @@ export function transformUpstreamRoadmap(raw, entry) {
     }
   }
 
-  const stacks = detectStacks(subtopics);
+  const stacks = detectStacks(subtopics, sectionBoxes);
   const stackOfSub = new Map();
   stacks.forEach((st, i) => st.nodes.forEach((n) => stackOfSub.set(n.id, i)));
   const assigned = new Array(stacks.length).fill(null); // { topicId, how }
@@ -312,5 +404,6 @@ function itemFromNode(disciplineId, n, order, how) {
     upstreamNodeId: n.id,
     order,
     _assign: how,
+    ...(n?.data?.oldId ? { _oldId: n.data.oldId } : {}),
   };
 }

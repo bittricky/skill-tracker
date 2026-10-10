@@ -11,23 +11,40 @@ description: >
 ## Purpose
 
 Upstream roadmap.sh layouts are React Flow diagrams: topic nodes, subtopic
-nodes, edges between them, x/y positions, and occasional label nodes. This
-skill converts that layout into this project's discipline/section/skill
-data structure, and preserves stable skill ids across re-fetches.
+nodes, edges between them, x/y positions, and occasional label nodes. Since
+the 2026 upstream restructure the layout JSON is no longer committed to the
+repo — it is fetched live from `https://roadmap.sh/<slug>.json` (same React
+Flow shape) and cached under `.cache/upstream/<commit>/site/`; that cache is
+the reproducibility record, since the site JSON is unversioned. Content
+markdown comes from the repo at `roadmaps/<slug>/content/<topic>@<nodeId>.md`
+under the pinned `commit`. This skill converts that layout into this
+project's discipline/section/skill data structure, and preserves stable
+skill ids across re-fetches.
 
 ## Layout semantics (read this before touching the parser)
 
-- Subtopics that belong together form vertical stacks: same x position
-  (within 8px), 4–6px vertical gap between consecutive 49px-tall nodes.
+- Geometry reads `position`, never `positionAbsolute` (the live JSON carries
+  stale `positionAbsolute` on moved nodes; no node has a parent). Node sizes
+  fall back to `measured.width/height` when `width`/`height` are absent.
+- Subtopics that belong together form stacks in two ways: drawn inside the
+  same upstream `section` frame node (frame membership wins regardless of x
+  alignment), or same x position (within 8px) with 4–6px vertical gap
+  between consecutive ~49px-tall nodes.
 - A stack belongs to a topic in one of three ways:
-  1. A direct edge from a topic node to a subtopic node in the stack.
+  1. A direct edge from a topic node to a subtopic node in the stack — from
+     `edges[]`, or from a `vertical`/`horizontal` connector line node
+     synthesised into an edge (`edgesFromConnectors`): each end that touches
+     a topic/subtopic within 30px (or a section frame → its member
+     subtopics) becomes an edge. The current roadmap.sh editor uses
+     connectors for most topic↔stack links instead of `edges[]`.
   2. A chain of subtopic-to-subtopic edges leading into a stack that is
      already linked to a topic (for example: in the backend discipline,
      Redis stacks with Memcached, which edges into "Server Side," which is
      the actual topic — Redis is not directly linked to a topic).
-  3. Spatial proximity only, when no edge evidence exists. Edges cover only
-     ~20–50% of subtopics; in redis/cyber-security it is under 5%, so the
-     spatial fallback does most of the work there.
+  3. Spatial proximity only, when no edge evidence exists. With connectors
+     counted as edges, ~31% of items (1167 of 3764) needed the spatial
+     fallback on the 2026-10 sync — down from ~56% before connectors were
+     parsed.
 - Stacks sit *beside* their topic, in the same row. A topic directly below
   a stack is usually the *next* row's topic, not the owner. This is why the
   spatial distance weights the vertical gap ×2 (`Y_WEIGHT`).
@@ -37,21 +54,23 @@ data structure, and preserves stable skill ids across re-fetches.
   unnecessary complexity for a single-user tool. Sub-groupings become
   sections through `createSections` in `disciplines.overrides.json` (see
   "Manual override workflow").
-- 11 disciplines have no layout JSON upstream at the pinned commit (html,
-  css, shell-bash, nextjs, docker, django, kotlin, scala, swift-ui,
-  network-engineer, elasticsearch). They are carried forward from the prior
-  payload and can only be improved by hand-authoring `app/data/custom/<id>.json`
-  like `golang`.
+- 11 content-only disciplines are carried forward from the prior payload
+  (html, css, shell-bash, nextjs, docker, django, kotlin, scala, swift-ui,
+  network-engineer, elasticsearch). Site layouts exist for them now, but
+  they were deliberately not re-derived this pass; they can also be improved
+  by hand-authoring `app/data/custom/<id>.json` like `golang`.
 
 ## Assignment algorithm (implemented in `scripts/transform/parseUpstreamRoadmap.mjs`)
 
 `transformUpstreamRoadmap(raw, entry)`:
 
 1. Classify nodes: `topic` → section; `subtopic` (and unknown types with a
-   label) → skill; nodes with `data.href` dropped; decorative types ignored
-   (`title paragraph button vertical horizontal section label legend …`).
-2. `detectStacks(subtopics)` buckets by x (`STACK_X_TOLERANCE` 8px), sorts
-   each bucket by y, splits where the gap exceeds `STACK_MAX_GAP` 12px.
+   label) → skill; nodes with `data.href` dropped; `vertical`/`horizontal`
+   connector lines feed `edgesFromConnectors`; decorative types ignored
+   (`title paragraph button section label legend …`).
+2. `detectStacks(subtopics)` unions same-`section`-frame members, then
+   buckets the rest by x (`STACK_X_TOLERANCE` 8px), sorts each bucket by y,
+   splits where the gap exceeds `STACK_MAX_GAP` 12px.
    Returns `{ nodes, bbox }[]`.
 3. Assign each stack, three passes over all stacks (a stack placed in an
    earlier pass is never revisited):
@@ -98,7 +117,13 @@ phase 1 — never do that again):
    "Validation" nodes in graphql, two "Next.js" in frontend); if label
    matching ran first, the duplicate would steal the id and the real node
    would collide with it.
-2. **Pass 2 — unique normalized label** (lowercase, whitespace collapsed,
+2. **Pass 2 — upstream `data.oldId`**. `oldId` marks editor duplication: a
+   node copied in the editor keeps the original's id there. It matches only
+   onto a prior row left unclaimed by pass 1 AND whose normalized label
+   contains or is contained by the new label — a repurposed duplicate must
+   not inherit someone else's progress. Reported per discipline as
+   `byOldId` with the matched pairs under `byOldIdPairs`.
+3. **Pass 3 — unique normalized label** (lowercase, whitespace collapsed,
    trailing punctuation stripped). Restores reference rows, whose node id
    belongs to another discipline. Ambiguous labels (2+ prior rows) never
    match.
@@ -125,7 +150,7 @@ Top-level keys, assembled together right before that write:
   "prereqs": { "rewritten": [...], "dropped": [...], "kept": <n> },
   "overrides": { "dropped": [...], "droppedResources": [...], "moved": [...], "renamed": [...], "merged": [...], "created": [...], "unlinked": [...], "missing": [...] },
   "resourceOverrides": { "applied": { "skills": <n>, "sections": <n>, "disciplines": <n> }, "missing": [...] },
-  "idPreservation": { "<discipline>": { "matched": <n>, "byNode": <n>, "byLabel": <n>, "newIds": ["<disc>:<nodeId>", "..."] } },
+  "idPreservation": { "<discipline>": { "matched": <n>, "byNode": <n>, "byOldId": <n>, "byLabel": <n>, "byOldIdPairs": [{"id","label","priorLabel"}], "newIds": ["<disc>:<nodeId>", "..."] } },
   "sections": { "<discipline>": { "topic": <n>, "edge": <n>, "chain": <n>, "spatial": <n> } }
 }
 ```

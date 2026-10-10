@@ -1,12 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "repo": "nilbuild/developer-roadmap",
-  "commit": "039c24d6c15e6b386dc795cb968c1c352606b3c2",
+  "commit": "813811a8c726a68552e60c01f81f3bb54989148a",
+  "layoutBaseUrl": "https://roadmap.sh",
+  "contentRoot": "roadmaps",
   "license": "CC BY-SA 4.0",
   "notes": [
-    "`commit` pins the upstream SHA. Newer upstream commits removed the roadmap JSON files and stripped resource lists from content markdown, so keep this pin unless you have verified the new layout.",
-    "include[] entries are carried forward from the previous disciplines.generated.json unless flagged `fetchFromUpstream: true` (React Flow JSON at `upstreamPath`; skill ids are preserved against the prior payload) or `source: \"custom\"` (hand-authored file at `customPath`). Disciplines without an upstream layout JSON (html, css, shell-bash, nextjs, docker, django, kotlin, scala, swift-ui, network-engineer, elasticsearch) can only be carried forward or hand-authored.",
-    "`contentSlug` (defaults to id) names the upstream `src/data/roadmaps/<slug>/content` folder used to fill empty resource lists and to recover unlinked skills.",
+    "`commit` pins the upstream SHA for content markdown (`<contentRoot>/<slug>/content/<topic>@<nodeId>.md`). Since the 2026 restructure the repo holds content only; the React Flow layout JSON is fetched live from `<layoutBaseUrl>/<slug>.json` and cached under `.cache/upstream/<commit>/site/` — that cached copy is the reproducibility record, so commit a sync and its cache together in spirit: never regenerate without reviewing remap.log.json.",
+    "include[] entries are carried forward from the previous disciplines.generated.json unless flagged `fetchFromUpstream: true` (site layout for `upstreamId ?? id`, or repo file at `upstreamPath` when set; skill ids are preserved against the prior payload by node id → upstream oldId → unique label) or `source: \"custom\"` (hand-authored file at `customPath`). Carried-forward disciplines (html, css, shell-bash, nextjs, docker, django, kotlin, scala, swift-ui, network-engineer, elasticsearch) have site layouts available too but have not been re-derived yet.",
+    "`contentSlug` (defaults to `upstreamId ?? id`) names the upstream content folder used to fill empty resource lists and to recover unlinked skills.",
     "Bump `commit`, add/remove entries, then run `pnpm run sync:disciplines && pnpm run data:check`."
   ],
   "include": [
@@ -14,57 +16,55 @@
       "id": "frontend",
       "kind": "role",
       "label": "Frontend Development",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/frontend/frontend.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "backend",
       "kind": "role",
       "label": "Backend Development",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/backend/backend.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "devops",
       "kind": "role",
       "label": "DevOps",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/devops/devops.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "game-developer",
       "kind": "role",
       "label": "Game Developer",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/game-developer/game-developer.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "cyber-security",
       "kind": "role",
       "label": "Cybersecurity",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/cyber-security/cyber-security.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "blockchain",
       "kind": "role",
       "label": "Blockchain",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/blockchain/blockchain.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "ai-engineer",
       "kind": "role",
       "label": "AI Engineer",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/ai-engineer/ai-engineer.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "ai-agents",
       "kind": "role",
       "label": "AI Agents",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/ai-agents/ai-agents.json"
+      "fetchFromUpstream": true
+    },
+    {
+      "id": "prompt-engineering",
+      "kind": "foundation",
+      "label": "Prompt Engineering",
+      "fetchFromUpstream": true
     },
     {
       "id": "network-engineer",
@@ -75,64 +75,55 @@
       "id": "computer-science",
       "kind": "foundation",
       "label": "Computer Science",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/computer-science/computer-science.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "datastructures-and-algorithms",
       "kind": "foundation",
       "label": "Data Structures & Algorithms",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/datastructures-and-algorithms/datastructures-and-algorithms.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "system-design",
       "kind": "foundation",
       "label": "System Design",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/system-design/system-design.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "software-design-architecture",
       "kind": "foundation",
       "label": "Design and Architecture",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/software-design-architecture/software-design-architecture.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "api-design",
       "kind": "foundation",
       "label": "API Design",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/api-design/api-design.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "javascript",
       "kind": "language",
       "label": "JavaScript",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/javascript/javascript.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "typescript",
       "kind": "language",
       "label": "TypeScript",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/typescript/typescript.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "python",
       "kind": "language",
       "label": "Python",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/python/python.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "rust",
       "kind": "language",
       "label": "Rust",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/rust/rust.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "html",
@@ -148,8 +139,7 @@
       "id": "sql",
       "kind": "language",
       "label": "SQL",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/sql/sql.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "shell-bash",
@@ -178,22 +168,19 @@
       "id": "cpp",
       "kind": "language",
       "label": "C++",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/cpp/cpp.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "react",
       "kind": "framework",
       "label": "React",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/react/react.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "vue",
       "kind": "framework",
       "label": "Vue",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/vue/vue.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "nextjs",
@@ -204,8 +191,7 @@
       "id": "react-native",
       "kind": "framework",
       "label": "React Native",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/react-native/react-native.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "nestjs",
@@ -234,8 +220,7 @@
       "id": "flutter",
       "kind": "framework",
       "label": "Flutter",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/flutter/flutter.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "django",
@@ -252,29 +237,25 @@
       "id": "nodejs",
       "kind": "tech",
       "label": "Node.js",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/nodejs/nodejs.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "graphql",
       "kind": "tech",
       "label": "GraphQL",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/graphql/graphql.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "redis",
       "kind": "tech",
       "label": "Redis",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/redis/redis.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "mongodb",
       "kind": "tech",
       "label": "MongoDB",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/mongodb/mongodb.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "docker",
@@ -285,15 +266,13 @@
       "id": "kubernetes",
       "kind": "tech",
       "label": "Kubernetes",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/kubernetes/kubernetes.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "linux",
       "kind": "tech",
       "label": "Linux",
-      "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/linux/linux.json"
+      "fetchFromUpstream": true
     },
     {
       "id": "elasticsearch",
@@ -306,8 +285,7 @@
       "label": "Git",
       "color": "#f97316",
       "fetchFromUpstream": true,
-      "upstreamPath": "src/data/roadmaps/git-github/git-github.json",
-      "contentSlug": "git-github"
+      "upstreamId": "git-github"
     }
   ],
   "prerequisiteDisciplineIds": {
@@ -326,8 +304,7 @@
     "frontend": ["html", "css", "javascript"],
     "backend": ["javascript"],
     "django": ["python"],
-    "flask": ["python"],
-    "flutter": ["dart"]
+    "flask": ["python"]
   },
   "removed": ["full-stack", "ruby"]
 }

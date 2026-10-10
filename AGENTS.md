@@ -70,8 +70,11 @@ app/lib/
 app/hooks/             useProgress (all mutations), useTheme
 app/data/
   disciplines.generated.json   GENERATED. Do not hand-edit. ~3.8 MB.
-  disciplines.upstream.json    pinned repo/commit + include[] (fetchFromUpstream | source:"custom" | carried forward)
-  disciplines.overrides.json   hand corrections: createSections, dropSkills, unlinkSkills, moveSkills, renameSections, mergeSections, dropSections, describeDisciplines
+  disciplines.upstream.json    pinned content commit + layoutBaseUrl/contentRoot + include[]
+                               (fetchFromUpstream → <layoutBaseUrl>/<upstreamId ?? id>.json;
+                               upstreamPath optional, legacy repo file | source:"custom" | carried forward)
+  disciplines.overrides.json   hand corrections: createSections, dropSkills, dropResources, unlinkSkills,
+                               moveSkills, renameSections, mergeSections, dropSections, describeDisciplines
   resources.overrides.json     curated links keyed by skill id / section id / discipline id
   custom/<id>.json             hand-sectioned disciplines whose items are upstream content node ids
   index.ts                     types, DISCIPLINES, lookups (SKILL_BY_ID, SKILL_SECTION_BY_ID, …), KIND_META
@@ -114,7 +117,7 @@ public/                        manifest.webmanifest, sw.js (bump CACHE_VERSION w
 | change how sections are derived from the layout | `scripts/transform/parseUpstreamRoadmap.mjs` — read `.agents/skills/roadmap-section-assignment/SKILL.md` first | sync twice (2nd run must report `0 new ids`) + data:check |
 | fix a row wrongly linked to another discipline | `disciplines.overrides.json` → `unlinkSkills`  | sync (recovers the real node by content slug when possible) |
 | attach your own course/book/link to a topic    | `resources.overrides.json`                     | sync |
-| add a discipline that has upstream JSON        | `disciplines.upstream.json` with `fetchFromUpstream`, `upstreamPath`, optional `contentSlug` | sync |
+| add a discipline that has upstream JSON        | `disciplines.upstream.json` with `fetchFromUpstream: true`; optional `upstreamId` when the site slug differs (e.g. git → git-github) | sync |
 | add a discipline without upstream JSON         | `app/data/custom/<id>.json` + `source: "custom"` entry | sync |
 | find candidates for the above                  | `pnpm run data:audit`                          | — |
 

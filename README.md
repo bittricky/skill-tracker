@@ -12,7 +12,7 @@ Optional GitHub Gist sync (your token, your data) covers cross-device use.
 ## Features
 
 - **Discipline catalogue** grouped by kind: Role, Foundation, Language,
-  Framework, Tech — 47 disciplines, ~3.7k unique skills.
+  Framework, Tech — 47 disciplines, ~4.5k unique skills.
 - **Cross-discipline skill linking** — e.g. `What is HTTP?` is owned by HTML
   and referenced from Frontend and Backend. Reference rows show the home
   discipline's resources and link back to it.
@@ -79,8 +79,8 @@ app/
     ui/                    Primitives (Panel, Pixel, Mono, ProgressBar, TierTag, Icon, SettingsModal, …)
   data/
     disciplines.generated.json  GENERATED — never hand-edit
-    disciplines.upstream.json   Pinned upstream commit + include list
-    disciplines.overrides.json  Hand corrections (drop / unlink / move / rename / merge)
+    disciplines.upstream.json   Pinned content commit + layoutBaseUrl/contentRoot + include list
+    disciplines.overrides.json  Hand corrections (create / drop / unlink / move / rename / merge / dropResources)
     resources.overrides.json    Your curated links (skill / section / discipline level)
     custom/golang.json          Hand-sectioned discipline built from upstream content nodes
     index.ts                    Types + runtime exports (+ custom override loader)
@@ -124,12 +124,14 @@ pnpm run dev          # http://localhost:5173
 
 ```
 disciplines.upstream.json ──┐
-  fetchFromUpstream entries ─┼─► parseUpstreamRoadmap (React Flow → sections:
-  source: "custom" entries ──┤   subtopic stacks → topic by edge / edge-chain /
-  carried-forward entries ───┘   spatial fallback) ─► preserveIds (keep skill ids
-            │                    from the prior payload: node id first, then label)
+  fetchFromUpstream entries ─┼─► parseUpstreamRoadmap (site React Flow JSON
+  source: "custom" entries ──┤   at <layoutBaseUrl>/<slug>.json → sections:
+  carried-forward entries ───┘   stacks → topic by edge+connector / edge-chain /
+            │                    spatial fallback) ─► preserveIds (keep skill ids
+            │                    from the prior payload: node id → oldId → label)
             ▼
-  fetchContentResources  ── per-node content/*.md at the pinned commit
+  fetchContentResources  ── per-node roadmaps/<slug>/content/*.md at the
+            │                pinned commit (contentRoot)
             │              fills empty resources[] and missing labels
             ▼
   applyLinkingFixes ─► applyDisciplineOverrides ─► applyLinkingFixes
@@ -141,16 +143,23 @@ disciplines.upstream.json ──┐
   disciplines.generated.json  +  remap.log.json
 ```
 
-Upstream is pinned to a specific commit because later commits removed the
-roadmap JSON files and stripped resource lists from the content markdown.
+The pinned `commit` now governs **content markdown only** — since the 2026
+upstream restructure the repo holds just `roadmaps/<slug>/content/` (set via
+`contentRoot`), while the React Flow layout is fetched live from
+`<layoutBaseUrl>/<slug>.json` (default `https://roadmap.sh`). The site JSON
+is unversioned, so the copy cached under `.cache/upstream/<commit>/site/` is
+the reproducibility record for a given generated catalogue. `upstreamPath`
+remains as an optional legacy override for repo-resident layout files.
 Directory listings use the GitHub REST API (60 req/h anonymous); set
 `GITHUB_TOKEN` if you hit the limit. Everything is cached under `.cache/`.
 
-31 disciplines are re-derived from the upstream React Flow layout on every
-sync (skill ids are preserved, so progress survives); 11 that have no layout
-JSON upstream (html, css, shell-bash, nextjs, docker, django, kotlin,
-scala, swift-ui, network-engineer, elasticsearch) are carried forward as-is,
-and Go is hand-authored in `app/data/custom/golang.json`.
+Disciplines with `fetchFromUpstream` are re-derived from the live site
+layout on every sync (skill ids are preserved, so progress survives). The 11
+carried-forward content-only disciplines (html, css, shell-bash, nextjs,
+docker, django, kotlin, scala, swift-ui, network-engineer, elasticsearch)
+now have site layouts available but were deliberately not re-derived this
+pass, and Go is hand-authored in `app/data/custom/golang.json`. The
+catalogue currently holds 47 disciplines / ~4.5k unique skills.
 
 To fix a misfiled skill, add an entry to `disciplines.overrides.json` and
 re-run the sync. Sub-headings that roadmap.sh draws as free-floating labels
