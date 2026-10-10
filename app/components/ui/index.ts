@@ -6,5 +6,3 @@ export { Panel, PanelHeader, PanelBody } from "./Panel";
 export { ItemSlot } from "./ItemSlot";
 export { PrimaryButton } from "./PrimaryButton";
 export { SecondaryButton } from "./SecondaryButton";
-export { SettingsButton } from "./SettingsButton";
-export { SettingsModal } from "./SettingsModal";

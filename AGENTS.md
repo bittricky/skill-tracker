@@ -56,7 +56,7 @@ app/components/
                        ActivityHeatmap, RecentActivity
   ui/                  Panel/PanelHeader/PanelBody, Pixel, Mono, ProgressBar, TierTag, Icon,
                        SecondaryButton/PrimaryButton, ItemSlot, Tooltip, Loader,
-                       SettingsButton, SettingsModal, ThemeToggleButton
+                       ThemeToggleButton
 app/lib/
   storage.ts           localStorage shape (v3: progress, applied, pinned, hidden, events) + v1/v2 migration;
                        saveStorage returns boolean (false on quota/private-mode failure)

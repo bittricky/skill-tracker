@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router";
 import { Icon, type IconName } from "~/components/ui/Icon";
 import { Pixel } from "~/components/ui/Pixel";
 import { SecondaryButton } from "~/components/ui/SecondaryButton";
-import { SettingsButton } from "~/components/ui/SettingsButton";
 import { ThemeToggleButton } from "~/components/ui/ThemeToggleButton";
 
 interface HeaderBarProps {
@@ -73,15 +72,10 @@ export function HeaderBar({
           </Link>
         ) : (
           <Link to="/">
-            <SecondaryButton>← Back</SecondaryButton>
+            <SecondaryButton>◀ Dashboard</SecondaryButton>
           </Link>
         )}
         <ThemeToggleButton />
-        <SettingsButton
-          hidden={hidden}
-          onSetHidden={onSetHidden}
-          saveError={saveError}
-        />
       </div>
     </div>
   );
