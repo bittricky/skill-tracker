@@ -17,7 +17,7 @@
  *   caches. Old versions are cleared in the `activate` event.
  */
 
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const SHELL_CACHE = `skill-tracker-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `skill-tracker-runtime-${CACHE_VERSION}`;
 
@@ -30,6 +30,7 @@ const PRECACHE_URLS = [
   "/",
   "/manifest.webmanifest",
   "/icon.svg",
+  "/icon-180.png",
   "/favicon.ico",
 ];
 

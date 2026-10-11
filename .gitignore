@@ -65,6 +65,7 @@ public/*
 !public/sw.js
 !public/icon.svg
 !public/icon-maskable.svg
+!public/icon-*.png
 !public/.well-known/
 
 # Server-side progress backup (DATA_DIR in dev)

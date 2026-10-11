@@ -13,7 +13,7 @@ import "./app.css";
 export const links: Route.LinksFunction = () => [
   { rel: "manifest", href: "/manifest.webmanifest" },
   { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
-  { rel: "apple-touch-icon", href: "/icon.svg" },
+  { rel: "apple-touch-icon", href: "/icon-180.png" },
 ];
 
 const themeInitScript = `

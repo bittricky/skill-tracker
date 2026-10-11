@@ -275,7 +275,7 @@ export default function Browser() {
             <Panel>
               <PanelHeader
                 title="Disciplines"
-                glyph="Settings2"
+                glyph="GitBranch"
                 accentColor="teal"
               />
               <PanelBody className="p-2">
@@ -436,7 +436,7 @@ export default function Browser() {
               <Panel>
                 <PanelHeader
                   title="Progress"
-                  glyph="Play"
+                  glyph="GitBranch"
                   accentColor="lavender"
                 />
                 <PanelBody>
@@ -506,7 +506,7 @@ export default function Browser() {
                 title="Skills"
                 subtitle={`${stats.done}/${stats.total} done · ${stats.learning} active · ${stats.applied} applied`}
                 accentColor={tierMeta.accent}
-                glyph="Home"
+                glyph="CircuitBoard"
               >
                 <TierTag tier={tier} />
               </PanelHeader>

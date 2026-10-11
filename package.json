@@ -16,6 +16,7 @@
     "sync:disciplines": "node scripts/sync-disciplines.mjs",
     "data:check": "node scripts/validate-data.mjs",
     "data:audit": "node scripts/audit-data.mjs",
+    "icons": "node scripts/gen-icons.mjs",
     "docker:dev": "docker compose up dev",
     "docker:build": "docker build -t skill-tracker .",
     "docker:run": "docker run --rm -p 3000:3000 skill-tracker",
@@ -39,6 +40,8 @@
     "@types/node": "^22",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
     "vite": "^8.0.3"

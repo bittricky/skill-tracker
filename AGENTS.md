@@ -45,6 +45,7 @@ Non-negotiables:
 | `pnpm run data:check`        | **must pass after any data change**; validates catalogue invariants |
 | `pnpm run data:audit`        | heuristic report of misfiled skills; feeds the overrides file     |
 | `pnpm run sync:disciplines`  | regenerate `app/data/disciplines.generated.json` (network, cached in `.cache/`) |
+| `pnpm run icons`             | regenerate `public/icon*` + `favicon.ico` from the pixelarticons glyph in `scripts/gen-icons.mjs` |
 | `pnpm run docker:build/run`  | local image on :3000                                              |
 
 `typecheck` + `pnpm test` + `data:check` + a manual pass in the browser are
@@ -94,6 +95,7 @@ scripts/
   sync-disciplines.mjs         the pipeline (see README "Data pipeline")
   validate-data.mjs            invariants; exits 1 on failure
   audit-data.mjs               heuristics
+  gen-icons.mjs                app icon set generator (sharp + png-to-ico); swap GLYPH to re-theme
   transform/                   parseUpstreamRoadmap, fetchContentResources, applyLinkingFixes,
                                applyOverrides, normalizeResources, remapPrereqs
 public/                        manifest.webmanifest, sw.js (bump CACHE_VERSION when cached assets change), icons
