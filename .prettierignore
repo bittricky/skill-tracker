@@ -1,0 +1,3 @@
+# Written by scripts/sync-disciplines.mjs — formatting them creates huge diffs
+app/data/disciplines.generated.json
+app/data/remap.log.json

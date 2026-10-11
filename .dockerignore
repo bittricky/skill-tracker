@@ -1,7 +1,9 @@
 node_modules
+.pnpm-store
 build
 .react-router
 .cache
+data
 .git
 .github
 README.md

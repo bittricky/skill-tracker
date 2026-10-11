@@ -33,11 +33,14 @@ FROM ${NODE_IMAGE} AS runtime
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
+# Optional server-side progress backup (see README "Backup & sync").
+ENV DATA_DIR=/data
 WORKDIR /app
 COPY package.json ./
 COPY --from=production-dependencies-env /app/node_modules ./node_modules
 COPY --from=build-env /app/build ./build
-RUN chown -R node:node /app
+RUN mkdir -p /data && chown -R node:node /app /data
+VOLUME /data
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \

@@ -65,6 +65,10 @@ public/*
 !public/sw.js
 !public/icon.svg
 !public/icon-maskable.svg
+!public/.well-known/
+
+# Server-side progress backup (DATA_DIR in dev)
+/data/
 
 # Mac files
 .DS_Store
