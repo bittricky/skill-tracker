@@ -6,142 +6,172 @@ import { Mono } from "~/components/ui/Mono";
 import { Pixel } from "~/components/ui/Pixel";
 import { ProgressBar } from "~/components/ui/ProgressBar";
 import { TierTag } from "~/components/ui/TierTag";
-import { DISCIPLINE_BY_ID, SKILL_BY_ID, SKILL_SECTION_BY_ID } from "~/data";
+import { DISCIPLINE_BY_ID, SKILL_BY_ID } from "~/data";
 import { iconForDiscipline } from "~/data/icons";
 import { calculateDepth, TIER_META } from "~/lib/depth";
-import { sectionStats } from "~/lib/progress";
-import {
-  MAX_PINNED,
-  type AppliedMap,
-  type ProgressEvent,
-  type ProgressMap,
-} from "~/lib/storage";
-import { lastTouched, relativeTime } from "~/lib/activity";
-import { STATUS_META } from "~/components/browser/SkillRow";
+import { disciplineStats } from "~/lib/progress";
+import type { AppliedMap, ProgressEvent, ProgressMap } from "~/lib/storage";
+import { relativeTime, skillActivityDays } from "~/lib/activity";
+
+/** Rolling window the ranking is computed over. */
+const ACTIVE_WINDOW_DAYS = 30;
+/** A discipline needs ≥2 touched skills in the window to count as a track. */
+const MIN_ACTIVE_SKILLS = 2;
+const MAX_TRACKS = 3;
 
 interface ActiveTracksProps {
-  pinned: string[];
   progress: ProgressMap;
   applied: AppliedMap;
+  /** Hidden disciplines never surface as active tracks. */
+  hidden: string[];
   events: ProgressEvent[];
-  onUnpin: (id: string) => void;
+}
+
+interface Track {
+  id: string;
+  activeDays: number;
+  lastAt: string;
+  /** Recently touched skills, most recent first. */
+  recent: { id: string; label: string }[];
 }
 
 /**
- * Pinned skills — the handful of things you're focusing on right now.
- * Each card shows the skill's own status, its section's completion, and the
- * home discipline's depth tier.
+ * Most actively practiced disciplines over the last `ACTIVE_WINDOW_DAYS` days —
+ * ranked by distinct active days (not raw event count, so one binge can't
+ * outweigh steady practice), ties broken by most recent touch. A discipline
+ * needs `MIN_ACTIVE_SKILLS` distinct touched skills to qualify.
  */
 export function ActiveTracks({
-  pinned,
   progress,
   applied,
+  hidden,
   events,
-  onUnpin,
 }: ActiveTracksProps) {
-  const cards = pinned
-    .map((id) => {
-      const skill = SKILL_BY_ID[id];
-      const loc = SKILL_SECTION_BY_ID[id];
-      const discipline = loc ? DISCIPLINE_BY_ID[loc.disciplineId] : undefined;
-      const section = discipline?.sections.find((s) => s.id === loc?.sectionId);
-      if (!skill || !discipline || !section) return null;
-      const depth = calculateDepth(discipline, progress, applied);
-      const secStats = sectionStats(section, progress);
-      return { skill, discipline, section, depth, secStats };
-    })
-    .filter((c): c is NonNullable<typeof c> => c !== null);
+  const hiddenSet = new Set(hidden);
+  const perDisc = new Map<
+    string,
+    {
+      days: Set<string>;
+      lastAt: string;
+      skills: { id: string; label: string; lastAt: string }[];
+    }
+  >();
+  for (const [skillId, a] of skillActivityDays(events, ACTIVE_WINDOW_DAYS)) {
+    const skill = SKILL_BY_ID[skillId];
+    const homeId = skill?.homeDisciplineId;
+    if (!skill || !homeId || hiddenSet.has(homeId)) continue;
+    const cur = perDisc.get(homeId) ?? {
+      days: new Set<string>(),
+      lastAt: "",
+      skills: [],
+    };
+    for (const d of a.days) cur.days.add(d);
+    if (a.lastAt > cur.lastAt) cur.lastAt = a.lastAt;
+    cur.skills.push({ id: skillId, label: skill.label, lastAt: a.lastAt });
+    perDisc.set(homeId, cur);
+  }
 
-  const emptySlots = Math.max(0, MAX_PINNED - cards.length);
+  const tracks: Track[] = [...perDisc.entries()]
+    .filter(([, a]) => a.skills.length >= MIN_ACTIVE_SKILLS)
+    .map(([id, a]) => ({
+      id,
+      activeDays: a.days.size,
+      lastAt: a.lastAt,
+      recent: a.skills
+        .sort((x, y) => (x.lastAt < y.lastAt ? 1 : -1))
+        .slice(0, 3)
+        .map((s) => ({ id: s.id, label: s.label })),
+    }))
+    .sort((x, y) =>
+      y.activeDays !== x.activeDays
+        ? y.activeDays - x.activeDays
+        : x.lastAt < y.lastAt
+          ? 1
+          : -1,
+    )
+    .slice(0, MAX_TRACKS);
+
+  const emptySlots = MAX_TRACKS - tracks.length;
 
   return (
     <Panel>
       <PanelHeader
         title="Active Tracks"
-        subtitle="Pinned skills you're focusing on"
-        meta={`${cards.length} / ${MAX_PINNED} slots`}
-        accentColor="coral"
+        subtitle={`Most practiced · last ${ACTIVE_WINDOW_DAYS} days`}
+        meta={`${tracks.length} / ${MAX_TRACKS} slots`}
+        accentColor="mustard"
         glyph="Briefcase"
       />
       <PanelBody>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          {cards.map(({ skill, discipline, section, depth, secStats }) => {
+          {tracks.map((track) => {
+            const discipline = DISCIPLINE_BY_ID[track.id];
+            if (!discipline) return null;
+            const depth = calculateDepth(discipline, progress, applied);
+            const stats = disciplineStats(discipline, progress);
             const tierColor = TIER_META[depth.tier].color;
-            const status = progress[skill.id] ?? "untouched";
-            const sm = STATUS_META[status];
             return (
-              <ItemSlot key={skill.id} hoverColor={tierColor}>
-                <div className="flex gap-2.5 mb-3">
-                  <Icon
-                    name={iconForDiscipline(discipline.id, discipline.kind)}
-                    color={tierColor}
-                    size={24}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <Link
-                      to={`/browser?discipline=${discipline.id}#skill-${encodeURIComponent(skill.id)}`}
-                      className="block hover:underline"
-                    >
+              <Link
+                key={track.id}
+                to={`/browser?discipline=${track.id}`}
+                className="block"
+              >
+                <ItemSlot hoverColor={tierColor} className="h-full">
+                  <div className="flex gap-2.5 mb-3">
+                    <Icon
+                      name={iconForDiscipline(discipline.id, discipline.kind)}
+                      color={tierColor}
+                      size={24}
+                    />
+                    <div className="flex-1 min-w-0">
                       <Mono
                         size={13}
                         color="ink"
                         weight={600}
                         className="block leading-tight mb-1"
                       >
-                        {skill.label}
+                        {discipline.label}
                       </Mono>
-                    </Link>
-                    <Pixel color="ink-muted" size={12}>
-                      {discipline.label} · {section.label}
-                    </Pixel>
-                    {(() => {
-                      const at = lastTouched(events, [skill.id]);
-                      return at ? (
-                        <Pixel color="ink-dim" size={11}>
-                          touched {relativeTime(at)}
-                        </Pixel>
-                      ) : null;
-                    })()}
+                      <Pixel color="ink-muted" size={12}>
+                        {track.activeDays} active day
+                        {track.activeDays === 1 ? "" : "s"} ·{" "}
+                        {track.recent.length} skills touched
+                      </Pixel>
+                      <Pixel color="ink-dim" size={11}>
+                        touched {relativeTime(track.lastAt)}
+                      </Pixel>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => onUnpin(skill.id)}
-                    title="Unpin from Active Tracks"
-                    aria-label="Unpin from Active Tracks"
-                    className="w-7 h-7 rounded-md border border-accent-mustard bg-accent-mustard/15 text-accent-mustard flex items-center justify-center hover:opacity-80 transition-opacity shrink-0"
-                  >
-                    <Icon name="StarFilled" size={16} />
-                  </button>
-                </div>
 
-                <ProgressBar pct={secStats.pct} color={tierColor} />
-                <div className="flex justify-between mt-1.5">
-                  <Mono
-                    size={11}
-                    color={TIER_META[depth.tier].accent}
-                    weight={600}
-                  >
-                    {secStats.pct}% of section
-                  </Mono>
-                  <span
-                    className="px-1.5 py-0.5 rounded text-[10px] font-display font-bold tracking-[0.06em]"
-                    style={{
-                      background: sm.bg,
-                      color: sm.color,
-                      border: `1px solid ${sm.color}40`,
-                    }}
-                  >
-                    {sm.label}
-                  </span>
-                </div>
+                  <ProgressBar pct={stats.pct} color={tierColor} />
+                  <div className="flex justify-between mt-1.5">
+                    <Mono
+                      size={11}
+                      color={TIER_META[depth.tier].accent}
+                      weight={600}
+                    >
+                      {stats.pct}% done
+                    </Mono>
+                    <TierTag tier={depth.tier} />
+                  </div>
 
-                <div className="flex justify-between items-center mt-2.5 pt-2.5 border-t border-surface-divider">
-                  <Pixel color="ink-muted" size={11}>
-                    {applied[skill.id] ? "Applied" : "Not yet applied"}
-                  </Pixel>
-                  <TierTag tier={depth.tier} />
-                </div>
-              </ItemSlot>
+                  <div className="mt-2.5 pt-2.5 border-t border-surface-divider">
+                    <Pixel color="ink-dim" size={10}>
+                      recently
+                    </Pixel>
+                    {track.recent.map((s) => (
+                      <Mono
+                        key={s.id}
+                        size={11}
+                        color="ink-muted"
+                        className="block truncate leading-snug"
+                      >
+                        {s.label}
+                      </Mono>
+                    ))}
+                  </div>
+                </ItemSlot>
+              </Link>
             );
           })}
 
@@ -155,10 +185,10 @@ export function ActiveTracks({
                   className="w-9 h-9 rounded flex items-center justify-center mb-2.5 text-ink-dim"
                   style={{ border: "1px dashed var(--color-surface-border)" }}
                 >
-                  <Icon name="Star" size={20} />
+                  <Icon name="GitBranch" size={20} />
                 </div>
                 <Pixel color="ink-dim" size={13}>
-                  Pin a skill in the browser
+                  Practice a discipline to fill this slot
                 </Pixel>
               </ItemSlot>
             </Link>

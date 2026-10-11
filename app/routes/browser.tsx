@@ -78,7 +78,6 @@ export default function Browser() {
   const {
     progress,
     applied,
-    pinned,
     hidden,
     events,
     loaded,
@@ -86,7 +85,6 @@ export default function Browser() {
     syncStatus,
     setStatus,
     setApplied,
-    togglePinned,
     setHidden,
     importData,
     exportBackup,
@@ -511,14 +509,6 @@ export default function Browser() {
                 <TierTag tier={tier} />
               </PanelHeader>
               <PanelBody className="p-0">
-                {pinned.length === 0 && (
-                  <div className="px-4 py-2 border-b border-surface-divider/50">
-                    <Mono size={11} color="ink-dim">
-                      <span className="text-accent-mustard">★</span> Pin up to 3
-                      skills to see them on the dashboard
-                    </Mono>
-                  </div>
-                )}
                 {filteredSections.length === 0 ? (
                   <div className="py-16 text-center">
                     <Pixel size={13} color="ink-muted">
@@ -544,10 +534,8 @@ export default function Browser() {
                         section={sec}
                         progress={progress}
                         applied={applied}
-                        pinned={pinned}
                         onSetStatus={setStatus}
                         onToggleApplied={setApplied}
-                        onTogglePinned={togglePinned}
                         tierColor={tierMeta.color}
                         isOpen={!collapsedSections.has(sec.id)}
                         onToggle={() => toggleSection(sec.id)}

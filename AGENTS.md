@@ -61,17 +61,18 @@ app/routes/            dashboard.tsx (/), browser.tsx (/browser?discipline=<id>)
                        api.state.ts (/api/state — GET/PUT backup, same-origin only)
 app/components/
   browser/             SectionBlock, SkillRow, ResourceLinks, LearningResources, DisciplineDepthStepper
-  dashboard/           HeaderBar, ActiveTracks (pinned skills), StatRow, SkillMatrix (radar),
+  dashboard/           HeaderBar, ActiveTracks (most-practiced disciplines), StatRow,
+                       SkillMatrix (radar),
                        ActivityHeatmap, RecentActivity
   ui/                  Panel/PanelHeader/PanelBody, Pixel, Mono, ProgressBar, TierTag, Icon,
                        SecondaryButton/PrimaryButton, ItemSlot, Tooltip, Loader,
                        ThemeToggleButton
 app/lib/
-  storage.ts           localStorage shape (v3: progress, applied, pinned, hidden, events, checkins,
+  storage.ts           localStorage shape (v3: progress, applied, hidden, events, checkins,
                        updatedAt) + v1/v2 migration; mergeStorage (device/server/import merge);
                        saveStorage returns boolean (false on quota/private-mode failure) — pure
   activity.ts          realEvents, dailyCounts, dayLevel, streakDays, deltaSince, lastTouched,
-                       weeklyCounts, relativeTime, yearsWithActivity — pure, no React
+                       skillActivityDays, weeklyCounts, relativeTime, yearsWithActivity — pure, no React
   progress.ts          section/discipline/global Stats
   depth.ts             tierFor / calculateDepth / TIER_META — the ONLY place tiers are computed
   configExport.ts      JSON backup: buildExportConfig / downloadConfig / parseImport
@@ -144,8 +145,10 @@ discipline and warns above 40 sections / 80 items per section.
 ## Progress model
 
 - Status per skill: `learning | done | skipped` (absent = untouched).
-  `applied: true` is orthogonal. `pinned: string[]` holds up to
-  `MAX_PINNED` (3) skill ids for the dashboard.
+  `applied: true` is orthogonal. The dashboard's "Active Tracks" panel is
+  derived from event history — the top 3 disciplines by distinct active
+  days in a rolling 30-day window (≥2 touched skills required; hidden
+  excluded). There is no manual pinning.
 - Tiers: `exploring` → `practicing` (≥40 % done and ≥40 % applied) →
   `fluent` (≥80 % / ≥60 %). `tierFor()` in `app/lib/depth.ts` is the single
   source of truth; do not reintroduce ad-hoc thresholds in components.

@@ -1,12 +1,12 @@
 /**
  * JSON export / import of the user's progress.
  *
- * The export is `{ version, exportedAt, source, progress, applied, pinned,
- * hidden, events, checkins, updatedAt }`. Import validates the shape, then
+ * The export is `{ version, exportedAt, source, progress, applied, hidden,
+ * events, checkins, updatedAt }`. Import validates the shape, then
  * normalizes it (malformed entries are dropped, not fatal); the caller
  * merges the result into the current state with `mergeStorage`, so
  * importing can never lose data. Older exports that embed a `disciplines`
- * catalogue still import — that key is ignored.
+ * catalogue or a `pinned` list still import — those keys are ignored.
  */
 
 import {
@@ -27,7 +27,6 @@ export interface ExportedConfig {
   source: "skill-tracker";
   progress?: ProgressMap;
   applied?: AppliedMap;
-  pinned?: string[];
   hidden?: string[];
   events?: ProgressEvent[];
   checkins?: CheckinMap;
@@ -82,7 +81,7 @@ export function validateImport(input: unknown): string | null {
   for (const key of ["progress", "applied", "checkins"] as const)
     if (input[key] !== undefined && !isRecord(input[key]))
       return `${key}: expected an object`;
-  for (const key of ["pinned", "hidden", "events"] as const)
+  for (const key of ["hidden", "events"] as const)
     if (input[key] !== undefined && !Array.isArray(input[key]))
       return `${key}: expected an array`;
   return null;

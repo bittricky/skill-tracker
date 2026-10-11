@@ -6,7 +6,7 @@ export type Status = "untouched" | "learning" | "done" | "skipped";
 export type ProgressMap = Record<string, Exclude<Status, "untouched">>;
 export type AppliedMap = Record<string, boolean>;
 
-export type EventKind = "status" | "applied" | "pin";
+export type EventKind = "status" | "applied";
 
 /**
  * Append-only history of what changed and when. `synthetic` marks events
@@ -36,18 +36,15 @@ export type CheckinMap = Record<string, Checkin>;
 export interface StorageData {
   progress: ProgressMap;
   applied: AppliedMap;
-  /** Skill ids pinned to the dashboard "Active Tracks" panel (ordered). */
-  pinned: string[];
   /** Discipline ids excluded from dashboard rollups (still browsable). */
   hidden: string[];
   events: ProgressEvent[];
   /** Manual check-ins keyed by local day (`yyyy-mm-dd`). */
   checkins: CheckinMap;
-  /** Last local modification; decides `pinned`/`hidden` on merge. */
+  /** Last local modification; decides `hidden` on merge. */
   updatedAt?: string;
 }
 
-export const MAX_PINNED = 3;
 export const MAX_EVENTS = 10_000;
 export const STORAGE_KEY = "skill-tracker:v3";
 
@@ -55,7 +52,6 @@ export function emptyStorage(): StorageData {
   return {
     progress: {},
     applied: {},
-    pinned: [],
     hidden: [],
     events: [],
     checkins: {},
@@ -111,7 +107,7 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 const strings = (v: unknown): string[] =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
 
-const EVENT_KINDS: EventKind[] = ["status", "applied", "pin"];
+const EVENT_KINDS: EventKind[] = ["status", "applied"];
 const STATUSES: Status[] = ["untouched", "learning", "done", "skipped"];
 const FUTURE_TOLERANCE_MS = 5 * 60 * 1000;
 
@@ -145,7 +141,6 @@ export function normalizeStorage(raw: unknown): StorageData {
     }
   }
 
-  const pinned = [...new Set(strings(obj.pinned))].slice(0, MAX_PINNED);
   const hidden = [...new Set(strings(obj.hidden))];
 
   const events = (Array.isArray(obj.events) ? obj.events : [])
@@ -178,7 +173,6 @@ export function normalizeStorage(raw: unknown): StorageData {
   const out: StorageData = {
     progress,
     applied,
-    pinned,
     hidden,
     events: capEvents(events),
     checkins,
@@ -223,7 +217,7 @@ export function loadStorage(): StorageData {
   const v3 = safeRead(STORAGE_KEY);
   if (v3 && typeof v3 === "object") return normalizeStorage(v3);
 
-  // Migrate v2 (progress, applied, pinned) → v3 once, seeding the timeline.
+  // Migrate v2 (progress, applied) → v3 once, seeding the timeline.
   const v2 = safeRead(V2_KEY);
   if (v2 && typeof v2 === "object") {
     const base = normalizeStorage(v2);
@@ -293,7 +287,7 @@ const later = (x?: string, y?: string) => (!x ? y : !y ? x : x >= y ? x : y);
  *   - progress/applied: per skill, the latest event in the merged history
  *     decides; skills with no events keep `a`'s value, else `b`'s
  *   - checkins: per day, the later `at` wins (so "unchecked" survives)
- *   - pinned/hidden: from the side with the newer `updatedAt` (ties → `a`)
+ *   - hidden: from the side with the newer `updatedAt` (ties → `a`)
  * Commutative for everything except tie-breaks, and idempotent.
  */
 export function mergeStorage(a: StorageData, b: StorageData): StorageData {
@@ -347,7 +341,6 @@ export function mergeStorage(a: StorageData, b: StorageData): StorageData {
   const out: StorageData = {
     progress,
     applied,
-    pinned: [...newer.pinned],
     hidden: [...newer.hidden],
     events,
     checkins,
@@ -368,4 +361,3 @@ export const STATUS_CYCLE: Status[] = [
   "done",
   "skipped",
 ];
-

@@ -24,7 +24,7 @@ export function realEvents(
 
 /**
  * "Learning" activity: status → learning|done, or applied → true.
- * Pins, skips, un-dos and un-applies never count.
+ * Skips, un-dos and un-applies never count.
  */
 export function isLearningEvent(e: ProgressEvent): boolean {
   if (e.kind === "status") return e.to === "learning" || e.to === "done";
@@ -181,10 +181,45 @@ export function lastTouched(
   const set = ids instanceof Set ? ids : new Set(ids);
   let latest: string | null = null;
   for (const e of realEvents(events)) {
-    if (e.kind === "pin" || !set.has(e.id)) continue;
+    if (!set.has(e.id)) continue;
     if (!latest || e.at > latest) latest = e.at;
   }
   return latest;
+}
+
+export interface SkillActivity {
+  /** Distinct local days with ≥1 learning event inside the window. */
+  days: Set<string>;
+  /** Timestamp of the skill's latest learning event in the window. */
+  lastAt: string;
+}
+
+/**
+ * Per-skill activity inside a rolling `windowDays` window ending today:
+ * the set of distinct days the skill was touched (learning events only,
+ * same rule as `dayLevel`/`streakDays`) and its latest event timestamp.
+ * Used to rank "most actively practiced" items without letting a burst
+ * of events on a single day outweigh steady practice.
+ */
+export function skillActivityDays(
+  events: ProgressEvent[],
+  windowDays: number,
+  today: Date = new Date(),
+): Map<string, SkillActivity> {
+  const start = startOfDay(today);
+  start.setDate(start.getDate() - (windowDays - 1));
+  const startMs = start.getTime();
+  const out = new Map<string, SkillActivity>();
+  for (const e of realEvents(events, today)) {
+    if (!isLearningEvent(e)) continue;
+    const t = validAt(e.at);
+    if (t < startMs) continue;
+    const cur = out.get(e.id) ?? { days: new Set<string>(), lastAt: "" };
+    cur.days.add(dayKey(new Date(t)));
+    if (e.at > cur.lastAt) cur.lastAt = e.at;
+    out.set(e.id, cur);
+  }
+  return out;
 }
 
 /** Learning events per 7-day week, oldest → newest, `weeks` buckets. */

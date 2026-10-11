@@ -25,9 +25,11 @@ that also syncs progress across devices; JSON export/import works anywhere.
   `app/lib/depth.ts`:
   - Practicing: ≥40% done & ≥40% applied.
   - Fluent: ≥80% done & ≥60% applied.
-- **Pinned skills** — star up to three skills in the browser; they appear as
-  "Active Tracks" on the dashboard. A hint in the browser points at the pin
-  chip until you pin your first skill.
+- **Active Tracks** (dashboard) — the three disciplines you've practiced most
+  in the last 30 days, derived automatically from your activity. Ranked by
+  distinct active days (a binge counts once), ties broken by most recent
+  touch; a discipline needs at least two touched skills to qualify, and
+  hidden disciplines never surface.
 - **Skill matrix radar** (dashboard) plots done / applied / active per
   discipline with kind filters.
 - **Activity heatmap** (dashboard) — a habit tracker on a GitHub-style
@@ -59,7 +61,7 @@ All state is stored client-side under `localStorage` (the source of truth):
 
 | Key                   | Contents                                                                 |
 | --------------------- | ------------------------------------------------------------------------ |
-| `skill-tracker:v3`    | `{ progress, applied, pinned, hidden, events, checkins, updatedAt }`     |
+| `skill-tracker:v3`    | `{ progress, applied, hidden, events, checkins, updatedAt }`             |
 | `skill-tracker:sync`  | `{ dirty, lastSyncedAt }` — whether local changes still need a backup    |
 | `skill-tracker-theme` | `"light" \| "dark"`                                                      |
 
@@ -185,11 +187,11 @@ Three layers, all optional to the app's core (which works offline from
 1. **Persistent storage** — the app calls `navigator.storage.persist()` so
    the browser doesn't evict your data.
 2. **Export / import** (download / upload icons in the header). Export
-   downloads `{ version, progress, applied, pinned, hidden, events,
+   downloads `{ version, progress, applied, hidden, events,
    checkins, updatedAt }`. Import **merges** the file into your current
    progress — it never deletes anything, and importing the same file twice
    is a no-op. Older exports (including ones with an embedded `disciplines`
-   catalogue, which is ignored) still import.
+   catalogue or a `pinned` list, which are ignored) still import.
 3. **Automatic server backup** — when served by the app's own Node server
    (Docker / `pnpm run start` / dev), progress is mirrored to
    `GET`/`PUT /api/state`:
@@ -199,7 +201,7 @@ Three layers, all optional to the app's core (which works offline from
    - The **server merges** each push with its copy and returns the result,
      so several devices can edit safely: per skill, the most recent
      status/applied change wins; event histories are unioned; per day, the
-     latest check-in toggle wins; `pinned`/`hidden` come from the most
+     latest check-in toggle wins; `hidden` comes from the most
      recently edited snapshot.
    - The header icon shows the state: ✓ backed up · ⬆ pending · ✕ error ·
      unlinked = no backup server (static hosting) — the app still works.

@@ -7,9 +7,7 @@ import {
   mergeStorage,
   sameStorage,
   saveStorage,
-  MAX_PINNED,
   STATUS_CYCLE,
-  type ProgressEvent,
   type StorageData,
   type Status,
 } from "~/lib/storage";
@@ -31,7 +29,6 @@ export interface UseProgress extends StorageData {
   syncStatus: SyncStatus;
   setStatus: (id: string, forceTo?: Status) => void;
   setApplied: (id: string, value?: boolean) => void;
-  togglePinned: (id: string) => void;
   setHidden: (id: string, hidden: boolean) => void;
   /** Toggle the check-in for a day (default today); future days are ignored. */
   toggleCheckin: (day?: string) => void;
@@ -116,36 +113,6 @@ export function useProgress(): UseProgress {
     [persist],
   );
 
-  const togglePinned = useCallback(
-    (id: string) => {
-      persist((prev) => {
-        const adding = !prev.pinned.includes(id);
-        const nextPinned = adding
-          ? [...prev.pinned, id].slice(-MAX_PINNED)
-          : prev.pinned.filter((x) => x !== id);
-        if (nextPinned.length === prev.pinned.length && !adding) return prev;
-        const events: ProgressEvent[] = [
-          { kind: "pin", id, from: !adding, to: adding, at: now() },
-        ];
-        // When the cap pushes the oldest pin out, log its removal too.
-        if (adding && prev.pinned.length >= MAX_PINNED) {
-          const dropped = prev.pinned[0];
-          events.push({
-            kind: "pin",
-            id: dropped,
-            from: true,
-            to: false,
-            at: now(),
-          });
-        }
-        let next: StorageData = { ...prev, pinned: nextPinned };
-        for (const e of events) next = appendEvent(next, e);
-        return next;
-      });
-    },
-    [persist],
-  );
-
   const setHidden = useCallback(
     (id: string, hide: boolean) => {
       persist((prev) => {
@@ -199,7 +166,6 @@ export function useProgress(): UseProgress {
     syncStatus,
     setStatus,
     setApplied,
-    togglePinned,
     setHidden,
     toggleCheckin,
     importData,

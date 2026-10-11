@@ -9,17 +9,14 @@ import {
 import { STATUS_CYCLE, type Status } from "~/lib/storage";
 import { ResourceLinks } from "~/components/browser/ResourceLinks";
 import { Tooltip } from "~/components/ui/Tooltip";
-import { Icon } from "~/components/ui/Icon";
 import { cn } from "~/lib/cn";
 
 interface SkillRowProps {
   skill: Skill;
   status: Status;
   isApplied: boolean;
-  isPinned: boolean;
   onSetStatus: (forceTo?: Status) => void;
   onToggleApplied: () => void;
-  onTogglePinned: () => void;
   currentDisciplineId: string;
   web?: boolean;
   onNavigate?: (disciplineId: string, skillId?: string) => void;
@@ -62,10 +59,8 @@ export function SkillRow({
   skill,
   status,
   isApplied,
-  isPinned,
   onSetStatus,
   onToggleApplied,
-  onTogglePinned,
   currentDisciplineId,
   web = false,
   onNavigate,
@@ -228,27 +223,6 @@ export function SkillRow({
             </span>
           </Tooltip>
         )}
-
-        {/* Pin button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onTogglePinned();
-          }}
-          title={isPinned ? "Unpin from Active Tracks" : "Pin to Active Tracks"}
-          aria-label={
-            isPinned ? "Unpin from Active Tracks" : "Pin to Active Tracks"
-          }
-          aria-pressed={isPinned}
-          className={cn(
-            "shrink-0 mt-0.5 w-7 h-7 rounded-md transition-colors border flex items-center justify-center",
-            isPinned
-              ? "text-accent-mustard border-accent-mustard bg-accent-mustard/15"
-              : "text-ink-muted border-surface-border hover:border-accent-mustard/60 hover:text-accent-mustard",
-          )}
-        >
-          <Icon name={isPinned ? "StarFilled" : "Star"} size={16} />
-        </button>
 
         {/* Applied button */}
         <button

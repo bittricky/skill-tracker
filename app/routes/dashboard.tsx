@@ -29,14 +29,12 @@ export default function Dashboard() {
   const {
     progress,
     applied,
-    pinned,
     hidden,
     events,
     checkins,
     loaded,
     saveError,
     syncStatus,
-    togglePinned,
     toggleCheckin,
     importData,
     exportBackup,
@@ -99,11 +97,10 @@ export default function Dashboard() {
         ) : (
           <div className="flex flex-col gap-3.5">
             <ActiveTracks
-              pinned={pinned}
               progress={progress}
               applied={applied}
+              hidden={hidden}
               events={events}
-              onUnpin={togglePinned}
             />
             <StatRow
               stats={stats}

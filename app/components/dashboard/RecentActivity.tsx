@@ -32,8 +32,7 @@ function describe(e: ProgressEvent): string {
         return "cleared";
     }
   }
-  if (e.kind === "applied") return e.to === true ? "applied" : "un-applied";
-  return e.to === true ? "pinned" : "unpinned";
+  return e.to === true ? "applied" : "un-applied";
 }
 
 function dayLabel(key: string, todayKey: string, yesterdayKey: string) {
@@ -49,7 +48,7 @@ function dayLabel(key: string, todayKey: string, yesterdayKey: string) {
 export function RecentActivity({ events, filter }: RecentActivityProps) {
   const groups = useMemo(() => {
     const real = realEvents(events)
-      .filter((e) => e.kind !== "pin" && (!filter || filter(e.id)))
+      .filter((e) => !filter || filter(e.id))
       .sort((a, b) => b.at.localeCompare(a.at))
       .slice(0, 10);
     const out: { key: string; items: ProgressEvent[] }[] = [];

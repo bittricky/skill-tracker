@@ -14,10 +14,8 @@ interface SectionBlockProps {
   section: Section;
   progress: ProgressMap;
   applied: AppliedMap;
-  pinned: string[];
   onSetStatus: (id: string, forceTo?: Status) => void;
   onToggleApplied: (id: string, value?: boolean) => void;
-  onTogglePinned: (id: string) => void;
   tierColor: string;
   isOpen: boolean;
   onToggle: () => void;
@@ -33,10 +31,8 @@ export function SectionBlock({
   section,
   progress,
   applied,
-  pinned,
   onSetStatus,
   onToggleApplied,
-  onTogglePinned,
   tierColor,
   isOpen,
   onToggle,
@@ -114,10 +110,8 @@ export function SectionBlock({
               skill={item}
               status={progress[item.id] ?? "untouched"}
               isApplied={!!applied[item.id]}
-              isPinned={pinned.includes(item.id)}
               onSetStatus={(forceTo) => onSetStatus(item.id, forceTo)}
               onToggleApplied={() => onToggleApplied(item.id)}
-              onTogglePinned={() => onTogglePinned(item.id)}
               currentDisciplineId={currentDisciplineId}
               web={web}
               onNavigate={onNavigate}

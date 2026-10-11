@@ -7,7 +7,12 @@ import {
   mergeStorage,
   normalizeStorage,
 } from "../app/lib/storage.ts";
-import { dayKey, dayLevel, streakDays } from "../app/lib/activity.ts";
+import {
+  dayKey,
+  dayLevel,
+  skillActivityDays,
+  streakDays,
+} from "../app/lib/activity.ts";
 
 const at = (iso) => new Date(iso).toISOString();
 const state = (over = {}) => ({ ...emptyStorage(), ...over });
@@ -78,10 +83,10 @@ test("merge de-duplicates events and is idempotent", () => {
   assert.deepEqual(mergeStorage(m, b), m);
 });
 
-test("merge: pinned/hidden come from the newer snapshot", () => {
-  const a = state({ pinned: ["a"], updatedAt: at("2026-10-01T00:00Z") });
-  const b = state({ pinned: ["b"], updatedAt: at("2026-10-02T00:00Z") });
-  assert.deepEqual(mergeStorage(a, b).pinned, ["b"]);
+test("merge: hidden comes from the newer snapshot", () => {
+  const a = state({ hidden: ["a"], updatedAt: at("2026-10-01T00:00Z") });
+  const b = state({ hidden: ["b"], updatedAt: at("2026-10-02T00:00Z") });
+  assert.deepEqual(mergeStorage(a, b).hidden, ["b"]);
   assert.equal(mergeStorage(a, b).updatedAt, at("2026-10-02T00:00Z"));
 });
 
@@ -102,6 +107,27 @@ test("normalizeStorage drops malformed and far-future check-ins", () => {
 
 test("normalizeStorage defaults checkins for old data", () => {
   assert.deepEqual(normalizeStorage({ progress: {} }).checkins, {});
+});
+
+test("skillActivityDays: distinct days per skill, a burst counts once", () => {
+  const today = new Date(2026, 9, 11, 12); // Oct 11; 30d window starts Sep 12
+  const events = [
+    status("x", "untouched", "learning", new Date(2026, 9, 10, 9)),
+    status("x", "learning", "done", new Date(2026, 9, 10, 10)),
+    status("y", "untouched", "learning", new Date(2026, 9, 5, 9)),
+    status("y", "learning", "done", new Date(2026, 9, 8, 9)),
+    status("z", "untouched", "done", new Date(2026, 8, 11, 9)), // outside
+    status("z", "done", "learning", new Date(2026, 8, 12, 9)), // boundary: in
+    { kind: "applied", id: "w", from: true, to: false, at: at("2026-10-10") },
+    status("v", "learning", "untouched", new Date(2026, 9, 10, 9)),
+  ];
+  const m = skillActivityDays(events, 30, today);
+  assert.equal(m.get("x").days.size, 1); // both same-day events collapse
+  assert.equal(m.get("x").lastAt, at(new Date(2026, 9, 10, 10)));
+  assert.equal(m.get("y").days.size, 2);
+  assert.equal(m.get("z").days.size, 1); // only the Sep 12 event counts
+  assert.equal(m.has("w"), false); // un-applying is not learning activity
+  assert.equal(m.has("v"), false); // clearing back to untouched is not either
 });
 
 test("dayLevel boundaries", () => {
