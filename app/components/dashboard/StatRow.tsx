@@ -1,15 +1,16 @@
 import { Pixel } from "~/components/ui/Pixel";
 import type { Stats } from "~/lib/progress";
-import type { ProgressEvent } from "~/lib/storage";
+import type { CheckinMap, ProgressEvent } from "~/lib/storage";
 import { deltaSince, streakDays, type SkillFilter } from "~/lib/activity";
 
 interface StatRowProps {
   stats: Stats;
   events: ProgressEvent[];
+  checkins: CheckinMap;
   filter?: SkillFilter;
 }
 
-export function StatRow({ stats, events, filter }: StatRowProps) {
+export function StatRow({ stats, events, checkins, filter }: StatRowProps) {
   const week = deltaSince(
     events,
     new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -20,7 +21,7 @@ export function StatRow({ stats, events, filter }: StatRowProps) {
     new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     filter,
   );
-  const streak = streakDays(events, new Date(), filter);
+  const streak = streakDays(events, new Date(), filter, checkins);
   const remaining = Math.max(0, stats.total - stats.done - stats.skipped);
   const cards = [
     {

@@ -83,10 +83,13 @@ export default function Browser() {
     events,
     loaded,
     saveError,
+    syncStatus,
     setStatus,
     setApplied,
     togglePinned,
     setHidden,
+    importData,
+    exportBackup,
   } = useProgress();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -260,9 +263,10 @@ export default function Browser() {
           }
           icon={iconForDiscipline(activeDiscipline.id, activeDiscipline.kind)}
           iconSize={44}
-          hidden={hidden}
-          onSetHidden={setHidden}
           saveError={saveError}
+          syncStatus={syncStatus}
+          onExport={exportBackup}
+          onImport={importData}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-3.5">

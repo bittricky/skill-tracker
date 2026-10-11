@@ -37,7 +37,9 @@ export type IconName =
   | "Eye"
   | "EyeOff"
   | "Star"
-  | "StarFilled";
+  | "StarFilled"
+  | "AiScan"
+  | "MessageText";
 
 // SVG path data extracted from pixelarticons v2.1.0
 const iconPaths: Record<IconName, string[]> = {
@@ -166,6 +168,12 @@ const iconPaths: Record<IconName, string[]> = {
   ],
   StarFilled: [
     "M11 4h2v2h-2zM10 6h4v2h-4zM9 8h6v2H9zM3 10h18v2H3zM5 12h14v2H5zM7 14h10v2H7zM7 16h4v2H7zm6 0h4v2h-4zM6 18h4v2H6zm8 0h4v2h-4zM5 20h5v2H5zm9 0h5v2h-5z",
+  ],
+  AiScan: [
+    "M9 11h2v2H9zm4 0h2v2h-2zM7 7h10v2H7zM5 9h2v6H5zm2 6h10v2H7zm10-6h2v6h-2zm-6-4h2v2h-2zM4 2h4v2H4zm0 18h4v2H4zM16 2h4v2h-4zm0 18h4v2h-4zM2 4h2v4H2zm0 12h2v4H2zM20 4h2v4h-2zm0 12h2v4h-2z",
+  ],
+  MessageText: [
+    "M20 2H4v2h16zm0 14H6v2h14zm2-12h-2v12h2zM4 4H2v18h2zm2 14H4v2h2zm0-6h4v2H6zm0-4h8v2H6z",
   ],
 };
 

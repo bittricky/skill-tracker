@@ -7,7 +7,8 @@ top of data collected and organized from [roadmap.sh](https://roadmap.sh)
 roadmaps.
 
 Progress is stored locally in the browser. No accounts, no mandatory server.
-Optional GitHub Gist sync (your token, your data) covers cross-device use.
+When self-hosted, the app's own server keeps an optional automatic backup
+that also syncs progress across devices; JSON export/import works anywhere.
 
 ## Features
 
@@ -29,23 +30,24 @@ Optional GitHub Gist sync (your token, your data) covers cross-device use.
   chip until you pin your first skill.
 - **Skill matrix radar** (dashboard) plots done / applied / active per
   discipline with kind filters.
-- **Activity heatmap** (dashboard) — GitHub-style calendar-year grid of days
-  you marked skills learning/done/applied, with streak stats and year
-  navigation.
+- **Activity heatmap** (dashboard) — a habit tracker on a GitHub-style
+  calendar-year grid. A day is active with a manual check-in or at least
+  one skill marked learning/done/applied. Intensity: check-in only → level
+  1; 1 event → 2; 2–3 → 3; 4+ → 4. Click any past day (or **Check in
+  today**) to toggle its check-in. Streaks survive an empty today as long as
+  yesterday was active.
 - **Recent activity** (dashboard) — the last ten changes, grouped by day,
   deep-linking back to the skill (`/browser?discipline=<id>#skill-<id>`).
 - **Hidden disciplines** — hide disciplines from dashboard rollups via the
-  eye toggle in the browser sidebar or Settings → Focus; they stay fully
-  browsable.
+  eye toggle in the browser sidebar; they stay fully browsable.
 - **Self-hosted fonts** — VT323 + JetBrains Mono ship via `@fontsource`; no
   third-party requests on page load.
 - **Learning Resources** panel per discipline: your curated links
   (`app/data/resources.overrides.json`) plus every course/book roadmap.sh
   attaches to a skill, grouped by section.
-- **Settings modal** (gear icon, top-right) — JSON export / import, reset,
-  and optional GitHub Gist sync.
-- **Custom catalogues** — export with "include catalogue", edit the JSON to
-  define your own disciplines/sections/skills, import it back.
+- **Backup & sync** (header icons) — export / import a JSON backup, plus an
+  automatic merge-based backup to the self-hosted server with a sync-status
+  indicator. See [Backup & sync](#backup--sync).
 - **Installable PWA** — works offline after first visit when served over
   HTTPS (or `localhost`). Manifest, icons, and a vanilla service worker are
   included.
@@ -53,21 +55,24 @@ Optional GitHub Gist sync (your token, your data) covers cross-device use.
 
 ## Progress persistence
 
-All state is stored client-side under `localStorage`:
+All state is stored client-side under `localStorage` (the source of truth):
 
-| Key                                | Contents                                    |
-| ---------------------------------- | ------------------------------------------- |
-| `skill-tracker:v3`                 | `{ progress, applied, pinned, hidden, events }` |
-| `skill-tracker:custom-disciplines` | Optional user-authored discipline catalogue |
-| `skill-tracker:gist-sync`          | `{ token, gistId, lastSyncedAt }` for sync  |
-| `skill-tracker-theme`              | `"light" \| "dark"`                         |
+| Key                   | Contents                                                                 |
+| --------------------- | ------------------------------------------------------------------------ |
+| `skill-tracker:v3`    | `{ progress, applied, pinned, hidden, events, checkins, updatedAt }`     |
+| `skill-tracker:sync`  | `{ dirty, lastSyncedAt }` — whether local changes still need a backup    |
+| `skill-tracker-theme` | `"light" \| "dark"`                                                      |
 
 The legacy `skill-tracker:v1` (progress-only) and `skill-tracker:v2`
 (no `hidden`/`events`) keys are auto-migrated on first load — the migration
-seeds synthetic timeline events that don't count toward streaks. JSON exports
-are `{ version, progress, applied, pinned, hidden, events }` (version 3;
-v1/v2 files still import). Skill ids are the persistence key, so the data pipeline never renames
-ids — moving a skill between sections keeps your progress.
+seeds synthetic timeline events that don't count toward streaks. `checkins`
+maps a local day (`yyyy-mm-dd`) to `{ on, at }`; un-checking keeps the entry
+with `on: false` so merges can't resurrect it. Keys from removed features
+(`skill-tracker:custom-disciplines`, `skill-tracker:gist-sync`) are deleted on
+load. The app also asks the browser for persistent storage
+(`navigator.storage.persist()`) so it isn't evicted under disk pressure or by
+Safari's 7-day rule. Skill ids are the persistence key, so the data pipeline
+never renames ids — moving a skill between sections keeps your progress.
 
 ## Project structure
 
@@ -76,31 +81,33 @@ app/
   components/
     browser/               Discipline detail UI (sections, skill rows, depth stepper, sparkline, learning resources)
     dashboard/             Dashboard UI (active tracks, stat row, skill matrix, activity heatmap, recent activity, header)
-    ui/                    Primitives (Panel, Pixel, Mono, ProgressBar, TierTag, Icon, SettingsModal, …)
+    ui/                    Primitives (Panel, Pixel, Mono, ProgressBar, TierTag, Icon, ThemeToggleButton, …)
   data/
     disciplines.generated.json  GENERATED — never hand-edit
     disciplines.upstream.json   Pinned content commit + layoutBaseUrl/contentRoot + include list
     disciplines.overrides.json  Hand corrections (create / drop / unlink / move / rename / merge / dropResources)
     resources.overrides.json    Your curated links (skill / section / discipline level)
     custom/golang.json          Hand-sectioned discipline built from upstream content nodes
-    index.ts                    Types + runtime exports (+ custom override loader)
+    index.ts                    Types + runtime exports and lookups
     icons.ts                    Discipline → glyph map
   hooks/                   useProgress, useTheme
-  lib/                     storage, progress (stats), depth (tiers), activity (streaks/counts), configExport, gistSync, theme
-  routes/                  dashboard (/), browser (/browser?discipline=<id>)
+  lib/                     storage (+ mergeStorage), progress (stats), depth (tiers), activity (streaks/levels),
+                           configExport (JSON backup), serverSync (client backup), stateStore.server (file store), theme
+  routes/                  dashboard (/), browser (/browser?discipline=<id>), api.state (/api/state backup endpoint)
   app.css                  Theme tokens (dark + light), fonts, scrollbar
   root.tsx                 Layout, manifest link, SW registration, error boundary
 public/                    manifest.webmanifest, sw.js, icons
 scripts/
   sync-disciplines.mjs     Upstream → transform → overrides → disciplines.generated.json
   validate-data.mjs        Invariant checks (pnpm run data:check)
+  storage.test.mjs         Merge / check-in / streak tests (pnpm test)
   audit-data.mjs           Heuristic report of suspicious placements (pnpm run data:audit)
   transform/               Pure transform steps used by the sync
 ```
 
 ## Getting started
 
-Requires **Node.js 22+** and **pnpm** (pinned via `packageManager`; `corepack enable`
+Requires **Node.js 22.18+** and **pnpm** (pinned via `packageManager`; `corepack enable`
 if you don't have it).
 
 ```bash
@@ -114,6 +121,7 @@ pnpm run dev          # http://localhost:5173
 | `pnpm run build`            | Production build into `build/`                                   |
 | `pnpm run start`            | Serve the production build on :3000                              |
 | `pnpm run typecheck`        | React Router typegen + `tsc`                                     |
+| `pnpm test`                 | `node --test` for storage merge / check-ins / streaks            |
 | `pnpm run data:check`       | Validate `disciplines.generated.json` invariants                 |
 | `pnpm run data:audit`       | Print suspicious placements to extend the overrides file         |
 | `pnpm run sync:disciplines` | Regenerate the catalogue from the pinned upstream + overrides    |
@@ -169,17 +177,39 @@ there. To attach your own course/book/article to a topic, add it to
 See `.agents/skills/roadmap-section-assignment/SKILL.md` for the parser's
 rules and the id-preservation contract.
 
-## Import / export / sync
+## Backup & sync
 
-Open the **gear icon** (top-right).
+Three layers, all optional to the app's core (which works offline from
+`localStorage` alone):
 
-- **Export config** downloads `{ version, progress, applied, pinned, hidden, events }`. Tick
-  "include the built-in catalogue" only if you want to fork the disciplines.
-- **Import config** validates the payload and reloads. Importing an export
-  that contains the bundled catalogue does *not* pin it as a custom override.
-- **GitHub Gist sync**: create a fine-grained PAT with only the `gist` scope,
-  paste it, **Push** (creates a private gist) / **Pull** on another device.
-  The token lives in `localStorage` — don't use it on shared machines.
+1. **Persistent storage** — the app calls `navigator.storage.persist()` so
+   the browser doesn't evict your data.
+2. **Export / import** (download / upload icons in the header). Export
+   downloads `{ version, progress, applied, pinned, hidden, events,
+   checkins, updatedAt }`. Import **merges** the file into your current
+   progress — it never deletes anything, and importing the same file twice
+   is a no-op. Older exports (including ones with an embedded `disciplines`
+   catalogue, which is ignored) still import.
+3. **Automatic server backup** — when served by the app's own Node server
+   (Docker / `pnpm run start` / dev), progress is mirrored to
+   `GET`/`PUT /api/state`:
+   - Changes are pushed 2s after the last edit. Offline edits stay in
+     `localStorage` (`dirty`) and are retried when the network returns,
+     when the tab becomes visible, and on the next load.
+   - The **server merges** each push with its copy and returns the result,
+     so several devices can edit safely: per skill, the most recent
+     status/applied change wins; event histories are unioned; per day, the
+     latest check-in toggle wins; `pinned`/`hidden` come from the most
+     recently edited snapshot.
+   - The header icon shows the state: ✓ backed up · ⬆ pending · ✕ error ·
+     unlinked = no backup server (static hosting) — the app still works.
+   - Stored in `$DATA_DIR/state.json` (default `./data`, `/data` in Docker),
+     written atomically, with daily snapshots in `$DATA_DIR/snapshots/`
+     (last 14 kept). To roll back, stop the container and copy a snapshot
+     over `state.json`.
+   - **Security**: requests must come from the app's own origin
+     (`Sec-Fetch-Site` / `Origin` checks); there is no login. Keep the server
+     on your LAN or behind Tailscale rather than the public internet.
 
 ## Deploying
 
@@ -190,7 +220,10 @@ pnpm run docker:build && pnpm run docker:run      # http://localhost:3000
 ```
 
 The image is multi-stage, pnpm-based, runs as `node`, and listens on
-`0.0.0.0:3000`. Multi-arch builds (`linux/amd64,linux/arm64`) are published
+`0.0.0.0:3000`. The server backup lives in the `/data` volume
+(`DATA_DIR`); `docker compose up -d prod` mounts the named volume
+`skill-tracker-data` there so it survives rebuilds. With plain
+`docker run`, add `-v skill-tracker-data:/data`. Multi-arch builds (`linux/amd64,linux/arm64`) are published
 to GHCR by `.github/workflows/docker.yml` on tags and pushes to `main`.
 
 ## Tech stack

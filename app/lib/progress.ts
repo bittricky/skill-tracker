@@ -1,5 +1,5 @@
 import type { Discipline, Section } from "~/data";
-import type { AppliedMap, ProgressMap, Status } from "./storage";
+import type { AppliedMap, ProgressMap } from "./storage";
 
 export interface Stats {
   total: number;
@@ -32,10 +32,6 @@ function finalize(s: Stats): Stats {
   const denom = s.total - s.skipped;
   s.pct = denom > 0 ? Math.round((s.done / denom) * 100) : 0;
   return s;
-}
-
-export function statusOf(progress: ProgressMap, id: string): Status {
-  return progress[id] ?? "untouched";
 }
 
 export function sectionStats(

@@ -535,10 +535,7 @@
       "id": "scripting-languages",
       "label": "Scripting Languages",
       "after": "Terminal Knowledge",
-      "skills": [
-        "devops:syBIAL1mHbJLnTBoSxXI7",
-        "devops:z6IBekR8Xl-6f8WEb05Nw"
-      ]
+      "skills": ["devops:syBIAL1mHbJLnTBoSxXI7", "devops:z6IBekR8Xl-6f8WEb05Nw"]
     },
     {
       "in": "devops",
@@ -590,10 +587,7 @@
       "id": "reusability",
       "label": "Reusability",
       "after": "Components",
-      "skills": [
-        "vue:br1r8KIf5KInY5mk2xhA6",
-        "vue:_Nc8ivQrdpKuf8MwaV-K7"
-      ]
+      "skills": ["vue:br1r8KIf5KInY5mk2xhA6", "vue:_Nc8ivQrdpKuf8MwaV-K7"]
     },
     {
       "in": "graphql",
@@ -658,9 +652,7 @@
       "id": "containerization",
       "label": "Containerization",
       "after": "Message Brokers",
-      "skills": [
-        "backend:31ZlpfIPr9-5vYZqvjUeL"
-      ]
+      "skills": ["backend:31ZlpfIPr9-5vYZqvjUeL"]
     },
     {
       "in": "blockchain",
@@ -732,11 +724,9 @@
       "in": "prompt-engineering",
       "id": "open-source-llms",
       "label": "Open Source LLMs",
-      "description": "Open-weight model families you can download, fine-tune, and self-host.",
+      "description": "Open-weight model families with free, downloadable weights you can fine-tune and self-host. You pay for compute instead: small models run on a laptop or single GPU, while frontier level models need multi-GPU clusters. Licenses vary.",
       "after": "Commercial Model Providers",
-      "skills": [
-        "prompt-engineering:Td2YzDFT4LPGDw8JMmQSQ"
-      ]
+      "skills": ["prompt-engineering:Td2YzDFT4LPGDw8JMmQSQ"]
     },
     {
       "in": "prompt-engineering",

@@ -1,4 +1,4 @@
-import type { ProgressEvent } from "./storage";
+import type { CheckinMap, ProgressEvent } from "./storage";
 
 /** Predicate deciding whether a skill id counts toward a rollup. */
 export type SkillFilter = (skillId: string) => boolean;
@@ -82,14 +82,29 @@ export function dailyCounts(
 }
 
 /**
- * Consecutive days with ≥1 learning event. `current` counts back from today
- * (or yesterday — a streak isn't broken until a full day is missed);
- * `longest` is the all-time run.
+ * Habit-tracker intensity for one day:
+ *   0 = nothing, 1 = check-in only, 2 = 1 event, 3 = 2–3 events, 4 = 4+.
+ * A check-in on a day that already has events doesn't raise its level.
+ */
+export function dayLevel(count: number, checkedIn: boolean): 0 | 1 | 2 | 3 | 4 {
+  if (count >= 4) return 4;
+  if (count >= 2) return 3;
+  if (count === 1) return 2;
+  return checkedIn ? 1 : 0;
+}
+
+/**
+ * Consecutive active days. A day is active with ≥1 learning event (through
+ * `filter`) or an "on" check-in (check-ins are global, never filtered).
+ * `current` counts back from today, or from yesterday when today is still
+ * empty — a streak only breaks once a full day is missed. `longest` is the
+ * all-time run.
  */
 export function streakDays(
   events: ProgressEvent[],
   today: Date = new Date(),
   filter?: SkillFilter,
+  checkins: CheckinMap = {},
 ): { current: number; longest: number; lastActiveAt: string | null } {
   const days = new Set<string>();
   let lastActiveAt: string | null = null;
@@ -98,6 +113,12 @@ export function streakDays(
     if (filter && !filter(e.id)) continue;
     days.add(dayKey(new Date(e.at)));
     if (!lastActiveAt || e.at > lastActiveAt) lastActiveAt = e.at;
+  }
+  const todayKey = dayKey(today);
+  for (const [day, c] of Object.entries(checkins)) {
+    if (!c.on || day > todayKey) continue;
+    days.add(day);
+    if (!lastActiveAt || c.at > lastActiveAt) lastActiveAt = c.at;
   }
 
   const cursor = startOfDay(today);
@@ -206,12 +227,17 @@ export function relativeTime(iso: string, now: Date = new Date()): string {
   });
 }
 
-/** Distinct years containing ≥1 real learning event, ascending. */
-export function yearsWithActivity(events: ProgressEvent[]): number[] {
+/** Distinct years containing ≥1 real learning event or check-in, ascending. */
+export function yearsWithActivity(
+  events: ProgressEvent[],
+  checkins: CheckinMap = {},
+): number[] {
   const years = new Set<number>();
   for (const e of realEvents(events)) {
     if (!isLearningEvent(e)) continue;
     years.add(new Date(e.at).getFullYear());
   }
+  for (const [day, c] of Object.entries(checkins))
+    if (c.on) years.add(Number(day.slice(0, 4)));
   return [...years].sort((a, b) => a - b);
 }

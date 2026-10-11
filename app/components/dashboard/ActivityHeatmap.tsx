@@ -1,13 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Panel, PanelHeader, PanelBody } from "~/components/ui/Panel";
 import { Mono } from "~/components/ui/Mono";
 import { Pixel } from "~/components/ui/Pixel";
 import { SecondaryButton } from "~/components/ui/SecondaryButton";
-import type { ProgressEvent } from "~/lib/storage";
+import {
+  activeCheckinDays,
+  type CheckinMap,
+  type ProgressEvent,
+} from "~/lib/storage";
 import {
   dailyCounts,
   dayKey,
-  relativeTime,
+  dayLevel,
   streakDays,
   yearsWithActivity,
   type DayCount,
@@ -17,6 +21,8 @@ import { cn } from "~/lib/cn";
 
 interface ActivityHeatmapProps {
   events: ProgressEvent[];
+  checkins: CheckinMap;
+  onToggleCheckin: (day: string) => void;
   filter?: SkillFilter;
 }
 
@@ -41,44 +47,51 @@ const MONTHS = [
   "Nov",
   "Dec",
 ];
-const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-function bucketClass(total: number): string {
-  if (total <= 0) return "bg-surface-inset";
-  if (total === 1) return "bg-accent-teal/25";
-  if (total <= 3) return "bg-accent-teal/50";
-  if (total <= 6) return "bg-accent-teal/75";
-  return "bg-accent-teal";
+const LEVEL_CLASS = [
+  "bg-surface-inset",
+  "bg-accent-teal/25",
+  "bg-accent-teal/50",
+  "bg-accent-teal/75",
+  "bg-accent-teal",
+] as const;
+
+const shortDate = (d: Date) => `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+
+/** "Thu Oct 9 · 3 done · 1 applied" */
+function tooltip(date: Date, c: DayCount | undefined, checkedIn: boolean) {
+  const parts = [`${WEEKDAYS[date.getDay()]} ${shortDate(date)}`];
+  if (c?.done) parts.push(`${c.done} done`);
+  if (c?.learning) parts.push(`${c.learning} learning`);
+  if (c?.applied) parts.push(`${c.applied} applied`);
+  if (checkedIn) parts.push("checked in");
+  if (parts.length === 1) parts.push("no activity");
+  return parts.join(" · ");
 }
 
-function describe(date: Date, c?: DayCount): string {
-  const label = date.toLocaleDateString("en-US", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  if (!c || c.total === 0) return `${label} · no activity`;
-  const parts: string[] = [];
-  if (c.done) parts.push(`${c.done} done`);
-  if (c.learning) parts.push(`${c.learning} learning`);
-  if (c.applied) parts.push(`${c.applied} applied`);
-  return `${label} · ${parts.join(" · ")}`;
-}
-
-export function ActivityHeatmap({ events, filter }: ActivityHeatmapProps) {
+export function ActivityHeatmap({
+  events,
+  checkins,
+  onToggleCheckin,
+  filter,
+}: ActivityHeatmapProps) {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
-  const [selected, setSelected] = useState<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const years = useMemo(() => yearsWithActivity(events), [events]);
+  const years = useMemo(
+    () => yearsWithActivity(events, checkins),
+    [events, checkins],
+  );
   const showSwitcher = years.some((y) => y !== currentYear);
 
+  const checkedDays = useMemo(() => activeCheckinDays(checkins), [checkins]);
   const streak = useMemo(
-    () => streakDays(events, new Date(), filter),
-    [events, filter],
+    () => streakDays(events, new Date(), filter, checkins),
+    [events, filter, checkins],
   );
+  const todayKey = dayKey(new Date());
+  const checkedToday = checkedDays.has(todayKey);
 
   // Weeks starting Sunday, from the week containing Jan 1 through the week
   // containing Dec 31.
@@ -86,7 +99,7 @@ export function ActivityHeatmap({ events, filter }: ActivityHeatmapProps) {
     const from = new Date(year, 0, 1);
     const to = new Date(year, 11, 31);
     const counts = dailyCounts(events, from, to, filter);
-    const todayKey = dayKey(new Date());
+    const today = dayKey(new Date());
 
     const first = new Date(from);
     first.setDate(first.getDate() - first.getDay());
@@ -104,7 +117,7 @@ export function ActivityHeatmap({ events, filter }: ActivityHeatmapProps) {
           date: inYear ? new Date(d) : null,
           key,
           count: inYear ? counts.get(key) : undefined,
-          future: key > todayKey,
+          future: key > today,
         });
         d.setDate(d.getDate() + 1);
       }
@@ -124,40 +137,41 @@ export function ActivityHeatmap({ events, filter }: ActivityHeatmapProps) {
     [weeks],
   );
 
-  // Scroll so the current month is visible (only when viewing this year).
-  useEffect(() => {
-    if (year !== currentYear || !scrollRef.current) return;
-    const month = new Date().getMonth();
-    const colIdx = monthLabels.findIndex((l) => l === MONTHS[month]);
-    if (colIdx >= 0)
-      scrollRef.current.scrollLeft = Math.max(0, colIdx * 16 - 32);
-  }, [year, currentYear, monthLabels]);
-
-  const meta = streak.lastActiveAt
-    ? `${streak.current}-day streak · longest ${streak.longest} · last active ${relativeTime(streak.lastActiveAt)}`
-    : "no activity yet";
-
   return (
     <Panel className="min-w-0">
       <PanelHeader
         title="Activity"
-        subtitle="Skills marked learning/done/applied"
+        subtitle="check-ins and skills learned"
         accentColor="teal"
         glyph="Play"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
           <Pixel color="ink-muted" size={13}>
-            {meta}
+            {streak.current}-day streak · longest {streak.longest}
           </Pixel>
+          <SecondaryButton
+            active={checkedToday}
+            aria-pressed={checkedToday}
+            onClick={() => onToggleCheckin(todayKey)}
+            title={
+              checkedToday ? "Undo today's check-in" : "Mark today as active"
+            }
+          >
+            {checkedToday ? "Checked in ✓" : "Check in today"}
+          </SecondaryButton>
           {showSwitcher && (
             <div className="flex items-center gap-2">
-              <SecondaryButton onClick={() => setYear((y) => y - 1)}>
+              <SecondaryButton
+                aria-label="Previous year"
+                onClick={() => setYear((y) => y - 1)}
+              >
                 ‹
               </SecondaryButton>
               <Pixel size={13} color="ink">
                 {year}
               </Pixel>
               <SecondaryButton
+                aria-label="Next year"
                 onClick={() => setYear((y) => Math.min(currentYear, y + 1))}
               >
                 ›
@@ -167,101 +181,104 @@ export function ActivityHeatmap({ events, filter }: ActivityHeatmapProps) {
         </div>
       </PanelHeader>
       <PanelBody>
-        <div ref={scrollRef} className="overflow-x-auto">
-          <div className="min-w-max">
-            {/* Month labels */}
-            <div
-              className="grid mb-1 ml-7"
-              style={{
-                gridTemplateColumns: `repeat(${weeks.length}, 13px)`,
-                columnGap: 3,
-              }}
-            >
-              {monthLabels.map((l, i) => (
-                <Mono key={i} size={10} color="ink-dim">
+        {/* One fluid grid: weekday-label column + one equal column per week.
+            Cells are square, so the grid fills the panel width with no scroll. */}
+        <div
+          className="grid w-full"
+          role="group"
+          aria-label={`Activity in ${year}`}
+          style={{
+            gridTemplateColumns: `1.75rem repeat(${weeks.length}, minmax(0, 1fr))`,
+            gap: "clamp(1px, 0.25vw, 3px)",
+          }}
+        >
+          {/* Month labels (row 1) */}
+          {monthLabels.map((l, i) =>
+            l ? (
+              <div
+                key={`m-${i}`}
+                className="whitespace-nowrap leading-none pb-1"
+                style={{ gridRow: 1, gridColumn: i + 2 }}
+              >
+                <Mono size={10} color="ink-dim">
                   {l}
                 </Mono>
-              ))}
-            </div>
-            <div className="flex">
-              {/* Weekday labels */}
-              <div
-                className="grid w-7 shrink-0"
-                style={{ gridTemplateRows: "repeat(7, 13px)", rowGap: 3 }}
-              >
-                {WEEKDAY_LABELS.map((l, i) => (
-                  <Mono key={i} size={10} color="ink-dim">
-                    {l}
-                  </Mono>
-                ))}
               </div>
-              {/* Grid: columns = weeks, rows = Sun..Sat */}
-              <div
-                className="grid"
-                role="grid"
-                style={{
-                  gridTemplateRows: "repeat(7, 13px)",
-                  gridAutoFlow: "column",
-                  gridAutoColumns: "13px",
-                  gap: 3,
-                }}
-              >
-                {weeks.flatMap((col, ci) =>
-                  col.map((cell, ri) => {
-                    if (!cell.date)
-                      return (
-                        <div
-                          key={`${ci}-${ri}`}
-                          className="size-3.25"
-                          aria-hidden="true"
-                        />
-                      );
-                    if (cell.future)
-                      return (
-                        <div
-                          key={cell.key}
-                          className="size-3.25 rounded-xs bg-surface-inset opacity-40"
-                          aria-hidden="true"
-                        />
-                      );
-                    const label = describe(cell.date, cell.count);
-                    return (
-                      <button
-                        key={cell.key}
-                        type="button"
-                        role="gridcell"
-                        title={label}
-                        aria-label={label}
-                        onClick={() => setSelected(label)}
-                        className={cn(
-                          "size-3.25 rounded-xs",
-                          bucketClass(cell.count?.total ?? 0),
-                          selected === label && "ring-1 ring-accent-mustard",
-                        )}
-                      />
-                    );
-                  }),
-                )}
-              </div>
+            ) : null,
+          )}
+          {/* Weekday labels (column 1); Sun/Tue/Thu/Sat hide on narrow screens */}
+          {WEEKDAYS.map((l, i) => (
+            <div
+              key={`w-${i}`}
+              className={cn(
+                "self-center leading-none",
+                i % 2 === 0 && "hidden sm:block",
+              )}
+              style={{ gridRow: i + 2, gridColumn: 1 }}
+            >
+              <Mono size={10} color="ink-dim">
+                {l}
+              </Mono>
             </div>
-          </div>
+          ))}
+          {/* Day cells: columns = weeks, rows = Sun..Sat */}
+          {weeks.flatMap((col, ci) =>
+            col.map((cell, ri) => {
+              const place = { gridColumn: ci + 2, gridRow: ri + 2 };
+              if (!cell.date)
+                return (
+                  <div
+                    key={`${ci}-${ri}`}
+                    className="aspect-square"
+                    style={place}
+                    aria-hidden="true"
+                  />
+                );
+              if (cell.future)
+                return (
+                  <button
+                    key={cell.key}
+                    type="button"
+                    disabled
+                    aria-label={`${shortDate(cell.date)}, future`}
+                    className="aspect-square w-full rounded-xs bg-surface-inset opacity-40 cursor-not-allowed"
+                    style={place}
+                  />
+                );
+              const checked = checkedDays.has(cell.key);
+              const level = dayLevel(cell.count?.total ?? 0, checked);
+              return (
+                <button
+                  key={cell.key}
+                  type="button"
+                  aria-pressed={checked}
+                  aria-label={`${shortDate(cell.date)}, ${level > 0 ? "active" : "inactive"}`}
+                  title={tooltip(cell.date, cell.count, checked)}
+                  onClick={() => onToggleCheckin(cell.key)}
+                  className={cn(
+                    "aspect-square w-full rounded-xs cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent-mustard",
+                    LEVEL_CLASS[level],
+                    cell.key === todayKey && "ring-1 ring-inset ring-ink-dim",
+                  )}
+                  style={place}
+                />
+              );
+            }),
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-3 gap-3">
-          <Mono size={10} color="ink-muted" className="truncate">
-            {selected ?? ""}
-          </Mono>
+          <Pixel size={10} color="ink-dim">
+            Click a day to toggle a check-in
+          </Pixel>
           <div className="flex items-center gap-1 shrink-0">
             <Pixel size={10} color="ink-dim">
               Less
             </Pixel>
-            {[0, 1, 2, 4, 7].map((n) => (
+            {LEVEL_CLASS.map((cls) => (
               <span
-                key={n}
-                className={cn(
-                  "inline-block size-3.25 rounded-xs",
-                  bucketClass(n),
-                )}
+                key={cls}
+                className={cn("inline-block size-3.25 rounded-xs", cls)}
               />
             ))}
             <Pixel size={10} color="ink-dim">

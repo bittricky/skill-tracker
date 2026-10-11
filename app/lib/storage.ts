@@ -22,6 +22,17 @@ export interface ProgressEvent {
   synthetic?: true;
 }
 
+/**
+ * A manual habit check-in for one local day. Turning a check-in off keeps
+ * the entry (`on: false`) with a fresh `at`, so merges between devices can
+ * tell "unchecked later" from "never checked".
+ */
+export interface Checkin {
+  on: boolean;
+  at: string;
+}
+export type CheckinMap = Record<string, Checkin>;
+
 export interface StorageData {
   progress: ProgressMap;
   applied: AppliedMap;
@@ -30,14 +41,47 @@ export interface StorageData {
   /** Discipline ids excluded from dashboard rollups (still browsable). */
   hidden: string[];
   events: ProgressEvent[];
+  /** Manual check-ins keyed by local day (`yyyy-mm-dd`). */
+  checkins: CheckinMap;
+  /** Last local modification; decides `pinned`/`hidden` on merge. */
+  updatedAt?: string;
 }
 
 export const MAX_PINNED = 3;
 export const MAX_EVENTS = 10_000;
 export const STORAGE_KEY = "skill-tracker:v3";
 
-function emptyStorage(): StorageData {
-  return { progress: {}, applied: {}, pinned: [], hidden: [], events: [] };
+export function emptyStorage(): StorageData {
+  return {
+    progress: {},
+    applied: {},
+    pinned: [],
+    hidden: [],
+    events: [],
+    checkins: {},
+  };
+}
+
+const DAY_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function localDayKey(d: Date): string {
+  const m = `${d.getMonth() + 1}`.padStart(2, "0");
+  const day = `${d.getDate()}`.padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+/** Latest day a check-in may be recorded for (tomorrow, for TZ slack). */
+function maxCheckinDay(now: Date = new Date()): string {
+  const d = new Date(now);
+  d.setDate(d.getDate() + 1);
+  return localDayKey(d);
+}
+
+/** Days whose most recent check-in is on. */
+export function activeCheckinDays(checkins: CheckinMap): Set<string> {
+  const out = new Set<string>();
+  for (const [day, c] of Object.entries(checkins)) if (c.on) out.add(day);
+  return out;
 }
 
 function safeRead(key: string): unknown | null {
@@ -120,7 +164,31 @@ export function normalizeStorage(raw: unknown): StorageData {
     })
     .sort((a, b) => a.at.localeCompare(b.at));
 
-  return { progress, applied, pinned, hidden, events };
+  const checkins: CheckinMap = {};
+  if (isRecord(obj.checkins)) {
+    const maxDay = maxCheckinDay();
+    for (const [day, c] of Object.entries(obj.checkins)) {
+      if (!DAY_KEY_RE.test(day) || day > maxDay || !isRecord(c)) continue;
+      if (typeof c.on !== "boolean" || typeof c.at !== "string") continue;
+      if (Number.isNaN(new Date(c.at).getTime())) continue;
+      checkins[day] = { on: c.on, at: c.at };
+    }
+  }
+
+  const out: StorageData = {
+    progress,
+    applied,
+    pinned,
+    hidden,
+    events: capEvents(events),
+    checkins,
+  };
+  if (
+    typeof obj.updatedAt === "string" &&
+    !Number.isNaN(new Date(obj.updatedAt).getTime())
+  )
+    out.updatedAt = obj.updatedAt;
+  return out;
 }
 
 /** Seed a timeline for state that predates the event log. */
@@ -138,8 +206,19 @@ function synthesizeEvents(
   return out;
 }
 
+/** Keys from removed features (custom catalogue, Gist sync). */
+const RETIRED_KEYS = [
+  "skill-tracker:custom-disciplines",
+  "skill-tracker:gist-sync",
+];
+
 export function loadStorage(): StorageData {
   if (typeof window === "undefined") return emptyStorage();
+  try {
+    for (const k of RETIRED_KEYS) window.localStorage.removeItem(k);
+  } catch {
+    /* storage unavailable — nothing to clean */
+  }
 
   const v3 = safeRead(STORAGE_KEY);
   if (v3 && typeof v3 === "object") return normalizeStorage(v3);
@@ -181,14 +260,12 @@ export function saveStorage(data: StorageData): boolean {
 }
 
 /**
- * Pure append with a cap: past MAX_EVENTS, drop the oldest synthetic events
+ * Cap a sorted event list at MAX_EVENTS: drop the oldest synthetic events
  * first, then the oldest real ones.
  */
-export function appendEvent(data: StorageData, ev: ProgressEvent): StorageData {
-  const events = [...data.events, ev];
-  if (events.length <= MAX_EVENTS) return { ...data, events };
-  const overflow = events.length - MAX_EVENTS;
-  let toDrop = overflow;
+export function capEvents(events: ProgressEvent[]): ProgressEvent[] {
+  if (events.length <= MAX_EVENTS) return events;
+  let toDrop = events.length - MAX_EVENTS;
   const kept = events.filter((e) => {
     if (toDrop > 0 && e.synthetic) {
       toDrop--;
@@ -196,11 +273,93 @@ export function appendEvent(data: StorageData, ev: ProgressEvent): StorageData {
     }
     return true;
   });
-  while (toDrop > 0) {
-    kept.shift();
-    toDrop--;
+  return toDrop > 0 ? kept.slice(toDrop) : kept;
+}
+
+/** Pure append with the MAX_EVENTS cap. */
+export function appendEvent(data: StorageData, ev: ProgressEvent): StorageData {
+  return { ...data, events: capEvents([...data.events, ev]) };
+}
+
+const eventKey = (e: ProgressEvent) =>
+  `${e.kind}|${e.id}|${e.at}|${String(e.to)}`;
+
+const later = (x?: string, y?: string) => (!x ? y : !y ? x : x >= y ? x : y);
+
+/**
+ * Merge two snapshots (devices, server copy, imported backup) without
+ * losing either side's changes:
+ *   - events: union (deduped), sorted, capped
+ *   - progress/applied: per skill, the latest event in the merged history
+ *     decides; skills with no events keep `a`'s value, else `b`'s
+ *   - checkins: per day, the later `at` wins (so "unchecked" survives)
+ *   - pinned/hidden: from the side with the newer `updatedAt` (ties → `a`)
+ * Commutative for everything except tie-breaks, and idempotent.
+ */
+export function mergeStorage(a: StorageData, b: StorageData): StorageData {
+  const byKey = new Map<string, ProgressEvent>();
+  for (const e of [...a.events, ...b.events]) {
+    const k = eventKey(e);
+    const cur = byKey.get(k);
+    // Prefer the real copy when one side has a synthetic duplicate.
+    if (!cur || (cur.synthetic && !e.synthetic)) byKey.set(k, e);
   }
-  return { ...data, events: kept };
+  const events = capEvents(
+    [...byKey.values()].sort((x, y) => x.at.localeCompare(y.at)),
+  );
+
+  const lastStatus = new Map<string, ProgressEvent>();
+  const lastApplied = new Map<string, ProgressEvent>();
+  for (const e of events) {
+    if (e.kind === "status") lastStatus.set(e.id, e);
+    else if (e.kind === "applied") lastApplied.set(e.id, e);
+  }
+
+  const progress: ProgressMap = {};
+  for (const id of new Set([
+    ...Object.keys(a.progress),
+    ...Object.keys(b.progress),
+    ...lastStatus.keys(),
+  ])) {
+    const ev = lastStatus.get(id);
+    const st = ev ? (ev.to as Status) : (a.progress[id] ?? b.progress[id]);
+    if (st && st !== "untouched") progress[id] = st;
+  }
+
+  const applied: AppliedMap = {};
+  for (const id of new Set([
+    ...Object.keys(a.applied),
+    ...Object.keys(b.applied),
+    ...lastApplied.keys(),
+  ])) {
+    const ev = lastApplied.get(id);
+    const on = ev ? ev.to === true : !!(a.applied[id] ?? b.applied[id]);
+    if (on) applied[id] = true;
+  }
+
+  const checkins: CheckinMap = { ...b.checkins };
+  for (const [day, c] of Object.entries(a.checkins)) {
+    const o = checkins[day];
+    if (!o || c.at >= o.at) checkins[day] = c;
+  }
+
+  const newer = (b.updatedAt ?? "") > (a.updatedAt ?? "") ? b : a;
+  const out: StorageData = {
+    progress,
+    applied,
+    pinned: [...newer.pinned],
+    hidden: [...newer.hidden],
+    events,
+    checkins,
+  };
+  const updatedAt = later(a.updatedAt, b.updatedAt);
+  if (updatedAt) out.updatedAt = updatedAt;
+  return out;
+}
+
+/** Structural equality of two snapshots (cheap enough at this size). */
+export function sameStorage(a: StorageData, b: StorageData): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 export const STATUS_CYCLE: Status[] = [
@@ -210,41 +369,3 @@ export const STATUS_CYCLE: Status[] = [
   "skipped",
 ];
 
-export interface StatusConfig {
-  label: string;
-  color: string;
-  bg: string;
-  ring: string;
-  filled: boolean;
-}
-
-export const STATUS: Record<Status, StatusConfig> = {
-  untouched: {
-    label: "Not started",
-    color: "#fbbf24",
-    bg: "transparent",
-    ring: "#f59e0b",
-    filled: false,
-  },
-  learning: {
-    label: "In progress",
-    color: "#a855f7",
-    bg: "#a855f710",
-    ring: "#a855f7",
-    filled: false,
-  },
-  done: {
-    label: "Done",
-    color: "#4ade80",
-    bg: "#4ade8010",
-    ring: "#4ade80",
-    filled: true,
-  },
-  skipped: {
-    label: "Skipped",
-    color: "#f87171",
-    bg: "#f8717110",
-    ring: "#ef4444",
-    filled: false,
-  },
-};

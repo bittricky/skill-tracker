@@ -71,39 +71,9 @@ export interface GeneratedPayload {
   disciplines: Discipline[];
 }
 
-/** LocalStorage key for a user-authored discipline catalogue override. */
-export const CUSTOM_DISCIPLINES_KEY = "skill-tracker:custom-disciplines";
-
-/**
- * Read a custom discipline payload from localStorage (client only). Users
- * can import their own catalogue via the Settings modal to repurpose the
- * tracker for any skill-based domain. Returns null on SSR, missing data,
- * or malformed JSON.
- */
-function loadCustomPayload(): GeneratedPayload | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(CUSTOM_DISCIPLINES_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as GeneratedPayload;
-    if (!parsed || !Array.isArray(parsed.disciplines)) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-export const BUILT_IN_PAYLOAD = generated as unknown as GeneratedPayload;
-const customPayload = loadCustomPayload();
-const payload = customPayload ?? BUILT_IN_PAYLOAD;
-
-/** True when the loaded payload came from a user-imported catalogue. */
-export const IS_CUSTOM_CATALOGUE: boolean = customPayload !== null;
+const payload = generated as unknown as GeneratedPayload;
 
 export const DISCIPLINES: Discipline[] = payload.disciplines;
-export const GENERATED_AT: string = payload.generatedAt;
-export const UPSTREAM_COMMIT: string | undefined = payload.upstreamCommit;
-export const UPSTREAM_REPO: string | undefined = payload.upstreamRepo;
 
 export const DISCIPLINE_BY_ID: Record<string, Discipline> = Object.fromEntries(
   DISCIPLINES.map((d) => [d.id, d]),

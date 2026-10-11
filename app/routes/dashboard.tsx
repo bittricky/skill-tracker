@@ -32,10 +32,14 @@ export default function Dashboard() {
     pinned,
     hidden,
     events,
+    checkins,
     loaded,
     saveError,
+    syncStatus,
     togglePinned,
-    setHidden,
+    toggleCheckin,
+    importData,
+    exportBackup,
   } = useProgress();
 
   // A skill counts when ANY discipline it appears in is still visible.
@@ -80,16 +84,16 @@ export default function Dashboard() {
     <div className="min-h-screen p-3 sm:p-5">
       <div className="max-w-7xl mx-auto">
         <HeaderBar
-          hidden={hidden}
-          onSetHidden={setHidden}
           saveError={saveError}
+          syncStatus={syncStatus}
+          onExport={exportBackup}
+          onImport={importData}
         />
 
         {allHidden ? (
           <div className="py-20 text-center">
             <Pixel size={13} color="ink-muted">
-              All disciplines are hidden — show some from the Browser or
-              Settings.
+              All disciplines are hidden — show some from the Browser.
             </Pixel>
           </div>
         ) : (
@@ -101,13 +105,23 @@ export default function Dashboard() {
               events={events}
               onUnpin={togglePinned}
             />
-            <StatRow stats={stats} events={events} filter={filter} />
+            <StatRow
+              stats={stats}
+              events={events}
+              checkins={checkins}
+              filter={filter}
+            />
             <SkillMatrix
               progress={progress}
               applied={applied}
               hidden={hidden}
             />
-            <ActivityHeatmap events={events} filter={filter} />
+            <ActivityHeatmap
+              events={events}
+              checkins={checkins}
+              onToggleCheckin={toggleCheckin}
+              filter={filter}
+            />
             <RecentActivity events={events} filter={filter} />
           </div>
         )}

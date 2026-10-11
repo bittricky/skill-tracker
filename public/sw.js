@@ -9,7 +9,7 @@
  *   - Same-origin static assets (JS/CSS/fonts/images):
  *       stale-while-revalidate. Always returns cached bytes instantly when
  *       available, then refreshes the cache in the background.
- *   - Cross-origin requests:
+ *   - Cross-origin requests and same-origin `/api/*`:
  *       passed through untouched (fetch as normal, never cached).
  *
  * Versioning:
@@ -17,7 +17,7 @@
  *   caches. Old versions are cleared in the `activate` event.
  */
 
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const SHELL_CACHE = `skill-tracker-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `skill-tracker-runtime-${CACHE_VERSION}`;
 
@@ -83,6 +83,9 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
   const sameOrigin = url.origin === self.location.origin;
+
+  // Backup API: always hit the network, never cache.
+  if (sameOrigin && url.pathname.startsWith("/api/")) return;
 
   // Navigations: network-first, fall back to cached shell (/) for offline.
   if (req.mode === "navigate") {

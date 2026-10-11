@@ -65,24 +65,4 @@ export function getDepthColor(tier: DepthTier): string {
   return TIER_META[tier].color;
 }
 
-export function getDepthBgColor(tier: DepthTier): string {
-  switch (tier) {
-    case "exploring":
-      return "rgba(232, 117, 85, 0.15)";
-    case "practicing":
-      return "rgba(232, 176, 74, 0.15)";
-    case "fluent":
-      return "rgba(92, 184, 168, 0.15)";
-  }
-}
 
-export function getDepthBorderColor(tier: DepthTier): string {
-  switch (tier) {
-    case "exploring":
-      return "rgba(232, 117, 85, 0.3)";
-    case "practicing":
-      return "rgba(232, 176, 74, 0.3)";
-    case "fluent":
-      return "rgba(92, 184, 168, 0.3)";
-  }
-}
