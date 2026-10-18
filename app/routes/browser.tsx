@@ -542,8 +542,6 @@ export default function Browser() {
                         isLast={secIndex === filteredSections.length - 1}
                         currentDisciplineId={activeDiscipline.id}
                         web={WEB_DISCIPLINES.has(activeDiscipline.id)}
-                        onNavigate={handleNavigate}
-                        onRevealSkill={revealSkill}
                         expandedSkillId={expandedSkillId ?? undefined}
                       />
                     ))}

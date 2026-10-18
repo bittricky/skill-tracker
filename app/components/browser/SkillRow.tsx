@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Skill } from "~/data";
-import {
-  DISCIPLINE_BY_ID,
-  SKILL_BY_ID,
-  SKILL_LABEL_BY_ID,
-  SKILL_HOME_DISCIPLINE_BY_ID,
-} from "~/data";
+import { DISCIPLINE_BY_ID, SKILL_BY_ID } from "~/data";
 import { STATUS_CYCLE, type Status } from "~/lib/storage";
 import { ResourceLinks } from "~/components/browser/ResourceLinks";
 import { Tooltip } from "~/components/ui/Tooltip";
@@ -19,9 +14,7 @@ interface SkillRowProps {
   onToggleApplied: () => void;
   currentDisciplineId: string;
   web?: boolean;
-  onNavigate?: (disciplineId: string, skillId?: string) => void;
-  onRevealSkill?: (skillId: string) => boolean;
-  /** Open the row's details externally (deep links, prereq jumps). */
+  /** Open the row's details externally (deep links). */
   forceExpanded?: boolean;
   /** Brief mustard ring when arriving via a deep link. */
   highlighted?: boolean;
@@ -53,8 +46,6 @@ export const STATUS_META: Record<
   },
 };
 
-const MAX_PREREQS = 4;
-
 export function SkillRow({
   skill,
   status,
@@ -63,8 +54,6 @@ export function SkillRow({
   onToggleApplied,
   currentDisciplineId,
   web = false,
-  onNavigate,
-  onRevealSkill,
   forceExpanded = false,
   highlighted = false,
 }: SkillRowProps) {
@@ -89,10 +78,6 @@ export function SkillRow({
         ? "text-ink-muted/60"
         : "text-ink";
 
-  const prereqs = (skill.prerequisites || [])
-    .map((id) => ({ id, label: SKILL_LABEL_BY_ID[id] }))
-    .filter((p): p is { id: string; label: string } => Boolean(p.label));
-
   const isReference = skill.primary === false;
   const homeDiscipline =
     isReference && skill.homeDisciplineId !== currentDisciplineId
@@ -101,8 +86,7 @@ export function SkillRow({
   // Reference rows may carry a stale/empty copy; always read the home record.
   const resources = SKILL_BY_ID[skill.id]?.resources ?? skill.resources ?? [];
 
-  const hasDetails =
-    resources.length > 0 || prereqs.length > 0 || Boolean(homeDiscipline);
+  const hasDetails = resources.length > 0;
 
   return (
     <div
@@ -159,57 +143,6 @@ export function SkillRow({
               </svg>
             )}
           </div>
-
-          {/* Prerequisites */}
-          {prereqs.length > 0 && (
-            <div className="mt-0.5 text-[11px] leading-snug">
-              <span className="text-ink-muted">Builds on:</span>{" "}
-              {prereqs.slice(0, MAX_PREREQS).map((p, i) => (
-                <span key={p.id}>
-                  {i > 0 && <span className="text-ink-muted/50">, </span>}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Try to reveal within the current discipline first; if
-                      // the prereq lives elsewhere, jump to its canonical home.
-                      const revealed = onRevealSkill?.(p.id);
-                      if (!revealed) {
-                        const homeId = SKILL_HOME_DISCIPLINE_BY_ID[p.id];
-                        if (homeId) onNavigate?.(homeId, p.id);
-                      }
-                    }}
-                    className="text-accent-mustard hover:underline bg-transparent border-none p-0 cursor-pointer font-medium"
-                  >
-                    {p.label}
-                  </button>
-                </span>
-              ))}
-              {prereqs.length > MAX_PREREQS && (
-                <span className="text-ink-muted">
-                  {" "}
-                  +{prereqs.length - MAX_PREREQS}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Home discipline for reference skills */}
-          {homeDiscipline && (
-            <div className="mt-0.5 text-[11px] text-ink-muted leading-snug">
-              Tracked in:{" "}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNavigate?.(homeDiscipline.id, skill.id);
-                }}
-                className="text-accent-mustard hover:underline bg-transparent border-none p-0 cursor-pointer font-medium"
-              >
-                {homeDiscipline.label}
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Multi-discipline indicator */}

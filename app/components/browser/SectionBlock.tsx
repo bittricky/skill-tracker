@@ -22,8 +22,6 @@ interface SectionBlockProps {
   isLast: boolean;
   currentDisciplineId: string;
   web?: boolean;
-  onNavigate?: (disciplineId: string, skillId?: string) => void;
-  onRevealSkill?: (skillId: string) => boolean;
   expandedSkillId?: string;
 }
 
@@ -39,8 +37,6 @@ export function SectionBlock({
   isLast,
   currentDisciplineId,
   web,
-  onNavigate,
-  onRevealSkill,
   expandedSkillId,
 }: SectionBlockProps) {
   const [showResources, setShowResources] = useState(false);
@@ -114,8 +110,6 @@ export function SectionBlock({
               onToggleApplied={() => onToggleApplied(item.id)}
               currentDisciplineId={currentDisciplineId}
               web={web}
-              onNavigate={onNavigate}
-              onRevealSkill={onRevealSkill}
               forceExpanded={item.id === expandedSkillId}
               highlighted={item.id === expandedSkillId}
             />
