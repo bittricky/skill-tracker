@@ -1,6 +1,6 @@
 # Skill Tracker
 
-> This is more of a legibility tool than a learning platform.
+> This is more of a [legibility](https://www.youtube.com/shorts/bej9ZXkIyaU) tool than a learning platform.
 
 A personal, offline-first, installable skill progression tracker built on
 top of data collected and organized from [roadmap.sh](https://roadmap.sh)
